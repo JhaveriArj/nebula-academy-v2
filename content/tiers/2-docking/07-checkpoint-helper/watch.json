@@ -1,0 +1,44 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 4400,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "leftDrive": 0.7,
+        "rightDrive": 0.7
+      },
+      "say": "robot.driveForward(2.0)"
+    },
+    {
+      "atMs": 2000,
+      "motors": {
+        "leftDrive": -0.5,
+        "rightDrive": 0.5
+      },
+      "say": "robot.turnLeft()"
+    },
+    {
+      "atMs": 2785,
+      "motors": {
+        "leftDrive": 0.7,
+        "rightDrive": 0.7
+      },
+      "say": "robot.driveForward(1.0)"
+    },
+    {
+      "atMs": 3785,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      },
+      "say": "Three lines, one mission"
+    }
+  ]
+}

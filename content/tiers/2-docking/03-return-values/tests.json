@@ -1,0 +1,29 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "methodExists",
+      "name": "msForCm",
+      "params": 1,
+      "label": "msForCm takes one value"
+    },
+    {
+      "type": "outputContains",
+      "text": "driving for 1500 ms",
+      "label": "The method works out 1500 for 90 cm"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 182.88,
+      "y": 120.48,
+      "tolerance": 12,
+      "label": "The robot finishes 90 cm up the field"
+    }
+  ]
+}

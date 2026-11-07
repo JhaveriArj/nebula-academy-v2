@@ -218,7 +218,7 @@ class Interpreter implements MockContext {
 
   instance(className: string, native?: unknown): JValue {
     const cls = findNativeClass(className);
-    const ref: JObject = { className: cls?.simple ?? className, fields: new Map() };
+    const ref: JObject = { className: cls?.simple ?? className, fields: new Map(), isNative: true };
     if (native !== undefined) ref.native = native;
     return { k: 'obj', ref };
   }
@@ -237,6 +237,7 @@ class Interpreter implements MockContext {
       const ref: JObject = {
         className: key,
         fields: new Map(),
+        isNative: true,
         enumName: constant,
         enumOrdinal: ordinal < 0 ? 0 : ordinal,
       };
@@ -1128,6 +1129,8 @@ class Interpreter implements MockContext {
   }
 
   private fieldType(className: string, field: string): string {
+    const nativeFirst = this.findNativeFieldFor(className, field);
+    if (nativeFirst && findNativeClass(className)) return nativeFirst.type;
     let cur: ClassInfo | undefined = this.classes.get(className);
     const seen = new Set<string>();
     while (cur && !seen.has(cur.name)) {
@@ -1351,8 +1354,9 @@ class Interpreter implements MockContext {
 
     const obj = target.ref;
 
-    // A user class instance.
-    const userCls = this.classes.get(obj.className);
+    // A user class instance. An SDK object is never one, even when a kid has a class
+    // of the same name.
+    const userCls = obj.isNative ? undefined : this.classes.get(obj.className);
     if (userCls) {
       const cands = this.userMethodCandidates(userCls, expr.name).filter((c) => c.decl.body);
       const chosen = pickOverload(

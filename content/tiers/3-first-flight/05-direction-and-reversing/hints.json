@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The two lines go in init, because this is setting up and happens once.",
+    "The method is setDirection, and the value you hand it lives on DcMotor.Direction.",
+    "The lines are frontRight.setDirection(DcMotor.Direction.REVERSE); and backRight.setDirection(DcMotor.Direction.REVERSE);"
+  ]
+}

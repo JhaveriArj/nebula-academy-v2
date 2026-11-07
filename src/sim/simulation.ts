@@ -45,6 +45,14 @@ export interface MotorState {
   power: number;
   /** setDirection(REVERSE) flips both the commanded power and the encoder. */
   reversed: boolean;
+  /** True for the mecanum robot's right-hand motors, which are bolted on mirrored.
+
+      This is why setDirection(REVERSE) exists on a real robot, and Tier 3 lesson 05
+      is about it: without reversing the right side, four positive powers make the
+      robot spin rather than drive. The tank robot used by Tiers 0-2 is deliberately
+      left un-mirrored, because its drivetrain wiring is locked boilerplate there and
+      is not the subject. See docs/ARCHITECTURE.md. */
+  mountInverted: boolean;
   mode: RunMode;
   zeroPower: ZeroPowerBehavior;
   ticks: number;
@@ -155,7 +163,9 @@ export class Simulation {
     this.elements = opts.withElements === false ? [] : startingElements();
 
     const names = this.kind === 'tank' ? TANK_MOTORS : MECANUM_MOTORS;
-    for (const n of names) this.motors.set(n, newMotor());
+    for (const n of names) {
+      this.motors.set(n, newMotor(this.kind === 'mecanum' && (n === 'frontRight' || n === 'backRight')));
+    }
     this.motors.set('armMotor', newMotor());
     this.servos.set('clawServo', { position: 0, min: 0, max: 1, continuousPower: 0 });
     this.trail.push({ x: this.pose.x, y: this.pose.y });
@@ -328,7 +338,9 @@ export class Simulation {
         const error = m.targetTicks - m.ticks;
         p = Math.abs(error) < 10 ? 0 : Math.sign(error) * Math.abs(m.power);
       }
-      return (m.reversed ? -p : p) * maxWheelCmS;
+      if (m.reversed) p = -p;
+      if (m.mountInverted) p = -p;
+      return p * maxWheelCmS;
     };
 
     let vForward = 0;
@@ -413,8 +425,10 @@ export class Simulation {
     const m = this.motors.get(name);
     if (!m) return;
     const travelled = wheelCmS * dt;
-    // The encoder reads in the motor's own frame, so REVERSE flips it back.
-    m.ticks += travelled * TICKS_PER_CM * (m.reversed ? -1 : 1);
+    // The encoder counts in the motor's own frame, so both the REVERSE flag and the
+    // mirrored mounting have to be undone to get back to what the motor itself turned.
+    const toMotorFrame = (m.reversed ? -1 : 1) * (m.mountInverted ? -1 : 1);
+    m.ticks += travelled * TICKS_PER_CM * toMotorFrame;
   }
 
   isBusy(name: string): boolean {
@@ -459,7 +473,13 @@ export class Simulation {
       motors: Object.fromEntries(
         [...this.motors].map(([n, m]) => [
           n,
-          { power: m.power, ticks: Math.round(m.ticks), mode: m.mode, peakAbsPower: m.peakAbsPower },
+          {
+            power: m.power,
+            ticks: Math.round(m.ticks),
+            mode: m.mode,
+            reversed: m.reversed,
+            peakAbsPower: m.peakAbsPower,
+          },
         ]),
       ),
       servos: Object.fromEntries([...this.servos].map(([n, s]) => [n, s.position])),
@@ -473,10 +493,11 @@ export class Simulation {
 
 export type SimSnapshot = ReturnType<Simulation['snapshot']>;
 
-function newMotor(): MotorState {
+function newMotor(mountInverted = false): MotorState {
   return {
     power: 0,
     reversed: false,
+    mountInverted,
     mode: 'RUN_WITHOUT_ENCODER',
     zeroPower: 'BRAKE',
     ticks: 0,

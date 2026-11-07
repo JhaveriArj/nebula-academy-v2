@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Reading the stick belongs in loop, because the driver keeps moving it.",
+    "The first line is a double made from gamepad1.left_stick_y, and it needs a minus sign in front because forward is negative.",
+    "double drive = -gamepad1.left_stick_y; then four lines giving each motor setPower(drive)."
+  ]
+}

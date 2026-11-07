@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Zeroing a counter happens once, so it belongs in init. Counting happens every pass, so it belongs in loop.",
+    "In init: loops = 0; In loop: loops++; then an if that compares loops against 50.",
+    "The if is if (loops == 50) { System.out.println(\"50 loops\"); } with two equals signs, because one would try to store a value."
+  ]
+}

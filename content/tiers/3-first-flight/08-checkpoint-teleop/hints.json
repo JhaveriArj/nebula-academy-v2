@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Four setPower lines, and the signs for each one are written out in the TODO comment.",
+    "The arm is armMotor.setPower(gamepad1.right_trigger - gamepad1.left_trigger); because the triggers give 0.0 to 1.0.",
+    "The claw is if (gamepad1.a) { clawServo.setPosition(1.0); } else if (gamepad1.b) { clawServo.setPosition(0.0); } and telemetry needs addData for each of drive, strafe and turn, then update()."
+  ]
+}

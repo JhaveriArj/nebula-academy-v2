@@ -1,0 +1,33 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp(name = "Direction And Reversing", group = "Nebula")
+public class DirectionAndReversing extends OpMode {
+
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+
+    @Override
+    public void init() {
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = hardwareMap.get(DcMotor.class, "backRight");
+
+        // TODO 1: reverse frontRight and backRight so the right side
+        //         pulls the same way as the left.
+    }
+
+    @Override
+    public void loop() {
+        frontLeft.setPower(0.5);
+        frontRight.setPower(0.5);
+        backLeft.setPower(0.5);
+        backRight.setPower(0.5);
+    }
+}

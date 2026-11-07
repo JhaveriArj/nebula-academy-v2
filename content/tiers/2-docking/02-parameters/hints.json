@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The parameter goes inside the round brackets of the method name, and it needs a kind as well as a name.",
+    "The first line is private void driveForward(double seconds) { and inside it the sleep uses seconds instead of a fixed number.",
+    "The sleep line is sleep((long) (seconds * 1000)); and the three calls are driveForward(1.0); driveForward(0.5); driveForward(1.5);"
+  ]
+}

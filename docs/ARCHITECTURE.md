@@ -176,6 +176,27 @@ scripts/            new-lesson, gen-stubs, gen-coverage, check-contrast
 CLAUDE.md. A lint rule fails the build if anything under `content/` is a `.ts` file or if
 anything in `src/` hardcodes a lesson id.
 
+### Drivetrain fidelity: the mirrored right side
+
+On a real mecanum robot the right-hand motors are bolted on mirrored, so four positive
+powers make it spin rather than drive. Teams fix that with two lines in `init()`:
+
+```java
+frontRight.setDirection(DcMotor.Direction.REVERSE);
+backRight.setDirection(DcMotor.Direction.REVERSE);
+```
+
+The sim models this: `frontRight` and `backRight` carry a `mountInverted` flag, and
+without reversing them the robot spins exactly as it would on the field. That is what
+makes Tier 3 lesson 05 a real lesson rather than a description of something the simulator
+pretends not to need, and it keeps Tier 3+ code paste-compatible with Android Studio.
+
+The tank robot used by Tiers 0-2 is deliberately **not** mirrored. Its drivetrain setup is
+locked boilerplate in those tiers and is not the subject of any lesson there, so adding a
+reversal a nine-year-old is told to ignore would cost confusion and buy nothing. The
+inconsistency is a deliberate teaching simplification, confined to the training robot, and
+it ends the moment the lessons start talking about hardware.
+
 ### Determinism
 
 The sim steps at a fixed **20 ms (50 Hz)** and never reads wall-clock time. `ElapsedTime` and

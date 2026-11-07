@@ -1,0 +1,58 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 4000,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "leftDrive": 0.7,
+        "rightDrive": 0.7
+      },
+      "say": "driveForward(1.0)"
+    },
+    {
+      "atMs": 1000,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      }
+    },
+    {
+      "atMs": 1300,
+      "motors": {
+        "leftDrive": 0.7,
+        "rightDrive": 0.7
+      },
+      "say": "driveForward(0.5)"
+    },
+    {
+      "atMs": 1800,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      }
+    },
+    {
+      "atMs": 2100,
+      "motors": {
+        "leftDrive": 0.7,
+        "rightDrive": 0.7
+      },
+      "say": "driveForward(1.5)"
+    },
+    {
+      "atMs": 3600,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      },
+      "say": "One method, three sizes"
+    }
+  ]
+}

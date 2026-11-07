@@ -1,0 +1,50 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 3400,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": 1,
+        "frontRight": -1,
+        "backLeft": 1,
+        "backRight": -1
+      },
+      "say": "Forward"
+    },
+    {
+      "atMs": 1000,
+      "motors": {
+        "frontLeft": 1,
+        "frontRight": 1,
+        "backLeft": -1,
+        "backRight": -1
+      },
+      "say": "Sideways, no turning"
+    },
+    {
+      "atMs": 2000,
+      "motors": {
+        "frontLeft": 1,
+        "frontRight": 1,
+        "backLeft": 1,
+        "backRight": 1
+      },
+      "say": "Spin on the spot"
+    },
+    {
+      "atMs": 2600,
+      "motors": {},
+      "servos": {
+        "clawServo": 1.0
+      },
+      "say": "Arm and claw"
+    }
+  ]
+}

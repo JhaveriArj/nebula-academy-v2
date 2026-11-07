@@ -1,0 +1,60 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "classExists",
+      "name": "Robot",
+      "label": "There is a class called Robot"
+    },
+    {
+      "type": "methodExists",
+      "name": "driveForward",
+      "params": 1,
+      "className": "Robot",
+      "label": "Robot has driveForward(seconds)"
+    },
+    {
+      "type": "methodExists",
+      "name": "turnLeft",
+      "params": 0,
+      "className": "Robot",
+      "label": "Robot has turnLeft()"
+    },
+    {
+      "type": "methodExists",
+      "name": "turnRight",
+      "params": 0,
+      "className": "Robot",
+      "label": "Robot has turnRight()"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 150,
+      "label": "The robot drives both legs of the mission"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 90,
+      "tolerance": 15,
+      "label": "It ends up facing 90 degrees after the left turn"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 112.88,
+      "y": 170.48,
+      "tolerance": 25,
+      "label": "It finishes up the field and to the left"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 30000,
+      "label": "The whole mission finishes in under 30 seconds"
+    }
+  ]
+}

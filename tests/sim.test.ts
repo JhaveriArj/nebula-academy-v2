@@ -3,7 +3,15 @@ import { Simulation, TICKS_PER_CM, normalizeDeg } from '../src/sim/simulation';
 import { FIELD_CM, ROBOT_HALF, TILE_CM } from '../src/sim/field';
 
 const tank = () => new Simulation({ robot: 'tank', start: { x: 182.88, y: 30.48, headingDeg: 0 } });
-const mec = () => new Simulation({ robot: 'mecanum', start: { x: 182.88, y: 182.88, headingDeg: 0 } });
+/* The mecanum robot's right-hand motors are mounted mirrored, exactly as on a real
+   robot, so every test that drives it reverses that side first — which is precisely
+   what the two setDirection(REVERSE) lines in Tier 3 lesson 05 are for. */
+const mec = () => {
+  const s = new Simulation({ robot: 'mecanum', start: { x: 182.88, y: 182.88, headingDeg: 0 } });
+  s.motor('frontRight')!.reversed = true;
+  s.motor('backRight')!.reversed = true;
+  return s;
+};
 
 describe('tank drivetrain', () => {
   it('drives 100 cm in one second at full power, which is the number lessons quote', () => {
@@ -49,6 +57,14 @@ describe('tank drivetrain', () => {
 });
 
 describe('mecanum drivetrain', () => {
+  it('spins instead of driving when the right side is not reversed, as a real robot does', () => {
+    const raw = new Simulation({ robot: 'mecanum', start: { x: 182.88, y: 182.88, headingDeg: 0 } });
+    for (const m of ['frontLeft', 'frontRight', 'backLeft', 'backRight']) raw.setMotorPower(m, 1);
+    raw.advance(300);
+    expect(Math.abs(raw.headingChangeDeg)).toBeGreaterThan(10);
+    expect(raw.distanceTravelledCm).toBeLessThan(2);
+  });
+
   it('drives forward with all four wheels positive', () => {
     const s = mec();
     for (const m of ['frontLeft', 'frontRight', 'backLeft', 'backRight']) s.setMotorPower(m, 1);
@@ -174,6 +190,8 @@ describe('the field holds the robot', () => {
 
   it('pushes a game element rather than passing through it', () => {
     const s = new Simulation({ robot: 'mecanum', start: { x: 121.92, y: 60, headingDeg: 0 } });
+    s.motor('frontRight')!.reversed = true;
+    s.motor('backRight')!.reversed = true;
     const before = s.elements[0]!.y;
     for (const m of ['frontLeft', 'frontRight', 'backLeft', 'backRight']) s.setMotorPower(m, 1);
     s.advance(1000);

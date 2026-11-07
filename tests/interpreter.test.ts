@@ -263,6 +263,10 @@ public class NebulaDrive extends OpMode {
         backRight = hardwareMap.get(DcMotor.class, "backRight");
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
+
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
         telemetry.addData("status", "ready");
         telemetry.update();
     }
@@ -344,6 +348,9 @@ public class Wall extends LinearOpMode {
         DcMotor backRight = hardwareMap.get(DcMotor.class, "backRight");
         DistanceSensor distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
+
         waitForStart();
 
         while (opModeIsActive() && distanceSensor.getDistance(DistanceUnit.CM) > 20) {
@@ -384,6 +391,9 @@ public class Turn extends LinearOpMode {
         DcMotor backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         DcMotor backRight = hardwareMap.get(DcMotor.class, "backRight");
         IMU imu = hardwareMap.get(IMU.class, "imu");
+
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
         imu.resetYaw();

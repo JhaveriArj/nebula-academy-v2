@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "One line, inside loop, naming one motor.",
+    "The shape is motorName.setPower(number); with the number between -1.0 and 1.0.",
+    "The line is frontLeft.setPower(0.5); and nothing else changes."
+  ]
+}

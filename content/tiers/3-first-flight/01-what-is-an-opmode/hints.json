@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "init happens once and loop happens over and over. One TODO belongs in each.",
+    "Printing is System.out.println(\"Nebula ready\"); and it goes inside init.",
+    "Adding one to a variable is loops++; and it goes inside loop. The counting only works because loops is a field."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The method goes between the closing brace of runOpMode and the last brace of the file. Its first line is private void driveOneSide() {",
+    "Inside the method go the ten driving lines: forward at 0.6 for 1000, stop, then -0.5 and 0.5 for 785, stop.",
+    "Then inside runOpMode, write driveOneSide(); on four lines. The round brackets and the semicolon are both needed."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 2000,
+  "checks": [
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 80,
+      "label": "The robot drives at least 80 cm"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 12,
+      "label": "It is still facing the way it started, so it drove straight"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 182.88,
+      "y": 211.44,
+      "tolerance": 25,
+      "label": "It finishes straight up the field"
+    }
+  ]
+}

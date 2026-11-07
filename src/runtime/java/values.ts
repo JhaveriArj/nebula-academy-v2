@@ -5,6 +5,13 @@
 export interface JObject {
   className: string;
   fields: Map<string, JValue>;
+  /** True when this came from the mocked SDK rather than a class in the kid's file.
+
+      Real javac resolves an inherited field's type where the field is declared, so a
+      kid's own `class Telemetry` never changes what `telemetry` is. Without this flag
+      the interpreter looked the simple name up in the user's class table first and
+      reported `cannot find symbol` for `telemetry.addData` on perfectly good code. */
+  isNative?: boolean;
   /** Backing object for a mocked SDK class. See src/ftc-mock/. */
   native?: unknown;
   /** Set for enum constants. */

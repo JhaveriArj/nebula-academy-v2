@@ -1,0 +1,17 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 1000,
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "frontLeft ready",
+      "label": "frontLeft was found and answered to its name"
+    }
+  ]
+}

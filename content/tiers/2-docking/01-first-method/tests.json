@@ -1,0 +1,36 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "methodExists",
+      "name": "driveOneSide",
+      "params": 0,
+      "label": "There is a method called driveOneSide"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 200,
+      "label": "Calling it four times drives the whole square"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 360,
+      "tolerance": 30,
+      "relative": true,
+      "label": "Four corners, one full turn in total"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 182.88,
+      "y": 30.48,
+      "tolerance": 30,
+      "label": "It finishes back where it started"
+    }
+  ]
+}

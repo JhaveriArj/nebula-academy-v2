@@ -18,6 +18,15 @@ import { typeKey } from './interpreter';
 
 const UNKNOWN = '?';
 
+/* A type that came from a mocked SDK declaration is marked, because real javac resolves
+   an inherited field's type where the field is declared. Without this, a kid's own
+   `class Telemetry` shadowed the SDK interface and `telemetry.addData` was reported as
+   `cannot find symbol` on correct code. */
+const NATIVE_PREFIX = '!';
+const native = (t: string) => (t === UNKNOWN ? t : NATIVE_PREFIX + t);
+const isNativeType = (t: string) => t.startsWith(NATIVE_PREFIX);
+const bare = (t: string) => (isNativeType(t) ? t.slice(1) : t);
+
 const BUILTIN_TYPES = new Set([
   'String', 'Object', 'CharSequence', 'Class', 'Integer', 'Double', 'Boolean',
   'Character', 'Long', 'Float', 'Number', 'Math', 'System', 'Exception',
@@ -120,7 +129,7 @@ class Checker {
       }
     }
     // Fields inherited from the mocked SDK: hardwareMap, telemetry, gamepad1, gamepad2.
-    for (const f of this.inheritedNativeFields(t)) instance.vars.set(f.name, f.type);
+    for (const f of this.inheritedNativeFields(t)) instance.vars.set(f.name, native(f.type));
 
     for (const f of t.fields) {
       this.checkTypeRef(f.type, where);
@@ -251,7 +260,7 @@ class Checker {
         this.infer(s.value, scope, cls);
         return;
       case 'switch': {
-        const subject = this.infer(s.subject, scope, cls);
+        const subject = bare(this.infer(s.subject, scope, cls));
         const inner: Scope = { vars: new Map(), parent: scope };
         // `case DRIVE:` names an enum constant, not a variable in scope.
         const enumDecl = this.classes.get(subject);
@@ -333,8 +342,8 @@ class Checker {
         return this.infer(e.operand, scope, cls);
 
       case 'binary': {
-        const a = this.infer(e.left, scope, cls);
-        const b = this.infer(e.right, scope, cls);
+        const a = bare(this.infer(e.left, scope, cls));
+        const b = bare(this.infer(e.right, scope, cls));
         if (['==', '!=', '<', '>', '<=', '>=', '&&', '||'].includes(e.op)) return 'boolean';
         if (e.op === '+' && (a === 'String' || b === 'String')) return 'String';
         return promoteStatic(a, b);
@@ -348,7 +357,7 @@ class Checker {
       }
 
       case 'index': {
-        const t = this.infer(e.target, scope, cls);
+        const t = bare(this.infer(e.target, scope, cls));
         this.infer(e.index, scope, cls);
         return t.endsWith('[]') ? t.slice(0, -2) : UNKNOWN;
       }
@@ -379,7 +388,7 @@ class Checker {
 
   private inferField(e: A.FieldAccess, scope: Scope, cls: A.TypeDecl): string {
     if (e.name === 'length') {
-      const t = this.infer(e.target, scope, cls);
+      const t = bare(this.infer(e.target, scope, cls));
       if (t.endsWith('[]')) return 'int';
       if (t === UNKNOWN) return UNKNOWN;
     }
@@ -414,17 +423,17 @@ class Checker {
     }
 
     const targetType = this.infer(e.target, scope, cls);
-    if (targetType === UNKNOWN) return UNKNOWN;
-    if (targetType.endsWith('[]')) return e.name === 'length' ? 'int' : UNKNOWN;
+    if (bare(targetType) === UNKNOWN) return UNKNOWN;
+    if (bare(targetType).endsWith('[]')) return e.name === 'length' ? 'int' : UNKNOWN;
 
-    const user = this.classes.get(targetType);
+    const user = isNativeType(targetType) ? undefined : this.classes.get(bare(targetType));
     if (user) {
       for (const c of this.userChain(user)) {
         const f = c.decl.fields.find((x) => x.name === e.name);
         if (f) return typeKey(f.type);
       }
       const inherited = this.inheritedNativeFields(user).find((f) => f.name === e.name);
-      if (inherited) return inherited.type;
+      if (inherited) return native(inherited.type);
       this.report('cant.resolve', 'cannot find symbol', e, {
         symbol: e.name,
         detail: [`  symbol:   variable ${e.name}`, `  location: class ${targetType}`],
@@ -432,14 +441,14 @@ class Checker {
       return UNKNOWN;
     }
 
-    const native = findNativeClass(targetType);
-    if (native) {
-      const f = nativeFields(native).find((x) => x.name === e.name);
-      if (f) return f.type;
-      if (native.enumConstants?.includes(e.name)) return native.simple;
+    const nativeCls = findNativeClass(bare(targetType));
+    if (nativeCls) {
+      const f = nativeFields(nativeCls).find((x) => x.name === e.name);
+      if (f) return native(f.type);
+      if (nativeCls.enumConstants?.includes(e.name)) return native(nativeCls.simple);
       this.report('cant.resolve', 'cannot find symbol', e, {
         symbol: e.name,
-        detail: [`  symbol:   variable ${e.name}`, `  location: class ${native.simple}`],
+        detail: [`  symbol:   variable ${e.name}`, `  location: class ${nativeCls.simple}`],
       });
       return UNKNOWN;
     }
@@ -458,10 +467,10 @@ class Checker {
         if (hits.length) return this.arity(hits, e, c.decl.name);
       }
       // A method inherited from the mocked SDK, e.g. sleep() inside a LinearOpMode.
-      const native = this.nativeAncestor(cls);
-      if (native) {
-        const hits = nativeMethods(native).filter((m) => m.name === e.name);
-        if (hits.length) return hits[0]!.returns;
+      const ancestor = this.nativeAncestor(cls);
+      if (ancestor) {
+        const hits = nativeMethods(ancestor).filter((m) => m.name === e.name);
+        if (hits.length) return native(hits[0]!.returns);
       }
       this.report('cant.resolve', 'cannot find symbol', e, {
         symbol: e.name,
@@ -483,14 +492,14 @@ class Checker {
           return e.name === 'values' ? `${user.name}[]` : user.name;
         }
       }
-      const native = findNativeClass(e.target.name);
-      if (native) {
-        const hits = nativeMethods(native).filter((m) => m.name === e.name);
-        if (hits.length) return hits[0]!.returns;
+      const nativeCls = findNativeClass(e.target.name);
+      if (nativeCls) {
+        const hits = nativeMethods(nativeCls).filter((m) => m.name === e.name);
+        if (hits.length) return native(hits[0]!.returns);
         if (this.isKnownType(e.target.name) && !user) {
           this.report('cant.resolve.method', 'cannot find symbol', e, {
             symbol: e.name,
-            detail: [`  symbol:   method ${e.name}(...)`, `  location: class ${native.simple}`],
+            detail: [`  symbol:   method ${e.name}(...)`, `  location: class ${nativeCls.simple}`],
           });
           return UNKNOWN;
         }
@@ -498,9 +507,9 @@ class Checker {
     }
 
     const targetType = this.infer(e.target, scope, cls);
-    if (targetType === UNKNOWN) return UNKNOWN;
+    if (bare(targetType) === UNKNOWN) return UNKNOWN;
 
-    if (targetType === 'String') {
+    if (bare(targetType) === 'String') {
       const overloads = STRING_METHODS[e.name];
       if (overloads?.length) return overloads[0]!.returns;
       this.report('cant.resolve.method', 'cannot find symbol', e, {
@@ -510,16 +519,16 @@ class Checker {
       return UNKNOWN;
     }
 
-    const user = this.classes.get(targetType);
+    const user = isNativeType(targetType) ? undefined : this.classes.get(bare(targetType));
     if (user) {
       for (const c of this.userChain(user)) {
         const hits = c.decl.methods.filter((m) => m.name === e.name);
         if (hits.length) return this.arity(hits, e, c.decl.name);
       }
-      const native = this.nativeAncestor(user);
-      if (native) {
-        const hits = nativeMethods(native).filter((m) => m.name === e.name);
-        if (hits.length) return hits[0]!.returns;
+      const ancestor = this.nativeAncestor(user);
+      if (ancestor) {
+        const hits = nativeMethods(ancestor).filter((m) => m.name === e.name);
+        if (hits.length) return native(hits[0]!.returns);
       }
       if (user.kind === 'enum' && ['name', 'ordinal', 'toString', 'compareTo', 'equals'].includes(e.name)) {
         return e.name === 'ordinal' || e.name === 'compareTo' ? 'int' : e.name === 'equals' ? 'boolean' : 'String';
@@ -531,14 +540,14 @@ class Checker {
       return UNKNOWN;
     }
 
-    const native = findNativeClass(targetType);
-    if (native) {
-      const hits = nativeMethods(native).filter((m) => m.name === e.name);
-      if (hits.length) return this.arity2(hits, e, native.simple);
-      if (native.enumConstants && ['name', 'ordinal', 'toString', 'equals'].includes(e.name)) return UNKNOWN;
+    const nativeCls = findNativeClass(bare(targetType));
+    if (nativeCls) {
+      const hits = nativeMethods(nativeCls).filter((m) => m.name === e.name);
+      if (hits.length) return native(this.arity2(hits, e, nativeCls.simple));
+      if (nativeCls.enumConstants && ['name', 'ordinal', 'toString', 'equals'].includes(e.name)) return UNKNOWN;
       this.report('cant.resolve.method', 'cannot find symbol', e, {
         symbol: e.name,
-        detail: [`  symbol:   method ${e.name}(...)`, `  location: ${kindWord(native.kind)} ${native.simple}`],
+        detail: [`  symbol:   method ${e.name}(...)`, `  location: ${kindWord(nativeCls.kind)} ${nativeCls.simple}`],
       });
       return UNKNOWN;
     }
@@ -596,7 +605,9 @@ class Checker {
 
   /* ------------------------------------------------------------ assignment */
 
-  private checkAssignable(from: string, to: string, at: A.Span): void {
+  private checkAssignable(rawFrom: string, rawTo: string, at: A.Span): void {
+    const from = bare(rawFrom);
+    const to = bare(rawTo);
     if (from === UNKNOWN || to === UNKNOWN || !to || to === 'var' || to === 'Object') return;
     if (from === to) return;
     if (assignable(from, to)) return;

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "All three lines go at the end of loop, after the motors have been told what to do.",
+    "addData takes a label in quote marks and then the value. addLine takes one piece of text.",
+    "telemetry.addData(\"drive\", drive); then telemetry.addLine(\"Nebula\"); then telemetry.update(); and without that last line nothing shows."
+  ]
+}

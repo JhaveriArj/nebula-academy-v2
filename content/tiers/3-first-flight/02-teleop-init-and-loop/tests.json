@@ -1,0 +1,22 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 2000,
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "50 loops",
+      "label": "The fiftieth pass spoke up"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 5000,
+      "label": "The TeleOp ran for its scheduled time"
+    }
+  ]
+}

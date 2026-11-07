@@ -1,0 +1,26 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 2200,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": 0.5
+      },
+      "say": "One wheel only"
+    },
+    {
+      "atMs": 2000,
+      "motors": {
+        "frontLeft": 0
+      },
+      "say": "It slewed, rather than driving"
+    }
+  ]
+}

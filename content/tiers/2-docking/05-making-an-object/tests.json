@@ -1,0 +1,31 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "classExists",
+      "name": "MissionPlan",
+      "label": "There is a class called MissionPlan"
+    },
+    {
+      "type": "outputContains",
+      "text": "Square",
+      "label": "The square plan's name is printed"
+    },
+    {
+      "type": "outputContains",
+      "text": "Triangle",
+      "label": "The triangle plan's name is printed"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 45,
+      "label": "The robot drives one side of the square"
+    }
+  ]
+}

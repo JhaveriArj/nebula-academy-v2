@@ -1,0 +1,80 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 7600,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "leftDrive": 0.6,
+        "rightDrive": 0.6
+      },
+      "say": "driveOneSide()"
+    },
+    {
+      "atMs": 1000,
+      "motors": {
+        "leftDrive": -0.5,
+        "rightDrive": 0.5
+      }
+    },
+    {
+      "atMs": 1785,
+      "motors": {
+        "leftDrive": 0.6,
+        "rightDrive": 0.6
+      },
+      "say": "driveOneSide()"
+    },
+    {
+      "atMs": 2785,
+      "motors": {
+        "leftDrive": -0.5,
+        "rightDrive": 0.5
+      }
+    },
+    {
+      "atMs": 3570,
+      "motors": {
+        "leftDrive": 0.6,
+        "rightDrive": 0.6
+      },
+      "say": "driveOneSide()"
+    },
+    {
+      "atMs": 4570,
+      "motors": {
+        "leftDrive": -0.5,
+        "rightDrive": 0.5
+      }
+    },
+    {
+      "atMs": 5355,
+      "motors": {
+        "leftDrive": 0.6,
+        "rightDrive": 0.6
+      },
+      "say": "driveOneSide()"
+    },
+    {
+      "atMs": 6355,
+      "motors": {
+        "leftDrive": -0.5,
+        "rightDrive": 0.5
+      }
+    },
+    {
+      "atMs": 7140,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      },
+      "say": "Four calls, one square"
+    }
+  ]
+}

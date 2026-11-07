@@ -1,0 +1,22 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 2000,
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "Nebula ready",
+      "label": "init printed the ready line"
+    },
+    {
+      "type": "outputMatches",
+      "pattern": "loop ran [0-9]{2,} times",
+      "label": "loop ran many times, and loops counted them"
+    }
+  ]
+}

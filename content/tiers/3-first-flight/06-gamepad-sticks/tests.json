@@ -1,0 +1,43 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 2000,
+  "input": [
+    {
+      "atMs": 0,
+      "set": {
+        "left_stick_y": -1.0
+      }
+    },
+    {
+      "atMs": 1500,
+      "set": {
+        "left_stick_y": 0.0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 80,
+      "label": "The robot drives while the stick is forward"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 12,
+      "label": "It drives straight"
+    },
+    {
+      "type": "motorPowerEverExceeded",
+      "motor": "backLeft",
+      "power": 0.8,
+      "label": "All four wheels get the stick's power"
+    }
+  ]
+}

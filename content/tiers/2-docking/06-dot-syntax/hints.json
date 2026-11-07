@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "describe hands back text, so it says String where a void method would say void, and it needs a return.",
+    "Inside Reporter: String describe() { return \"team \" + team; }",
+    "Then the three printing lines are System.out.println(reporter.describe()); then System.out.println(\"Nebula\".toUpperCase()); then System.out.println(\"power was \" + leftDrive.getPower());"
+  ]
+}

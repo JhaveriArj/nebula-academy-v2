@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The fields go inside the curly braces of class MissionPlan, each on its own line, each with a kind, a name and a starting value.",
+    "They look exactly like the variables from Tier 1: String name = \"Square\"; then int sides = 4; then double sideSeconds = 1.0;",
+    "Reach a field with a dot: plan.name. The sleep line is sleep((long) (plan.sideSeconds * 1000));"
+  ]
+}

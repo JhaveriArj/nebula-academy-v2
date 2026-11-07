@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Each line fetches one motor. The shape is in the Learn section, and you need four of them.",
+    "The first is frontLeft = hardwareMap.get(DcMotor.class, \"frontLeft\"); and the other three follow the same pattern.",
+    "Then print with System.out.println(frontLeft.getDeviceName() + \" ready\"); and mind the space before ready."
+  ]
+}

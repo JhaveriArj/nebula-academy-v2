@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "All three methods go inside the Robot class, next to stopMoving. They use left and right, not leftDrive and rightDrive.",
+    "driveForward starts private-free: void driveForward(double seconds) { and waits with opMode.sleep((long) (seconds * 1000));",
+    "turnLeft is left.setPower(-0.5); right.setPower(0.5); opMode.sleep(785); stopMoving(); and turnRight swaps those two powers. Then call them with robot.driveForward(2.0); robot.turnLeft(); robot.driveForward(1.0);"
+  ]
+}
