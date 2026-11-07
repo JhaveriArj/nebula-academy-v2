@@ -1,0 +1,151 @@
+/* Nebula Academy theme. Tokens and rules come from docs/DESIGN.md.
+   Mission control is painted metal in a bright room, watching a dark screen:
+   the chrome is light paint, only the star chart and the console are dark,
+   and --lamp only ever burns on a dark surface. */
+
+:root {
+  /* Six named colors. */
+  --ink:   #141C27;
+  --hull:  #DCE0D8;
+  --seam:  #B6BDB2;
+  --chart: #0E1620;
+  --lamp:  #F0A93B;
+  --go:    #115E55;
+
+  /* Derived. */
+  --ink-mid:  #46505C;
+  --hull-soft:#EDEFEA;
+  --alert:    #A82A15;
+
+  /* Type. */
+  --face-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --face-code: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  /* Builder sizes. Explorer overrides below. */
+  --size-prose: 18px;
+  --size-code: 15px;
+  --size-label: 14px;
+  --size-h1: 28px;
+  --size-h2: 22px;
+  --size-h3: 18px;
+  --lh-prose: 1.6;
+
+  /* Geometry. No shadows, nothing above 3px. */
+  --radius: 3px;
+  --seam-w: 1px;
+  --tap: 44px;
+  --rail: 160px;
+  --rail-narrow: 56px;
+  --console-side: 400px;
+  --reading-max: 60ch;
+
+  /* Spacing, 4px base. */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+}
+
+:root[data-mode='explorer'] {
+  --size-prose: 21px;
+  --size-code: 17px;
+  --size-label: 16px;
+  --size-h1: 32px;
+  --size-h2: 25px;
+  --size-h3: 20px;
+  --lh-prose: 1.65;
+}
+
+/* Independent of mode: a low-vision scale-up. */
+:root[data-bigtype='on'] {
+  --size-prose: 24px;
+  --size-code: 19px;
+  --size-label: 17px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--hull);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--size-prose);
+  line-height: var(--lh-prose);
+}
+
+h1, h2, h3, h4, button, th,
+.display { font-family: var(--face-display); font-weight: 700; }
+
+h1 { font-size: var(--size-h1); line-height: 1.2; margin: 0 0 var(--s4); }
+h2 { font-size: var(--size-h2); line-height: 1.25; margin: var(--s6) 0 var(--s3); }
+h3 { font-size: var(--size-h3); line-height: 1.3; margin: var(--s5) 0 var(--s2); }
+
+p, li { max-width: var(--reading-max); }
+
+code, pre, .code { font-family: var(--face-code); font-size: var(--size-code); }
+
+:where(a) { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+/* Focus is never removed and never only a color change.
+   --ink on paint (12.81:1), --lamp on dark surfaces (9.05:1). */
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 1px;
+}
+.on-dark :focus-visible, .on-dark:focus-visible {
+  outline-color: var(--lamp);
+}
+
+/* Dark working surfaces: the star chart and the console. Only here does amber glow. */
+.on-dark {
+  background: var(--chart);
+  color: var(--hull);
+}
+
+/* Every touchable thing clears 44x44. */
+button, .btn, [role='button'], input, select, summary {
+  min-height: var(--tap);
+  font-family: var(--face-display);
+  font-size: var(--size-label);
+}
+
+button, .btn {
+  min-width: var(--tap);
+  padding: var(--s3) var(--s5);
+  border: var(--seam-w) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--hull-soft);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button[aria-pressed='true'] { background: var(--ink); color: var(--hull); }
+button:disabled { color: var(--ink-mid); border-color: var(--seam); cursor: not-allowed; }
+
+/* Panels are a paint change and one hairline. No cards, no float. */
+.panel { background: var(--hull-soft); border: var(--seam-w) solid var(--seam); border-radius: var(--radius); }
+.seam-t { border-top: var(--seam-w) solid var(--seam); }
+.seam-r { border-right: var(--seam-w) solid var(--seam); }
+
+.muted { color: var(--ink-mid); }
+.pass  { color: var(--go); }
+.fail  { color: var(--alert); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: var(--s4); top: var(--s4); z-index: 100; background: var(--hull-soft); padding: var(--s3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
