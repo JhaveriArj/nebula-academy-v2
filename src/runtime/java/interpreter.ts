@@ -9,6 +9,7 @@ import {
   CompileFailure, ExecutionLimit, JavaRuntimeError, diag,
   type Diagnostic, type JavaThrow,
 } from './diagnostics';
+import { check } from './checker';
 import { Simulation, TICK_MS } from '../../sim/simulation';
 import {
   findNativeClass, nativeExtends, nativeFields, nativeMethods,
@@ -104,6 +105,8 @@ export interface RunResult {
   /** What the entry point was, for the lesson UI. */
   entry: string | null;
   steps: number;
+  /** The line the run stopped on, when it stopped early. */
+  stopLine: number;
 }
 
 const DEFAULTS = {
@@ -116,9 +119,18 @@ const DEFAULTS = {
 export function runJava(source: string, options: RunOptions = {}): RunResult {
   const sim = options.sim ?? new Simulation();
   const { unit, diagnostics } = parse(source);
-  if (diagnostics.some((d) => d.severity === 'error')) {
-    return { ok: false, diagnostics, thrown: null, stopReason: 'finished', sim, entry: null, steps: 0 };
-  }
+  const bail = (ds: Diagnostic[]): RunResult => ({
+    ok: false, diagnostics: ds, thrown: null, stopReason: 'finished', sim, entry: null, steps: 0,
+    stopLine: ds[0]?.line ?? 1,
+  });
+
+  if (diagnostics.some((d) => d.severity === 'error')) return bail(diagnostics);
+
+  // Resolve names and types before running anything, as javac does. Tier 0 lessons 02
+  // and 03 depend on a misspelling being reported instead of half-executed.
+  const semantic = check(unit);
+  if (semantic.length) return bail([...diagnostics, ...semantic]);
+
   const interp = new Interpreter(unit, sim, options);
   return interp.run(diagnostics);
 }
@@ -141,6 +153,9 @@ class Interpreter implements MockContext {
   private limits: typeof DEFAULTS;
   private stopRequested = false;
   private hasStarted = false;
+  /** When a TeleOp is scheduled to end. Reaching it is a normal finish, not a runaway. */
+  private teleOpDeadlineMs: number | null = null;
+  private stopLine = 1;
   private builtins = new Map<string, JValue>();
   private enumCache = new Map<string, Map<string, JValue>>();
   private rngState: number;
@@ -183,7 +198,9 @@ class Interpreter implements MockContext {
   }
 
   opModeIsActive(): boolean {
-    return this.hasStarted && !this.stopRequested && !this.simExhausted() && !this.cancelled();
+    return (
+      this.hasStarted && !this.stopRequested && !this.simExhausted() && !this.cancelled() && !this.teleOpOver()
+    );
   }
 
   isStopRequested(): boolean {
@@ -281,9 +298,13 @@ class Interpreter implements MockContext {
     return this.sim.timeMs >= this.simCap;
   }
 
+  private teleOpOver(): boolean {
+    return this.teleOpDeadlineMs !== null && this.sim.timeMs >= this.teleOpDeadlineMs;
+  }
+
   /** One sim step. Driven by the native methods marked `tick` and by loop() boundaries. */
   private tick(): void {
-    if (this.simExhausted()) return;
+    if (this.simExhausted() || this.teleOpOver()) return;
     this.options.onTick?.(this.sim);
     this.sim.step();
   }
@@ -313,6 +334,7 @@ class Interpreter implements MockContext {
       sim: this.sim,
       entry: null,
       steps: 0,
+      stopLine: 1,
     };
 
     let stopReason: RunStopReason = 'finished';
@@ -347,6 +369,7 @@ class Interpreter implements MockContext {
     } catch (e) {
       if (e instanceof ExecutionLimit) {
         stopReason = e.reason;
+        this.stopLine = e.line;
       } else if (e instanceof JavaRuntimeError) {
         thrown = e.thrown;
       } else if (e instanceof CompileFailure) {
@@ -381,14 +404,14 @@ class Interpreter implements MockContext {
   private runTeleOp(self: JValue, cls: ClassInfo): void {
     const obj = self.k === 'obj' ? self.ref : null;
     if (!obj) return;
-    this.simCap = Math.min(this.simCap, this.limits.teleOpForMs);
+    this.teleOpDeadlineMs = Math.min(this.simCap, this.sim.timeMs + this.limits.teleOpForMs);
 
     if (this.findUserMethod(cls, 'init', 0)) this.invokeUser(self, cls, 'init', []);
     this.hasStarted = true;
     if (this.findUserMethod(cls, 'start', 0)) this.invokeUser(self, cls, 'start', []);
 
     const hasLoop = this.findUserMethod(cls, 'loop', 0) !== null;
-    while (hasLoop && !this.simExhausted() && !this.cancelled() && !this.stopRequested) {
+    while (hasLoop && !this.teleOpOver() && !this.simExhausted() && !this.cancelled() && !this.stopRequested) {
       this.invokeUser(self, cls, 'loop', []);
       this.tick();
     }
