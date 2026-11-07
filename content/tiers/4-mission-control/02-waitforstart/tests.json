@@ -1,0 +1,27 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "Started",
+      "label": "The program carries on after PLAY"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 80,
+      "label": "The guarded driving actually runs"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 12,
+      "label": "It drives straight"
+    }
+  ]
+}

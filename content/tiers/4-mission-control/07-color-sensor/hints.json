@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Compare the two readings in the loop condition rather than looking for an exact number.",
+    "Keep driving while blue has not overtaken red: colorSensor.blue() <= colorSensor.red()",
+    "while (opModeIsActive() && colorSensor.blue() <= colorSensor.red()) { with four setPower(0.3) and the telemetry inside. Afterwards, four setPower(0), then telemetry.addData(\"tile\", \"blue\"); and telemetry.update();"
+  ]
+}

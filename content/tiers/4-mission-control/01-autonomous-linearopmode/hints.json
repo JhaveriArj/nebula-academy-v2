@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Six lines: four setPower at 0.5, one sleep, then four setPower at 0.",
+    "The shape is the same as Tier 0, except there are four motors rather than two.",
+    "frontLeft.setPower(0.5); and the same for the other three, then sleep(1500); then all four setPower(0);"
+  ]
+}

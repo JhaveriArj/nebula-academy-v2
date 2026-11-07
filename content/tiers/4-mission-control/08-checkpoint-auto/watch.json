@@ -1,0 +1,56 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "durationMs": 11000,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": 0.4,
+        "frontRight": -0.4,
+        "backLeft": 0.4,
+        "backRight": -0.4
+      },
+      "say": "Step 1: to the wall"
+    },
+    {
+      "atMs": 4800,
+      "motors": {},
+      "say": "20 cm short"
+    },
+    {
+      "atMs": 5200,
+      "motors": {
+        "frontLeft": -0.3,
+        "frontRight": -0.3,
+        "backLeft": -0.3,
+        "backRight": -0.3
+      },
+      "say": "Step 2: turn 90"
+    },
+    {
+      "atMs": 7000,
+      "motors": {},
+      "say": "Square"
+    },
+    {
+      "atMs": 7400,
+      "motors": {
+        "frontLeft": 0.3,
+        "frontRight": -0.3,
+        "backLeft": 0.3,
+        "backRight": -0.3
+      },
+      "say": "Step 3: find blue"
+    },
+    {
+      "atMs": 10400,
+      "motors": {},
+      "say": "Parked"
+    }
+  ]
+}

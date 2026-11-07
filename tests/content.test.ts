@@ -7,7 +7,7 @@ import { existsSync } from 'node:fs';
 import { boldedTerms } from '../src/content/parse';
 import { SECTION_ORDER } from '../src/content/types';
 import { CHECK_TYPES } from '../src/runtime/testRunner';
-import { coverageKeys, findNativeClass, nativeMethods, nativeFields } from '../src/ftc-mock/registry';
+import { ALL_NATIVE_CLASSES, coverageKeys, findNativeClass, nativeMethods, nativeFields } from '../src/ftc-mock/registry';
 import { STRING_METHODS } from '../src/ftc-mock/javalang';
 import { parse } from '../src/runtime/java/parser';
 import { playWatch } from '../src/sim/watch';
@@ -256,6 +256,12 @@ function unknownSdkCalls(source: string): string[] {
   const { unit } = parse(source);
   const known = new Set<string>();
   for (const key of coverageKeys()) known.add(key.split('.').pop()!);
+  // Nested type names are reached through a dot too: `new IMU.Parameters(...)` and
+  // `DcMotor.RunMode.RUN_TO_POSITION` are covered, but they are types, not members.
+  for (const c of ALL_NATIVE_CLASSES) {
+    known.add(c.simple);
+    known.add(c.simple.split('.').pop()!);
+  }
   for (const name of Object.keys(STRING_METHODS)) known.add(name);
   // Inherited names reachable from the classes a lesson extends.
   for (const cls of ['OpMode', 'LinearOpMode', 'DcMotor', 'DcMotorEx', 'Servo', 'CRServo', 'Telemetry', 'IMU']) {

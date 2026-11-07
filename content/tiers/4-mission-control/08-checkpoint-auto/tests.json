@@ -1,0 +1,39 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "maxSimMs": 40000,
+  "checks": [
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 90,
+      "tolerance": 15,
+      "label": "The IMU turn lands on 90 degrees"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 60,
+      "y": 322.9,
+      "tolerance": 28,
+      "label": "The robot parks on the blue tile"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 280,
+      "label": "All three driving steps happen"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "step",
+      "label": "Telemetry reports which step is running"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 30000,
+      "label": "The whole autonomous finishes in under 30 seconds"
+    }
+  ]
+}

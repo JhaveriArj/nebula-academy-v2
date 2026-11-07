@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Three groups of four lines, then the waiting loop. The order matters: target, then mode, then power.",
+    "setTargetPosition(target) on each, then setMode(DcMotor.RunMode.RUN_TO_POSITION) on each, then setPower(0.5) on each.",
+    "The loop is while (opModeIsActive() && frontLeft.isBusy()) { telemetry.addData(\"ticks\", frontLeft.getCurrentPosition()); telemetry.update(); } and then four setPower(0) lines."
+  ]
+}

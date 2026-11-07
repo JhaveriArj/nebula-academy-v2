@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The sensor reading goes in the loop condition, next to opModeIsActive, joined by &&.",
+    "The reading is distanceSensor.getDistance(DistanceUnit.CM) and you want to keep driving while it is more than 20.",
+    "while (opModeIsActive() && distanceSensor.getDistance(DistanceUnit.CM) > 20) { with four setPower(0.4) lines and the telemetry inside, then four setPower(0) after."
+  ]
+}

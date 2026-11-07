@@ -1,0 +1,33 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "robotWithinCmOf",
+      "x": 182.88,
+      "y": 322.9,
+      "tolerance": 12,
+      "label": "The robot stops about 20 cm from the wall"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 200,
+      "label": "It drives the length of the field to get there"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "cm",
+      "label": "The reading is shown while driving"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 15000,
+      "label": "It stops on arrival rather than running on"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Three loops, each shaped like the ones you wrote in lessons 05, 06 and 07. The helpers at the bottom do the motor work.",
+    "Step one: while (opModeIsActive() && cmAhead() > 20) { drive(0.4); ... } then park();",
+    "Step two uses yaw() < 90 with spinLeft(0.3). Step three uses colorSensor.blue() <= colorSensor.red() with drive(0.3). Every loop is followed by park();"
+  ]
+}

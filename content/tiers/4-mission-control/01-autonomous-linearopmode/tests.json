@@ -1,0 +1,27 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 80,
+      "label": "The robot drives at least 80 cm on its own"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 12,
+      "label": "It drives straight"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 10000,
+      "label": "The autonomous finishes in under 10 seconds"
+    }
+  ]
+}

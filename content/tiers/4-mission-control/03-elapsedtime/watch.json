@@ -1,0 +1,27 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 2600,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": 0.5,
+        "frontRight": -0.5,
+        "backLeft": 0.5,
+        "backRight": -0.5
+      },
+      "say": "timer under 2.0"
+    },
+    {
+      "atMs": 2000,
+      "motors": {},
+      "say": "Two seconds, eyes open"
+    }
+  ]
+}

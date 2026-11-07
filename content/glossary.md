@@ -193,3 +193,52 @@ from what the driver asked for.
 
 Sliding sideways without turning. Only a mecanum robot can do it, and it is slower than
 driving straight forward.
+
+## autonomous
+
+The part of a match where nobody drives and the robot runs a planned set of moves by
+itself. Written as an `@Autonomous` OpMode, usually extending `LinearOpMode` because the
+moves happen in order.
+
+## LinearOpMode
+
+A kind of OpMode that runs top to bottom, once, in a single method called `runOpMode`.
+Suits an autonomous, where the code is a list of moves. `sleep` is welcome here, unlike in
+a TeleOp.
+
+## encoder
+
+A counter built into a motor that measures how far it has turned, in **tick**s. Encoders
+let the robot drive a distance rather than a length of time, so a flat battery no longer
+changes where it ends up.
+
+## tick
+
+One step of an encoder count. The motors on this robot give 537.7 ticks per turn of the
+wheel, and the wheel is about 30 cm around, so one centimetre is close to 17.8 ticks.
+
+## IMU
+
+The sensor inside the Control Hub that measures which way the robot is facing. Reading its
+**yaw** is how a robot turns to an angle instead of guessing from a stopwatch.
+
+## yaw
+
+How far the robot has turned, left or right, measured in degrees. Turning left counts up,
+turning right counts down, and `imu.resetYaw()` makes the current direction zero.
+
+## state machine
+
+A way of writing a job with several steps so that each pass of `loop` does a little of the
+current step and then moves on. The current step is kept in a field, usually an `enum`.
+
+## enum
+
+A kind with a fixed list of values you write out yourself, like
+`enum State { DRIVE, TURN, PARK }`. Java checks the spelling for you, which plain text
+would not.
+
+## proportional control
+
+Easing off as the robot gets close, by making the power depend on how far there is left to
+go. Stops the overshoot you get from driving at full power until the last moment.

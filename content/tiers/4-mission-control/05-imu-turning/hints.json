@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The loop condition has two parts: the OpMode being active, and the yaw being under 90.",
+    "Reading the yaw is imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) and it goes both in the condition and in the telemetry line.",
+    "Inside the loop: frontLeft -0.3, frontRight 0.3, backLeft -0.3, backRight 0.3, then the telemetry lines. Four setPower(0) lines go after the loop."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The loop condition has two parts joined by &&: the OpMode being active, and the timer being under 2.0.",
+    "while (opModeIsActive() && timer.seconds() < 2.0) { and the driving plus telemetry go inside it.",
+    "Inside: four setPower(0.5) lines, then telemetry.addData(\"seconds\", timer.seconds()); and telemetry.update(); The four setPower(0) lines go after the closing brace."
+  ]
+}

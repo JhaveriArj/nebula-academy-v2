@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "One line waits for PLAY. The driving then goes inside an if that asks whether the OpMode is still active.",
+    "The waiting line is waitForStart(); and it goes after the telemetry and before anything that moves.",
+    "Then System.out.println(\"Started\"); and if (opModeIsActive()) { ... } with the six driving lines inside it."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 5600,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": 0.4,
+        "frontRight": -0.4,
+        "backLeft": 0.4,
+        "backRight": -0.4
+      },
+      "say": "Driving at the wall"
+    },
+    {
+      "atMs": 4800,
+      "motors": {},
+      "say": "20 cm short"
+    }
+  ]
+}

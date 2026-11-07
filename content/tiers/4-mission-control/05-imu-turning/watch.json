@@ -1,0 +1,27 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 2400,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": -0.3,
+        "frontRight": -0.3,
+        "backLeft": -0.3,
+        "backRight": -0.3
+      },
+      "say": "Spinning left, watching yaw"
+    },
+    {
+      "atMs": 1800,
+      "motors": {},
+      "say": "Ninety degrees"
+    }
+  ]
+}

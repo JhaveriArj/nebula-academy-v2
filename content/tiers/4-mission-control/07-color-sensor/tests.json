@@ -1,0 +1,38 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 40,
+    "y": 250,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "robotWithinCmOf",
+      "x": 40,
+      "y": 306,
+      "tolerance": 15,
+      "label": "The robot stops as it reaches the blue tile"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 40,
+      "label": "It creeps across the grey tiles to get there"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "blue",
+      "label": "The blue reading is shown while creeping"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "tile",
+      "label": "It reports which tile it found"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 15000,
+      "label": "It notices the tile rather than driving on"
+    }
+  ]
+}
