@@ -116,6 +116,52 @@ const DEFAULTS = {
   teleOpForMs: 4_000,
 };
 
+/* A TeleOp driven one loop() at a time.
+
+   A LinearOpMode can run to completion in a Web Worker and have its snapshots replayed,
+   because nothing outside it changes while it runs. A TeleOp cannot: the kid is holding
+   the sticks, and a worker in a long synchronous loop never processes the messages that
+   would carry their input. So a TeleOp runs on the main thread, one loop() per frame,
+   which keeps the page responsive and the gamepad live. Each loop() is short, and a
+   runaway inside one still trips the step budget in milliseconds. */
+export interface TeleOpSession {
+  readonly sim: Simulation;
+  readonly className: string;
+  /** Runs one loop() and one sim tick. False once the TeleOp has finished or failed. */
+  step(): boolean;
+  /** Runs stop() and releases the session. */
+  finish(): RunResult;
+  readonly result: RunResult | null;
+}
+
+/** A session for a TeleOp, a RunResult if it will not compile, or null if the program is
+    not a TeleOp at all — in which case the caller should run it in the worker instead. */
+export function startTeleOp(
+  source: string,
+  options: RunOptions = {},
+): TeleOpSession | RunResult | null {
+  const sim = options.sim ?? new Simulation();
+  const { unit, diagnostics } = parse(source);
+  const fail = (ds: Diagnostic[]): RunResult => ({
+    ok: false, diagnostics: ds, thrown: null, stopReason: 'finished', sim, entry: null, steps: 0,
+    stopLine: ds[0]?.line ?? 1,
+  });
+  if (diagnostics.some((d) => d.severity === 'error')) return fail(diagnostics);
+  const semantic = check(unit);
+  if (semantic.length) return fail([...diagnostics, ...semantic]);
+
+  const interp = new Interpreter(unit, sim, options);
+  return interp.openTeleOp(diagnostics);
+}
+
+/** What kind of program this is, without running any of it. */
+export function entryKindOf(source: string): 'teleop' | 'linear' | 'main' | null {
+  const { unit, diagnostics } = parse(source);
+  if (diagnostics.some((d) => d.severity === 'error')) return null;
+  const probe = new Interpreter(unit, new Simulation(), {});
+  return probe.entryKind();
+}
+
 export function runJava(source: string, options: RunOptions = {}): RunResult {
   const sim = options.sim ?? new Simulation();
   const { unit, diagnostics } = parse(source);
@@ -400,6 +446,107 @@ class Interpreter implements MockContext {
       entry,
       steps: this.steps,
     };
+  }
+
+  entryKind(): 'teleop' | 'linear' | 'main' | null {
+    return this.findEntry()?.kind ?? null;
+  }
+
+  /** Returns a stepper when this program is a TeleOp, or null to run it normally. */
+  openTeleOp(parseDiagnostics: Diagnostic[]): TeleOpSession | null {
+    const target = this.findEntry();
+    if (!target || target.kind !== 'teleop') return null;
+
+    const cls = target.cls;
+    let finished = false;
+    let result: RunResult | null = null;
+    const base = (): Omit<RunResult, 'ok' | 'thrown' | 'stopReason'> => ({
+      diagnostics: parseDiagnostics,
+      sim: this.sim,
+      entry: `${cls.name}.loop`,
+      steps: this.steps,
+      stopLine: this.stopLine,
+    });
+    const settle = (stopReason: RunStopReason, thrown: JavaThrow | null): RunResult => {
+      finished = true;
+      result = {
+        ...base(),
+        ok: thrown === null && (stopReason === 'finished' || stopReason === 'stopped'),
+        thrown,
+        stopReason,
+      };
+      return result;
+    };
+
+    let self: JValue;
+    try {
+      self = this.newUserObject(cls, []);
+      this.teleOpDeadlineMs = Math.min(this.simCap, this.limits.teleOpForMs);
+      if (this.findUserMethod(cls, 'init', 0)) this.invokeUser(self, cls, 'init', []);
+      this.hasStarted = true;
+      if (this.findUserMethod(cls, 'start', 0)) this.invokeUser(self, cls, 'start', []);
+    } catch (e) {
+      // init() or start() failed, so there is nothing to drive. Hand back a session
+      // that is already finished and carries the failure.
+      const failed = this.settleFrom(e, settle);
+      return {
+        sim: this.sim,
+        className: cls.name,
+        result: failed,
+        step: () => false,
+        finish: () => failed,
+      };
+    }
+
+    const hasLoop = this.findUserMethod(cls, 'loop', 0) !== null;
+    const session: TeleOpSession = {
+      sim: this.sim,
+      className: cls.name,
+      get result() {
+        return result;
+      },
+      step: () => {
+        if (finished) return false;
+        if (!hasLoop || this.teleOpOver() || this.simExhausted() || this.cancelled() || this.stopRequested) {
+          return false;
+        }
+        // The wall-clock budget is per frame here, not per run: a TeleOp is meant to
+        // keep going, and only a runaway inside one loop() should be stopped.
+        this.deadline = Date.now() + 250;
+        try {
+          this.invokeUser(self, cls, 'loop', []);
+          this.tick();
+          return true;
+        } catch (e) {
+          this.settleFrom(e, settle);
+          return false;
+        }
+      },
+      finish: () => {
+        if (result) return result;
+        try {
+          if (this.findUserMethod(cls, 'stop', 0)) this.invokeUser(self, cls, 'stop', []);
+        } catch {
+          // A failure in stop() should not replace what already happened.
+        }
+        return settle('finished', null);
+      },
+    };
+    return session;
+  }
+
+  private settleFrom(
+    e: unknown,
+    settle: (reason: RunStopReason, thrown: JavaThrow | null) => RunResult,
+  ): RunResult {
+    if (e instanceof ExecutionLimit) {
+      this.stopLine = e.line;
+      return settle(e.reason, null);
+    }
+    if (e instanceof JavaRuntimeError) return settle('finished', e.thrown);
+    if (e instanceof CompileFailure) return settle('finished', null);
+    if (e instanceof ReturnSignal) return settle('finished', null);
+    throw e;
   }
 
   private runTeleOp(self: JValue, cls: ClassInfo): void {

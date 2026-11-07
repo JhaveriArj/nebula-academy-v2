@@ -154,6 +154,21 @@ describe.each(built.map((l) => [l.dir, l] as const))('%s', (_dir, loc) => {
     expect(lesson.solution).not.toMatch(/\/\/\s*TODO/);
   });
 
+  it('locks a prefix or a suffix only, which is what the editor can anchor', () => {
+    // src/ui/components/editor.ts locks a number of lines at the top and a number at the
+    // bottom, because those two shapes stay correct when a kid adds lines in the middle.
+    // The same count the editor sees: a trailing newline adds a final empty line.
+    const lines = lesson.starter.split('\n').length;
+    for (const [from, to] of fm.explorerLockedRanges) {
+      const isPrefix = from <= 1;
+      const isSuffix = to >= lines - 1;
+      expect(
+        isPrefix || isSuffix,
+        `range ${from}-${to} is neither a prefix nor a suffix of ${lines} lines`,
+      ).toBe(true);
+    }
+  });
+
   it('locks only line ranges that exist in starter.java', () => {
     const lines = lesson.starter.split('\n').length;
     for (const [from, to] of fm.explorerLockedRanges) {
