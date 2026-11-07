@@ -1,0 +1,12 @@
+{
+  "robot": "tank",
+  "start": { "x": 182.88, "y": 30.48, "headingDeg": 0 },
+  "withElements": false,
+  "checks": [
+    { "type": "robotMovedAtLeastCm", "cm": 200, "label": "The robot drives all four sides" },
+    { "type": "robotHeadingWithin", "degrees": 360, "tolerance": 30, "relative": true, "label": "It turns four corners, one full turn in total" },
+    { "type": "robotWithinCmOf", "x": 182.88, "y": 30.48, "tolerance": 30, "label": "It finishes back where it started" },
+    { "type": "outputMatches", "pattern": "^(\\S.*)\\r?\\n\\1\\r?\\n\\1", "flags": "m", "label": "Your name is printed three times" },
+    { "type": "ranUnder", "ms": 30000, "label": "The run finishes in under 30 seconds" }
+  ]
+}

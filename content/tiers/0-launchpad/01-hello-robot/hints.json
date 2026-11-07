@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Look at line 21. There is one number on it, and it is the only thing you need to change.",
+    "That number is milliseconds. 1000 of them is one second, so 2000 is two seconds.",
+    "Change the line to read: sleep(2000);"
+  ]
+}

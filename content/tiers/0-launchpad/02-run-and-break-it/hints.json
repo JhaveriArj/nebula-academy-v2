@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "You need three lines, and they go where the TODO comment is. Each one prints a single word.",
+    "Printing uses System.out.println with the word in double quotes, like the Starting up line above.",
+    "The three lines are: System.out.println(\"semicolon\"); then the same with \"spelling\", then \"brace\"."
+  ]
+}

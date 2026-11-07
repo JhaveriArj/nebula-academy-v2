@@ -1,0 +1,123 @@
+{
+  "$comment": "The single source of truth for tier order, lesson order and unlocks. docs/PATHWAY.md is the prose version. src/ may not hardcode a lesson id; it reads this file.",
+  "robotNames": {
+    "tank": ["leftDrive", "rightDrive", "armMotor", "clawServo", "distanceSensor", "colorSensor", "imu"],
+    "mecanum": ["frontLeft", "frontRight", "backLeft", "backRight", "armMotor", "clawServo", "distanceSensor", "colorSensor", "imu"]
+  },
+  "tiers": [
+    {
+      "tier": 0,
+      "slug": "0-launchpad",
+      "name": "Launchpad",
+      "subtitle": "Press Run and the robot moves",
+      "robot": "tank",
+      "badge": "badge-t0.svg",
+      "station": { "x": 130, "y": 150 },
+      "lessons": [
+        { "id": "t0-hello-robot", "dir": "01-hello-robot" },
+        { "id": "t0-run-and-break-it", "dir": "02-run-and-break-it" },
+        { "id": "t0-reading-errors", "dir": "03-reading-errors" },
+        { "id": "t0-checkpoint-square", "dir": "04-checkpoint-square" }
+      ],
+      "checkpoint": "t0-checkpoint-square"
+    },
+    {
+      "tier": 1,
+      "slug": "1-orbit",
+      "name": "Orbit",
+      "subtitle": "Numbers, choices and loops",
+      "robot": "tank",
+      "badge": "badge-t1.svg",
+      "station": { "x": 540, "y": 230 },
+      "lessons": [
+        { "id": "t1-first-variable", "dir": "01-first-variable" },
+        { "id": "t1-decimals", "dir": "02-decimals" },
+        { "id": "t1-true-and-false", "dir": "03-true-and-false" },
+        { "id": "t1-words", "dir": "04-words" },
+        { "id": "t1-robot-math", "dir": "05-robot-math" },
+        { "id": "t1-if-else", "dir": "06-if-else" },
+        { "id": "t1-loops", "dir": "07-loops" },
+        { "id": "t1-checkpoint-launch", "dir": "08-checkpoint-launch" }
+      ],
+      "checkpoint": "t1-checkpoint-launch"
+    },
+    {
+      "tier": 2,
+      "slug": "2-docking",
+      "name": "Docking",
+      "subtitle": "Methods and objects",
+      "robot": "tank",
+      "badge": "badge-t2.svg",
+      "station": { "x": 620, "y": 530 },
+      "lessons": [
+        { "id": "t2-first-method", "dir": "01-first-method" },
+        { "id": "t2-parameters", "dir": "02-parameters" },
+        { "id": "t2-return-values", "dir": "03-return-values" },
+        { "id": "t2-class-with-fields", "dir": "04-class-with-fields" },
+        { "id": "t2-making-an-object", "dir": "05-making-an-object" },
+        { "id": "t2-dot-syntax", "dir": "06-dot-syntax" },
+        { "id": "t2-checkpoint-helper", "dir": "07-checkpoint-helper" }
+      ],
+      "checkpoint": "t2-checkpoint-helper"
+    },
+    {
+      "tier": 3,
+      "slug": "3-first-flight",
+      "name": "First Flight",
+      "subtitle": "A real TeleOp you could drive",
+      "robot": "mecanum",
+      "badge": "badge-t3.svg",
+      "station": { "x": 220, "y": 560 },
+      "lessons": [
+        { "id": "t3-what-is-an-opmode", "dir": "01-what-is-an-opmode" },
+        { "id": "t3-teleop-init-and-loop", "dir": "02-teleop-init-and-loop" },
+        { "id": "t3-hardwaremap", "dir": "03-hardwaremap" },
+        { "id": "t3-setting-motor-power", "dir": "04-setting-motor-power" },
+        { "id": "t3-direction-and-reversing", "dir": "05-direction-and-reversing" },
+        { "id": "t3-gamepad-sticks", "dir": "06-gamepad-sticks" },
+        { "id": "t3-telemetry", "dir": "07-telemetry" },
+        { "id": "t3-checkpoint-teleop", "dir": "08-checkpoint-teleop" }
+      ],
+      "checkpoint": "t3-checkpoint-teleop"
+    },
+    {
+      "tier": 4,
+      "slug": "4-mission-control",
+      "name": "Mission Control",
+      "subtitle": "The robot drives itself",
+      "robot": "mecanum",
+      "badge": "badge-t4.svg",
+      "station": { "x": 880, "y": 430 },
+      "lessons": [
+        { "id": "t4-autonomous-linearopmode", "dir": "01-autonomous-linearopmode" },
+        { "id": "t4-waitforstart", "dir": "02-waitforstart" },
+        { "id": "t4-elapsedtime", "dir": "03-elapsedtime" },
+        { "id": "t4-encoders", "dir": "04-encoders" },
+        { "id": "t4-imu-turning", "dir": "05-imu-turning" },
+        { "id": "t4-distance-sensor", "dir": "06-distance-sensor" },
+        { "id": "t4-color-sensor", "dir": "07-color-sensor" },
+        { "id": "t4-checkpoint-auto", "dir": "08-checkpoint-auto" }
+      ],
+      "checkpoint": "t4-checkpoint-auto"
+    },
+    {
+      "tier": 5,
+      "slug": "5-deep-space",
+      "name": "Deep Space",
+      "subtitle": "Onto your team's real robot",
+      "robot": "mecanum",
+      "badge": "badge-t5.svg",
+      "station": { "x": 1060, "y": 180 },
+      "lessons": [
+        { "id": "t5-servos-and-limits", "dir": "01-servos-and-limits" },
+        { "id": "t5-state-machines", "dir": "02-state-machines" },
+        { "id": "t5-proportional-control", "dir": "03-proportional-control" },
+        { "id": "t5-hardware-class", "dir": "04-hardware-class" },
+        { "id": "t5-git-and-github", "dir": "05-git-and-github" },
+        { "id": "t5-android-studio", "dir": "06-android-studio" },
+        { "id": "t5-checkpoint-real-robot", "dir": "07-checkpoint-real-robot" }
+      ],
+      "checkpoint": "t5-checkpoint-real-robot"
+    }
+  ]
+}

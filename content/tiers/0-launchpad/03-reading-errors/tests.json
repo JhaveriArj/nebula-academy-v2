@@ -1,0 +1,12 @@
+{
+  "robot": "tank",
+  "start": { "x": 182.88, "y": 30.48, "headingDeg": 0 },
+  "withElements": false,
+  "checks": [
+    { "type": "outputContains", "text": "One", "label": "Program 1 prints One" },
+    { "type": "outputContains", "text": "Two 2", "label": "Program 2 prints Two 2" },
+    { "type": "outputContains", "text": "Three", "label": "Program 3 prints Three" },
+    { "type": "outputContains", "text": "Four 4", "label": "Program 4 prints Four 4" },
+    { "type": "outputContains", "text": "FIVE", "label": "Program 5 prints FIVE" }
+  ]
+}
