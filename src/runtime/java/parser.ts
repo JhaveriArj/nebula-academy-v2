@@ -1,4 +1,4 @@
-import { lex, KEYWORDS, type Token } from './lexer';
+import { lex, type Token } from './lexer';
 import { diag, CompileFailure, type Diagnostic, type DiagnosticCode } from './diagnostics';
 import type * as A from './ast';
 
