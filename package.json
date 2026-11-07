@@ -14,8 +14,8 @@
     "check": "npm run lint && npm run test && npm run build",
     "new-lesson": "node scripts/new-lesson.mjs",
     "verify:javac": "node scripts/verify-javac.mjs",
-    "gen:coverage": "node scripts/gen-coverage.mjs",
-    "gen:stubs": "node scripts/gen-stubs.mjs"
+    "gen:coverage": "vite-node scripts/gen-coverage.ts",
+    "gen:stubs": "vite-node scripts/gen-stubs.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.7.1",
@@ -33,5 +33,7 @@
     "vite": "^6.0.5",
     "vitest": "^2.1.8"
   },
-  "engines": { "node": ">=20.11" }
+  "engines": {
+    "node": ">=20.11"
+  }
 }

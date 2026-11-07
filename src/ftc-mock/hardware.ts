@@ -43,18 +43,22 @@ export const SERVO_DIRECTION: NativeClass = {
   doc: 'Servo direction.',
 };
 
-export const DC_MOTOR: NativeClass = {
-  fqn: 'com.qualcomm.robotcore.hardware.DcMotor',
-  simple: 'DcMotor',
+/** The real SDK declares power and direction here, and Direction is nested in it.
+    `DcMotor.Direction.REVERSE` only compiles because DcMotor inherits from this. */
+export const DC_MOTOR_SIMPLE: NativeClass = {
+  fqn: 'com.qualcomm.robotcore.hardware.DcMotorSimple',
+  simple: 'DcMotorSimple',
   kind: 'interface',
-  doc: 'A drive or mechanism motor. The core device of every lesson from Tier 0.',
+  doc: 'The shared parent of DcMotor and CRServo: power and direction.',
   methods: [
     {
       name: 'setPower',
       params: ['double'],
       returns: 'void',
       call: (ctx, self, args) => {
-        ctx.sim.setMotorPower(dev(self, ctx), num(args[0]!));
+        const name = dev(self, ctx);
+        if (ctx.sim.servo(name) && !ctx.sim.motor(name)) ctx.sim.setCRServoPower(name, num(args[0]!));
+        else ctx.sim.setMotorPower(name, num(args[0]!));
         return JVOID;
       },
     },
@@ -62,7 +66,10 @@ export const DC_MOTOR: NativeClass = {
       name: 'getPower',
       params: [],
       returns: 'double',
-      call: (ctx, self) => jdouble(ctx.sim.motor(dev(self, ctx))?.power ?? 0),
+      call: (ctx, self) => {
+        const name = dev(self, ctx);
+        return jdouble(ctx.sim.motor(name)?.power ?? ctx.sim.servo(name)?.continuousPower ?? 0);
+      },
     },
     {
       name: 'setDirection',
@@ -82,6 +89,16 @@ export const DC_MOTOR: NativeClass = {
       call: (ctx, self) =>
         ctx.enumValue('DcMotorSimple.Direction', ctx.sim.motor(dev(self, ctx))?.reversed ? 'REVERSE' : 'FORWARD'),
     },
+  ],
+};
+
+export const DC_MOTOR: NativeClass = {
+  fqn: 'com.qualcomm.robotcore.hardware.DcMotor',
+  simple: 'DcMotor',
+  kind: 'interface',
+  extends: 'DcMotorSimple',
+  doc: 'A drive or mechanism motor. The core device of every lesson from Tier 0.',
+  methods: [
     {
       name: 'setMode',
       params: ['DcMotor.RunMode'],
@@ -229,30 +246,9 @@ export const CR_SERVO: NativeClass = {
   fqn: 'com.qualcomm.robotcore.hardware.CRServo',
   simple: 'CRServo',
   kind: 'interface',
+  extends: 'DcMotorSimple',
   doc: 'A continuous-rotation servo, driven by power rather than position.',
-  methods: [
-    {
-      name: 'setPower',
-      params: ['double'],
-      returns: 'void',
-      call: (ctx, self, args) => {
-        ctx.sim.setCRServoPower(dev(self, ctx), num(args[0]!));
-        return JVOID;
-      },
-    },
-    {
-      name: 'getPower',
-      params: [],
-      returns: 'double',
-      call: (ctx, self) => jdouble(ctx.sim.servo(dev(self, ctx))?.continuousPower ?? 0),
-    },
-    {
-      name: 'setDirection',
-      params: ['DcMotorSimple.Direction'],
-      returns: 'void',
-      call: () => JVOID,
-    },
-  ],
+  methods: [],
 };
 
 export const DISTANCE_SENSOR: NativeClass = {
@@ -420,6 +416,9 @@ export const HARDWARE_MAP: NativeClass = {
       name: 'get',
       params: ['Class', 'String'],
       returns: 'Object',
+      // The real declaration is generic, which is what lets
+      // `DcMotor m = hardwareMap.get(DcMotor.class, "m")` compile in Android Studio.
+      stub: 'public <T> T get(Class<? extends T> classOrInterface, String deviceName)',
       call: (ctx, _self, args) => {
         const classArg = args[0];
         const nameArg = args[1];
@@ -470,7 +469,7 @@ export const HARDWARE_MAP: NativeClass = {
 
 export const HARDWARE_CLASSES: NativeClass[] = [
   DIRECTION, RUN_MODE, ZERO_POWER, SERVO_DIRECTION,
-  DC_MOTOR, DC_MOTOR_EX, SERVO, CR_SERVO,
+  DC_MOTOR_SIMPLE, DC_MOTOR, DC_MOTOR_EX, SERVO, CR_SERVO,
   DISTANCE_SENSOR, COLOR_SENSOR, NORMALIZED_COLOR_SENSOR,
   IMU, IMU_PARAMETERS, GAMEPAD, HARDWARE_MAP,
 ];

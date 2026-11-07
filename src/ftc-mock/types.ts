@@ -45,6 +45,10 @@ export interface NativeMethod {
   isStatic?: boolean;
   /** The last parameter is a varargs tail, e.g. Telemetry.addData(String, String, Object...). */
   varargs?: boolean;
+  /** Overrides the generated Java signature in ftc-stubs/, for the few methods whose
+      real declaration needs generics that the interpreter does not model —
+      HardwareMap.get being the one that matters. Body excluded. */
+  stub?: string;
   /** Calling this advances the sim one 20 ms tick.
 
       Set on the methods real FTC code polls in a loop condition — opModeIsActive(),
