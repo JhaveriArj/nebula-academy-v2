@@ -1,0 +1,28 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "maxSimMs": 30000,
+  "checks": [
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 90,
+      "tolerance": 4,
+      "label": "It settles within four degrees of 90"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "error",
+      "label": "The error is shown while turning"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 20000,
+      "label": "It converges rather than hunting forever"
+    }
+  ]
+}

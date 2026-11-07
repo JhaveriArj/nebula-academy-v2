@@ -1,0 +1,49 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 3000,
+  "input": [
+    {
+      "atMs": 0,
+      "set": {
+        "right_trigger": 1.0
+      }
+    },
+    {
+      "atMs": 2400,
+      "set": {
+        "right_trigger": 0.0,
+        "a": true
+      }
+    }
+  ],
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "arm at limit",
+      "label": "The arm refuses to go past the top"
+    },
+    {
+      "type": "motorPowerEverExceeded",
+      "motor": "armMotor",
+      "power": 0.5,
+      "label": "The trigger lifts the arm"
+    },
+    {
+      "type": "servoReached",
+      "servo": "clawServo",
+      "position": 1.0,
+      "label": "A closes the claw"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "armTicks",
+      "label": "The tick count is on telemetry"
+    }
+  ]
+}

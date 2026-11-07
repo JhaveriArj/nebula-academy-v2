@@ -1,0 +1,26 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "outputMatches",
+      "pattern": "clone[\\s\\S]*status[\\s\\S]*add[\\s\\S]*commit[\\s\\S]*push",
+      "label": "The five commands are in the order you would use them"
+    },
+    {
+      "type": "outputContains",
+      "text": "git clone",
+      "label": "clone comes first, because you start by copying the code"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "status",
+      "label": "The program runs to the end"
+    }
+  ]
+}

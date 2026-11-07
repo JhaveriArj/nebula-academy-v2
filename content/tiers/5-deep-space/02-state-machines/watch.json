@@ -1,0 +1,42 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 3000,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {},
+      "say": "IDLE, waiting for A"
+    },
+    {
+      "atMs": 400,
+      "motors": {
+        "frontLeft": 0.5,
+        "frontRight": -0.5,
+        "backLeft": 0.5,
+        "backRight": -0.5
+      },
+      "say": "DRIVE"
+    },
+    {
+      "atMs": 1400,
+      "motors": {
+        "frontLeft": -0.3,
+        "frontRight": -0.3,
+        "backLeft": -0.3,
+        "backRight": -0.3
+      },
+      "say": "TURN"
+    },
+    {
+      "atMs": 2200,
+      "motors": {},
+      "say": "DONE"
+    }
+  ]
+}

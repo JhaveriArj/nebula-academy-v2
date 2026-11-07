@@ -1,0 +1,62 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "maxSimMs": 40000,
+  "checks": [
+    {
+      "type": "classExists",
+      "name": "Hardware",
+      "label": "One Hardware class holds the wiring"
+    },
+    {
+      "type": "methodExists",
+      "name": "init",
+      "params": 1,
+      "className": "Hardware",
+      "label": "Hardware has init(HardwareMap)"
+    },
+    {
+      "type": "robotWithinCmOf",
+      "x": 182.88,
+      "y": 317.9,
+      "tolerance": 15,
+      "label": "It stops about 25 cm from the wall"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 90,
+      "tolerance": 6,
+      "label": "The proportional turn lands square"
+    },
+    {
+      "type": "servoReached",
+      "servo": "clawServo",
+      "position": 1.0,
+      "label": "The claw closes at the end"
+    },
+    {
+      "type": "outputContains",
+      "text": "Pre-run checklist",
+      "label": "The checklist is printed"
+    },
+    {
+      "type": "outputMatches",
+      "pattern": "1\\.[\\s\\S]*2\\.[\\s\\S]*3\\.[\\s\\S]*4\\.[\\s\\S]*5\\.",
+      "label": "All five checklist lines are there"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "step",
+      "label": "Telemetry reports each step"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 30000,
+      "label": "The whole autonomous finishes in under 30 seconds"
+    }
+  ]
+}

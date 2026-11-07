@@ -1,0 +1,17 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 1500,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {},
+      "say": "Parked. This one is about the tool, not the robot."
+    }
+  ]
+}

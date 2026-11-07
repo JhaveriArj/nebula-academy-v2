@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "init takes the HardwareMap as a parameter and uses map.get instead of hardwareMap.get.",
+    "void init(HardwareMap map) { with five map.get lines and the two setDirection lines inside it.",
+    "drive is void drive(double power) with four setPower(power) lines. Then loop does double power = -gamepad1.left_stick_y; and robot.drive(power);"
+  ]
+}

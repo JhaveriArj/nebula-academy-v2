@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Three pieces: the wall loop from lesson 06, the proportional turn from lesson 03, then the claw and six printing lines.",
+    "The wall loop is while (opModeIsActive() && robot.cmAhead() > 25) { robot.drive(0.4); ... } followed by robot.park();",
+    "The turn loop works out double error = 90 - robot.yaw(); breaks when Math.abs(error) < 1.0, clamps error * 0.012 to a top of 0.4 and a floor of 0.08, and calls robot.spinLeft(power)."
+  ]
+}

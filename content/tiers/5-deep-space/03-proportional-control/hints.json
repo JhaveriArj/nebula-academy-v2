@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The loop runs while the OpMode is active, and the first line inside works out the error.",
+    "double error = target - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES); then break out when Math.abs(error) < 1.0.",
+    "Then double power = error * kP; four ifs to clamp it, spinLeft(power); and the telemetry. park(); goes after the closing brace."
+  ]
+}

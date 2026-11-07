@@ -1,0 +1,47 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 3200,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "frontLeft": -0.4,
+        "frontRight": -0.4,
+        "backLeft": -0.4,
+        "backRight": -0.4
+      },
+      "say": "Big error, full tilt"
+    },
+    {
+      "atMs": 1200,
+      "motors": {
+        "frontLeft": -0.15,
+        "frontRight": -0.15,
+        "backLeft": -0.15,
+        "backRight": -0.15
+      },
+      "say": "Easing off"
+    },
+    {
+      "atMs": 2200,
+      "motors": {
+        "frontLeft": -0.08,
+        "frontRight": -0.08,
+        "backLeft": -0.08,
+        "backRight": -0.08
+      },
+      "say": "Creeping the last degree"
+    },
+    {
+      "atMs": 2800,
+      "motors": {},
+      "say": "Square, no overshoot"
+    }
+  ]
+}

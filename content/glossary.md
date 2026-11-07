@@ -242,3 +242,8 @@ would not.
 
 Easing off as the robot gets close, by making the power depend on how far there is left to
 go. Stops the overshoot you get from driving at full power until the last moment.
+
+## repository
+
+A folder whose history git keeps, usually with a copy on GitHub that the whole team can
+reach. Your team's robot code lives in one, and so does the FTC SDK.

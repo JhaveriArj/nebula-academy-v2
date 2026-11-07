@@ -1,0 +1,47 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 4000,
+  "input": [
+    {
+      "atMs": 200,
+      "set": {
+        "a": true
+      }
+    },
+    {
+      "atMs": 500,
+      "set": {
+        "a": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "type": "outputMatches",
+      "pattern": "DRIVE\\s*TURN\\s*DONE",
+      "label": "The three steps happen in order"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 40,
+      "label": "The DRIVE step actually drives"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 40,
+      "tolerance": 35,
+      "label": "The TURN step turns"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "state",
+      "label": "The current state is on telemetry"
+    }
+  ]
+}

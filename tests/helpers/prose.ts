@@ -60,6 +60,7 @@ export const ALLOWED_LONG_WORDS = new Set([
   'missions', 'android', 'studio', 'github', 'degrees', 'degree', 'angle', 'angles',
   'centimetre', 'centimetres', 'centimeter', 'centimeters', 'distance', 'distances',
   'colour', 'colours', 'color', 'colors', 'console',
+  'competition', 'competitions', 'someone', 'anybody', 'everybody',
 ]);
 
 export const BANNED_WORDS = /\b(simply|just|easy|easier|easiest|easily|obviously|obvious|of course|merely|trivial|trivially)\b/i;

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "This is the Tier 3 checkpoint again, without the arm. Three stick readings, four mixing lines, the claw, and telemetry.",
+    "The mixing signs are drive + strafe + turn, drive - strafe - turn, drive - strafe + turn, drive + strafe - turn.",
+    "Remember the minus sign on left_stick_y, and use else if for the claw so holding both buttons behaves predictably."
+  ]
+}

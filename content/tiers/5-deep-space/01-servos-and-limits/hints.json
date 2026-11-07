@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Both clamps are ifs that look at which way the arm is going and where it already is.",
+    "The top one is if (armPower > 0 && ticks >= 1100) { armPower = 0; ... } and the bottom one is an else if using < 0 and <= 50.",
+    "The printing goes inside the top clamp, guarded by if (!warned) so it happens once. The claw is if (gamepad1.a) { clawServo.setPosition(1.0); } else if (gamepad1.b) { clawServo.setPosition(0.0); }"
+  ]
+}

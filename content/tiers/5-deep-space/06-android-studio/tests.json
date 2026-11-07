@@ -1,0 +1,56 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 3000,
+  "input": [
+    {
+      "atMs": 0,
+      "set": {
+        "left_stick_y": -1.0
+      }
+    },
+    {
+      "atMs": 1000,
+      "set": {
+        "left_stick_y": 0.0,
+        "left_stick_x": 1.0
+      }
+    },
+    {
+      "atMs": 2000,
+      "set": {
+        "left_stick_x": 0.0,
+        "a": true
+      }
+    }
+  ],
+  "checks": [
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 180,
+      "label": "It drives forward and then strafes"
+    },
+    {
+      "type": "servoReached",
+      "servo": "clawServo",
+      "position": 1.0,
+      "label": "A closes the claw"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "drive",
+      "label": "Telemetry reports the drive value"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 15,
+      "label": "It drives and strafes without spinning"
+    }
+  ]
+}

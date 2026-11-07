@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Five printing lines, each with one command in double quote marks.",
+    "The order is the order you would do them in: copy the code, see what changed, pick it, save it, send it.",
+    "System.out.println(\"git clone\"); then the same shape for status, add, commit and push."
+  ]
+}

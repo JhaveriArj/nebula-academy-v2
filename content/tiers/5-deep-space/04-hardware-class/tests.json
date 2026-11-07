@@ -1,0 +1,61 @@
+{
+  "robot": "mecanum",
+  "start": {
+    "x": 182.88,
+    "y": 91.44,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "teleOpForMs": 2000,
+  "input": [
+    {
+      "atMs": 0,
+      "set": {
+        "left_stick_y": -1.0
+      }
+    },
+    {
+      "atMs": 1500,
+      "set": {
+        "left_stick_y": 0.0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "type": "classExists",
+      "name": "Hardware",
+      "label": "There is a Hardware class"
+    },
+    {
+      "type": "methodExists",
+      "name": "init",
+      "params": 1,
+      "className": "Hardware",
+      "label": "Hardware has init(HardwareMap)"
+    },
+    {
+      "type": "methodExists",
+      "name": "drive",
+      "params": 1,
+      "className": "Hardware",
+      "label": "Hardware has drive(power)"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 80,
+      "label": "The OpMode drives through the Hardware class"
+    },
+    {
+      "type": "robotHeadingWithin",
+      "degrees": 0,
+      "tolerance": 12,
+      "label": "The reversals are in init, so it drives straight"
+    },
+    {
+      "type": "telemetryHasKey",
+      "key": "drive",
+      "label": "The power is on telemetry"
+    }
+  ]
+}

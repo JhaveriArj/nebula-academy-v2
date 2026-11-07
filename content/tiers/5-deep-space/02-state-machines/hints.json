@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "One switch on state, with a case for each step. Every case does its bit, then checks whether it is finished.",
+    "case IDLE only watches for A. case DRIVE calls drive(0.5) every pass and checks timer.seconds() > 1.0.",
+    "When a step finishes: park(); then timer.reset(); then state = State.TURN; then the println. Every case needs its own break;"
+  ]
+}
