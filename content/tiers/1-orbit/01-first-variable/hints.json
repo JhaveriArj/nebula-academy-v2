@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Making a variable takes three parts: the kind of value, the name you pick, and the starting value. Look at the shape in the Learn section.",
+    "The line is int driveTime = 1500; and it goes above the driving lines so the robot knows the name before it uses it.",
+    "After you make it, swap both sleep(1000) lines to sleep(driveTime). Printing it is System.out.println(driveTime); with no quote marks."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "outputMatches",
+      "pattern": "Pilot \\S.* on mission 4",
+      "label": "One line reads Pilot, your name, on mission 4"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 30,
+      "label": "The robot still moves"
+    }
+  ]
+}

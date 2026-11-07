@@ -1,0 +1,31 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "outputMatches",
+      "pattern": "10\\s*9\\s*8\\s*7\\s*6\\s*5\\s*4\\s*3\\s*2\\s*1",
+      "label": "The countdown runs from 10 down to 1, in order"
+    },
+    {
+      "type": "outputContains",
+      "text": "Launch",
+      "label": "It says Launch at the end of the countdown"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 100,
+      "label": "The robot launches and drives at least 100 cm"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 30000,
+      "label": "The whole sequence finishes in under 30 seconds"
+    }
+  ]
+}

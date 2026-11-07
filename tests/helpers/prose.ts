@@ -66,7 +66,7 @@ export const BANNED_WORDS = /\b(simply|just|easy|easier|easiest|easily|obviously
 
 /** Emoji and pictographs, which CLAUDE.md bans from the UI and lesson prose alike. */
 export const EMOJI =
-  /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{1F000}-\u{1F2FF}]/u;
+  /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]|\u{FE0F}/u;
 
 export function longWords(markdown: string, extraAllowed: Iterable<string> = []): string[] {
   const allowed = new Set([...ALLOWED_LONG_WORDS, ...[...extraAllowed].map((w) => w.toLowerCase())]);

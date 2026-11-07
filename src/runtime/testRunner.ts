@@ -121,7 +121,7 @@ export function runLessonTests(source: string, spec: TestSpec): TestRunResult {
   }
 
   const ast = parse(source).unit;
-  const results = spec.checks.map((c) => evaluate(c, sim, ast, source, run));
+  const results = spec.checks.map((c) => evaluate(c, sim, ast, source));
   return {
     compiled: true,
     error: null,
@@ -139,7 +139,6 @@ function evaluate(
   sim: Simulation,
   ast: A.CompilationUnit,
   source: string,
-  run: RunResult,
 ): CheckResult {
   const ok = (label: string, passed: boolean, detail: string): CheckResult => ({
     label: check.label ?? label,

@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "You need the kind of variable that holds only true or false, and a question comparing speed against 0.5.",
+    "The line is boolean fastEnough = speed > 0.5; and it has to come after speed is made.",
+    "Print it with System.out.println(fastEnough); and to make it true, change the first line to double speed = 0.8;"
+  ]
+}

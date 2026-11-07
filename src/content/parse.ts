@@ -12,7 +12,7 @@ export function parseLessonMarkdown(
   source: string,
   where: string,
 ): { frontmatter: LessonFrontmatter; sections: LessonSections } {
-  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(source.replace(/^﻿/, ''));
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(source.replace(/^\uFEFF/, ''));
   if (!match) {
     throw new LessonParseError(`${where}: lesson.md must start with a --- frontmatter block.`);
   }

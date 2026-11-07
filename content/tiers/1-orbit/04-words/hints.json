@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Text needs double quote marks around it, and the kind of variable that holds text is named in the Learn section.",
+    "The first line is String pilot = \"Sam\"; with your own name instead of Sam.",
+    "The print line joins four pieces: System.out.println(\"Pilot \" + pilot + \" on mission \" + mission);"
+  ]
+}

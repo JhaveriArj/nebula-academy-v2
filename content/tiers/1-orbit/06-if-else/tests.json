@@ -1,0 +1,26 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "checks": [
+    {
+      "type": "outputContains",
+      "text": "Driving",
+      "label": "The robot says it is driving"
+    },
+    {
+      "type": "robotMovedAtLeastCm",
+      "cm": 100,
+      "label": "It takes the driving branch and moves at least 100 cm"
+    },
+    {
+      "type": "ranUnder",
+      "ms": 20000,
+      "label": "The run finishes in under 20 seconds"
+    }
+  ]
+}

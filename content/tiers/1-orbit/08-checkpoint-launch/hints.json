@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "Two blocks: one for not enough fuel, one for enough. The if comes first and the else holds everything about launching.",
+    "The countdown is a for loop that goes down: for (int count = 10; count >= 1; count--) with a println of count inside it.",
+    "Order inside the else: the countdown loop, then println(\"Launch\"), then both setPower(0.8), sleep(1500), and both setPower(0)."
+  ]
+}

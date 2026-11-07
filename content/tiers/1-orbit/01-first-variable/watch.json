@@ -1,0 +1,44 @@
+{
+  "robot": "tank",
+  "start": {
+    "x": 182.88,
+    "y": 30.48,
+    "headingDeg": 0
+  },
+  "withElements": false,
+  "durationMs": 4200,
+  "steps": [
+    {
+      "atMs": 0,
+      "motors": {
+        "leftDrive": 0.5,
+        "rightDrive": 0.5
+      },
+      "say": "First move"
+    },
+    {
+      "atMs": 1500,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      },
+      "say": "Pause"
+    },
+    {
+      "atMs": 2000,
+      "motors": {
+        "leftDrive": 0.5,
+        "rightDrive": 0.5
+      },
+      "say": "Second move, same number"
+    },
+    {
+      "atMs": 3500,
+      "motors": {
+        "leftDrive": 0,
+        "rightDrive": 0
+      },
+      "say": "Stop"
+    }
+  ]
+}

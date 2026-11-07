@@ -91,7 +91,7 @@ describe('generated ftc-stubs are structurally valid Java', () => {
   it('declare no duplicate method signatures inside one type', () => {
     for (const f of files) {
       const src = readFileSync(f, 'utf8');
-      const sigs = [...src.matchAll(/^\s*(?:public |static |abstract )*[\w.<>?\[\] ]+ (\w+)\(([^)]*)\)/gm)].map(
+      const sigs = [...src.matchAll(/^\s*(?:public |static |abstract )*[\w.<>?[\] ]+ (\w+)\(([^)]*)\)/gm)].map(
         (m) => `${m[1]}(${m[2]!.replace(/\s*\w+$/g, '').replace(/\s+/g, '')})`,
       );
       const dupes = sigs.filter((s, i) => sigs.indexOf(s) !== i);

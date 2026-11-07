@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "driveMs is an int. Multiply cm by 1000 first, then divide by 60, in that order.",
+    "The line is int driveMs = cm * 1000 / 60; and printing joins text to math: System.out.println(\"whole seconds: \" + cm / 60);",
+    "The last step is changing sleep(500) to sleep(driveMs). The remainder line uses % instead of /."
+  ]
+}

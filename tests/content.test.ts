@@ -127,9 +127,13 @@ describe.each(built.map((l) => [l.dir, l] as const))('%s', (_dir, loc) => {
   it('bolds only terms that content/glossary.md defines', () => {
     const terms = boldedTerms(sections.learn);
     if (!terms.length) return;
-    const glossary = readContentFile('glossary.md').toLowerCase();
-    const missing = terms.filter((t) => !glossary.includes(`## ${t.toLowerCase()}`));
-    expect(missing, 'add these to content/glossary.md').toEqual([]);
+    const defined = new Set(glossaryTerms().map((t) => t.toLowerCase()));
+    // A plural does not need its own entry: "operators" is defined by "operator".
+    const isDefined = (t: string) => {
+      const w = t.toLowerCase();
+      return defined.has(w) || defined.has(w.replace(/e?s$/, '')) || defined.has(`${w}s`);
+    };
+    expect(terms.filter((t) => !isDefined(t)), 'add these to content/glossary.md').toEqual([]);
   });
 
   it('has exactly three hints, each of them useful', () => {

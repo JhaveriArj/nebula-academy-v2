@@ -1,0 +1,7 @@
+{
+  "hints": [
+    "The kind of value you need is in the Learn section, and it is not int. Power has a point in it.",
+    "The line is double speed = 0.6; and it goes above the setPower lines.",
+    "Then change both setPower(0.0) lines to setPower(speed), and print it with System.out.println(speed);"
+  ]
+}
