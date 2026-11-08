@@ -43,7 +43,8 @@ export function mentorPage(tierParam: string | null): HTMLElement {
   mount(body, el('p', { class: 'muted', text: 'Loading the guide.' }));
   loadContentFile(`mentor/tier-${tier}.md`)
     .then((markdown) => {
-      mount(body, renderMarkdown(markdown));
+      // The page already has its <h1>, so the guide's own # becomes an <h2>.
+      mount(body, renderMarkdown(markdown, { headingOffset: 1 }));
     })
     .catch(() => {
       mount(body, el('p', { class: 'fail', text: `The guide for tier ${tier} could not be loaded.` }));

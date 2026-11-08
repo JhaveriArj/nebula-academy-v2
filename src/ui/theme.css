@@ -163,7 +163,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+/* Anchors and focused elements land below the sticky header, not under it (WCAG 2.4.11). */
+html { -webkit-text-size-adjust: 100%; scroll-padding-block-start: 88px; }
 
 body {
   margin: 0;

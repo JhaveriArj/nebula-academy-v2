@@ -47,8 +47,13 @@ export function lessonPage(lessonId: string, deps: LessonPageDeps): HTMLElement 
       mount(page,
         el('div', { class: 'prose-page' },
           el('h1', { text: 'That lesson could not be opened' }),
-          el('p', { text: error instanceof Error ? error.message : String(error) }),
-          el('p', {}, el('a', { href: '#/chart', text: 'Back to the chart' })),
+          el('p', { text: 'The link may be old, or the lesson may have moved. Every lesson is on the star chart.' }),
+          el('p', {}, el('a', { class: 'btn btn-next', href: '#/chart', text: 'Open the star chart' })),
+          // The technical reason stays reachable for a mentor, like the error console's toggle.
+          el('details', { class: 'raw-error' },
+            el('summary', { text: 'Show the real error' }),
+            el('pre', { class: 'code-block' }, el('code', { text: error instanceof Error ? error.message : String(error) })),
+          ),
         ),
       );
     });

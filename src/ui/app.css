@@ -813,6 +813,9 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 /* ----------------------------------------------------------------- mentor */
 
 .mentor-page { max-width: 80ch; }
+.mentor-body > h2:first-child { margin-top: var(--s6); }
+
+.raw-error summary { display: inline-flex; align-items: center; cursor: pointer; font-weight: 600; color: var(--link); }
 .tier-tabs { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0; }
 
 .tier-tab {
@@ -877,6 +880,9 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 /* ------------------------------------------------- phones and 200% zoom */
 
 @media (max-height: 560px) {
+  /* At 200% zoom a sticky header would cover a third of the screen. */
+  .site-header { position: static; }
+  html { scroll-padding-block-start: 0; }
   .lesson { flex: none; }
   .lesson-shell { overflow: visible; }
 }
