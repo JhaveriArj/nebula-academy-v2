@@ -243,6 +243,12 @@
 }
 .btn-start:focus-visible { outline-color: var(--space-ink); }
 
+.start-choice { display: flex; flex-direction: column; gap: var(--s3); margin-top: var(--s2); }
+.start-choice-label { margin: 0; font-family: var(--face-display); font-weight: 600; font-size: calc(var(--size-label) + 3px); color: var(--space-ink); }
+.start-choice-buttons { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.start-choice .btn-start { margin-top: 0; }
+.start-choice-note { margin: 0; color: var(--space-mute); font-size: var(--size-label); }
+
 .hero-mascot {
   position: absolute;
   right: 0;
@@ -902,7 +908,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .hero { padding: var(--s4); border-radius: var(--radius); }
   .hero-aside { padding-inline-end: 0; }
   .hero-mascot { display: none; }
-  .btn-start { width: 100%; }
+  .btn-start, .start-choice-buttons { width: 100%; }
 
   .lesson-shell,
   .lesson-shell[data-state='console'] {

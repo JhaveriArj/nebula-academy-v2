@@ -18,6 +18,9 @@ export interface ProgressFile {
   version: 1;
   savedAt: string;
   mode: Mode;
+  /** Whether the kid has picked Explorer or Builder themselves. Until then the home page
+   *  asks their age instead of quietly starting a nine-year-old in Builder. */
+  modeChosen: boolean;
   bigType: boolean;
   lessons: Record<string, LessonProgress>;
   /** lessonId -> the kid's current code. */
@@ -32,6 +35,7 @@ const empty = (): ProgressFile => ({
   version: 1,
   savedAt: new Date().toISOString(),
   mode: 'builder',
+  modeChosen: false,
   bigType: false,
   lessons: {},
   drafts: {},
@@ -79,6 +83,9 @@ export function normalise(input: unknown): ProgressFile {
   if (typeof input !== 'object' || input === null) return file;
   const raw = input as Partial<ProgressFile>;
   if (raw.mode === 'explorer' || raw.mode === 'builder') file.mode = raw.mode;
+  // Files saved before this field existed: anyone who has passed a lesson has already chosen.
+  file.modeChosen = raw.modeChosen === true
+    || Object.values(raw.lessons ?? {}).some((l) => typeof l === 'object' && l !== null && (l as Partial<LessonProgress>).passed === true);
   file.bigType = raw.bigType === true;
 
   const known = new Set(pathway.tiers.flatMap((t) => t.lessons.map((l) => l.id)));
@@ -102,9 +109,13 @@ export function normalise(input: unknown): ProgressFile {
 export const getMode = (): Mode => load().mode;
 
 export function setMode(mode: Mode): void {
-  load().mode = mode;
+  const file = load();
+  file.mode = mode;
+  file.modeChosen = true;
   save();
 }
+
+export const hasChosenMode = (): boolean => load().modeChosen;
 
 export const getBigType = (): boolean => load().bigType;
 

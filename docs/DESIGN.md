@@ -269,6 +269,11 @@ real robot drives. Then put your code on your team's bot."), one yellow button, 
 floating at the edge. Under reduced motion the robot is parked with its route drawn behind it
 and the mascot holds still.
 
+**First visit.** Until a kid has picked a mode, the one start button is two: "I am 9 to 12"
+(Explorer) and "I am 13 to 18" (Builder). One tap sets the mode and starts lesson 1, so the
+question never blocks, and a nine-year-old is never started in Builder by default. Anyone with a
+passed lesson in their progress file counts as having chosen.
+
 ---
 
 ## Assets

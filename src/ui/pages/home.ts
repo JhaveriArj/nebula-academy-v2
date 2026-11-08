@@ -2,7 +2,8 @@ import { el, prefersReducedMotion } from '../dom';
 import { icon } from '../icons';
 import { createFieldView } from '../components/field';
 import { playWatch, type WatchSpec } from '../../sim/watch';
-import { counts, isPassed } from '../../progress/store';
+import { counts, hasChosenMode, isPassed, setMode, type Mode } from '../../progress/store';
+import { applyMode } from '../header';
 import { pathway } from '../../content/loader';
 import { lessonHref } from '../router';
 import { frameIndex } from '../frames';
@@ -28,6 +29,16 @@ const HERO: WatchSpec = {
 };
 
 export function homePage(): HTMLElement {
+  const startButton = (mode: Mode, label: string) =>
+    el('a', {
+      href: lessonHref(startAt),
+      class: 'btn btn-start',
+      onclick: () => {
+        setMode(mode);
+        applyMode();
+      },
+    }, el('span', { text: label }), icon('next', 20));
+
   const field = createFieldView({ label: 'The virtual robot driving a short loop on the field' });
   const frames = playWatch(HERO);
 
@@ -51,10 +62,21 @@ export function homePage(): HTMLElement {
         returning
           ? el('p', { class: 'hero-progress', text: `${passed} of ${total} lessons passed.` })
           : null,
-        el('a', { href: lessonHref(startAt), class: 'btn btn-start' },
-          el('span', { text: returning ? 'Carry on' : 'Start your first mission' }),
-          icon('next', 20),
-        ),
+        hasChosenMode()
+          ? el('a', { href: lessonHref(startAt), class: 'btn btn-start' },
+              el('span', { text: returning ? 'Carry on' : 'Start your first mission' }),
+              icon('next', 20),
+            )
+          // First visit: one tap picks the mode and starts, so nothing stands in the way,
+          // and a nine-year-old is not started in Builder by default.
+          : el('div', { class: 'start-choice', role: 'group', 'aria-labelledby': 'start-choice-label' },
+              el('p', { class: 'start-choice-label', id: 'start-choice-label', text: 'Start your first mission. How old are you?' }),
+              el('div', { class: 'start-choice-buttons' },
+                startButton('explorer', 'I am 9 to 12'),
+                startButton('builder', 'I am 13 to 18'),
+              ),
+              el('p', { class: 'start-choice-note', text: 'You can switch between Explorer and Builder any time at the top.' }),
+            ),
       ),
       el('img', {
         class: 'hero-mascot',
