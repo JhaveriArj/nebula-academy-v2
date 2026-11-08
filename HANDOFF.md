@@ -6,7 +6,7 @@ Last updated 2026-11-08. Resume with: **"Read HANDOFF.md and continue."**
 
 `npm run check` is green: **1054 tests, lint, design lint, contrast (53 pairs, light and dark), build**.
 
-Work is on branch **`design-polish`** (15 commits on top of `main`, not pushed).
+Everything is on `main`, pushed, and deployed.
 `npm run verify:javac` is green: **all 84 lesson files compile with real javac**.
 
 A JDK is now installed (`brew install openjdk@17`). `scripts/verify-javac.mjs` finds a
@@ -42,8 +42,10 @@ Homebrew keg-only JDK without it being on `PATH`, so the gate just runs.
 2. ~~`docs/ADDING_A_LESSON.md`~~ Done.
 3. ~~`README.md`~~ Done.
 4. ~~Polish pass.~~ Done on `design-polish`; see **Design polish (2026-11-08)** below.
-5. **Push and watch CI.** Neither workflow has ever run. `deploy.yml` needs Pages enabled
-   with "GitHub Actions" as the source.
+5. ~~Push and watch CI.~~ Done. Repo: https://github.com/JhaveriArj/nebula-academy-v2 (public).
+   **Live site: https://jhaveriarj.github.io/nebula-academy-v2/**. Every push to `main` runs CI
+   (check + real javac) and redeploys. The first CI run caught a missing `@types/node`
+   dev dependency, now declared.
 
 ## Design polish (2026-11-08)
 
