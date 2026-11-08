@@ -451,6 +451,8 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     step = name;
     const consoleState = CONSOLE_STEPS.has(name);
     shell.setAttribute('data-state', consoleState ? 'console' : 'reading');
+    // The run bar's primary button follows the step: Run in Try, Check it in Check.
+    shell.setAttribute('data-step', name);
     // Move the results, hints and next-lesson button to the column that is showing.
     if (consoleState) consoleColumn.insertBefore(resultsSlot, console_.element);
     else readingColumn.appendChild(resultsSlot);

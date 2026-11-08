@@ -225,7 +225,8 @@ button, .btn {
 button:active:not(:disabled), .btn:active { transform: translateY(1px); }
 
 button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-button:disabled { color: var(--ink-mid); border-color: var(--line); background: var(--surface-soft); cursor: not-allowed; }
+/* Disabled is quieter than every enabled button: no fill, no shadow, a faint edge. */
+button:disabled { color: var(--ink-mid); border-color: var(--line); background: transparent; box-shadow: none; cursor: not-allowed; }
 
 .panel { background: var(--surface); border: var(--seam-w) solid var(--line); border-radius: var(--radius); }
 .seam-t { border-top: var(--seam-w) solid var(--line); }
