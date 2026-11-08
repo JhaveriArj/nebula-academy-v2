@@ -486,8 +486,17 @@
   .step-button:hover:not(.is-current) { background: var(--surface-soft); }
 }
 
-.lesson-shell[data-state='console'] .step-name { display: none; }
-.lesson-shell[data-state='console'] .step-button { justify-content: center; padding: 0; }
+/* The narrow rail keeps its words: each label sits under its mark at 14 px. Hiding them
+   would also strip the buttons' accessible names (WCAG 4.1.2). */
+.lesson-shell[data-state='console'] .step-button {
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: var(--s1) 2px;
+  border-radius: var(--radius);
+}
+.lesson-shell[data-state='console'] .step-name { font-size: 14px; line-height: 1.1; }
 
 .lesson-reading { grid-area: reading; padding: var(--s5) var(--s6); overflow: auto; min-height: 0; background: var(--surface); }
 .lesson-shell[data-state='console'] .lesson-reading { display: none; }
@@ -821,12 +830,19 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .hero-mascot { width: 110px; }
 }
 
-/* Narrower still: the rail gives up its labels before the work gives up its width. */
+/* Narrower still: the rail narrows before the work gives up its width. */
 @media (max-width: 980px) {
   .lesson-shell,
-  .lesson-shell[data-state='console'] { grid-template-columns: var(--rail-narrow) minmax(0, 1fr); }
-  .lesson-shell .step-name { display: none; }
-  .lesson-shell .step-button { justify-content: center; padding: 0; }
+  .lesson-shell[data-state='console'] { grid-template-columns: var(--rail-narrow) minmax(0, 1fr) var(--console-side); }
+  .lesson-shell .step-button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: var(--s1) 2px;
+    border-radius: var(--radius);
+  }
+  .lesson-shell .step-name { font-size: 14px; line-height: 1.1; }
 }
 
 /* ------------------------------------------------- phones and 200% zoom */
@@ -860,8 +876,9 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   }
   .lesson-shell[data-state='console'] { grid-template-areas: 'rail' 'console' 'side'; }
   .step-rail { flex-direction: row; overflow-x: auto; border-inline-end: 0; border-bottom: var(--seam-w) solid var(--line); }
-  .lesson-shell .step-name { display: inline; }
-  .lesson-shell .step-button { justify-content: flex-start; padding: 0 var(--s3); flex: none; }
+  .lesson-shell .step-name { font-size: inherit; }
+  .lesson-shell .step-button,
+  .lesson-shell[data-state='console'] .step-button { flex-direction: row; justify-content: flex-start; gap: var(--s3); min-height: var(--tap); padding: 0 var(--s3); border-radius: var(--radius-pill); flex: none; }
   .lesson-side { flex-direction: column; max-height: none; }
   .field-box { width: 100%; height: auto; aspect-ratio: 1; }
   .lesson-reading, .home-panel, .chart-page { padding: var(--s4); }
