@@ -461,6 +461,21 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       button.classList.toggle('is-current', key === name);
     }
     renderStep();
+    keepFocus();
+  }
+
+  /** A next-step button is removed by the re-render, which drops focus on <body> and sends a
+   *  keyboard user back to the top of the page. Put it on the new step's heading instead.
+   *  A rail button survives the re-render, so focus stays on it. (WCAG 2.4.3.) */
+  function keepFocus(): void {
+    const active = document.activeElement;
+    if (active && active !== document.body && active.isConnected) return;
+    const target = CONSOLE_STEPS.has(step)
+      ? consoleColumn.querySelector<HTMLElement>('.lesson-reminder')
+      : prose.querySelector<HTMLElement>('h2, h3, p');
+    if (!target) return;
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
   }
 
   function renderStep(): void {

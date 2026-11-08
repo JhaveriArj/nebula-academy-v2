@@ -20,9 +20,14 @@ export function startApp(root: HTMLElement): void {
   let celebrateOn: string | null = null;
 
   const header = createHeader(() => {
-    // Mode changed: let the current page react without a full reload.
-    outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:modechange', { bubbles: false }));
-    render(parseHash(location.hash));
+    // Mode changed. A lesson updates its own locks and keeps the kid on the step they were
+    // on; re-rendering it would throw them back to Mission. Other pages re-render.
+    const route = parseHash(location.hash);
+    if (route.name === 'lesson') {
+      outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:modechange', { bubbles: false }));
+    } else {
+      render(route);
+    }
   });
 
   mount(root, header.element, outlet);

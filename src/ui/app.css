@@ -508,6 +508,9 @@
 }
 .lesson-shell[data-state='console'] .step-name { font-size: 14px; line-height: 1.1; }
 
+/* Focus lands here after a step change; the heading is a target, not a control. */
+.lesson-prose [tabindex='-1']:focus, .lesson-reminder:focus { outline: none; }
+
 .lesson-reading { grid-area: reading; padding: var(--s5) var(--s6); overflow: auto; min-height: 0; background: var(--surface); }
 .lesson-shell[data-state='console'] .lesson-reading { display: none; }
 
