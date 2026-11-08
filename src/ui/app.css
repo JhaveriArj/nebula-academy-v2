@@ -763,7 +763,8 @@
 .hint-title { margin: 0 0 var(--s2); font-size: var(--size-h3); }
 .hint { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: var(--s2); margin: 0 0 var(--s3); max-width: none; }
 .hint-number { color: var(--primary); }
-.hint-more { margin: 0; font-size: var(--size-label); }
+.hint-more { margin-top: var(--s1); }
+.hint-box [tabindex='-1']:focus { outline: none; }
 .hint-solution { margin-top: var(--s4); border-top: var(--seam-w) solid var(--line); padding-top: var(--s3); }
 
 /* --------------------------------------------------------------- markdown */

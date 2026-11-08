@@ -88,7 +88,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   const prose = el('div', { class: 'lesson-prose' });
   const actions = el('div', { class: 'lesson-actions' });
   const checkList = el('div', { class: 'check-results' });
-  const hintBox = el('div', { class: 'hint-box', hidden: true });
+  const hintBox = el('div', { class: 'hint-box', id: 'lesson-hints', hidden: true });
 
   const runButton = el('button', { type: 'button', class: 'btn btn-run', onclick: () => void onRun() },
     icon('run', 20), el('span', { text: 'Run' }));
@@ -137,6 +137,8 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   const stuckButton = el('button', {
     type: 'button',
     class: 'btn btn-quiet',
+    'aria-expanded': 'false',
+    'aria-controls': 'lesson-hints',
     onclick: () => revealHint(),
   }, icon('hint', 20), el('span', { text: 'Stuck?' }));
 
@@ -409,6 +411,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
 
   function revealHint(): void {
     hintBox.hidden = false;
+    stuckButton.setAttribute('aria-expanded', 'true');
     const total = lesson.hints.hints.length;
     if (hintsShown < total) hintsShown++;
     else solutionShown = true;
@@ -432,13 +435,23 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
               },
             }, el('span', { text: 'Put it in the editor' })),
           )
-        : el('p', { class: 'muted hint-more' },
-            hintsShown < total
-              ? `Press Stuck again for hint ${hintsShown + 1} of ${total}.`
-              : 'Press Stuck again to see the finished code.',
+        // The next hint is a button right here, not "press Stuck again": by now the Stuck
+        // button has usually scrolled out of sight.
+        : el('button', { type: 'button', class: 'btn btn-quiet hint-more', onclick: () => revealHint() },
+            icon('hint', 20),
+            el('span', { text: hintsShown < total ? `Show hint ${hintsShown + 1} of ${total}` : 'Show the finished code' }),
           ),
     );
     hintBox.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    // Put focus on what just appeared, so a screen reader reads it and a keyboard user is
+    // next to the button for the following hint.
+    const newest = solutionShown
+      ? hintBox.querySelector<HTMLElement>('.hint-solution .hint-title')
+      : hintBox.querySelectorAll<HTMLElement>('.hint')[hintsShown - 1];
+    if (newest) {
+      newest.setAttribute('tabindex', '-1');
+      newest.focus({ preventScroll: true });
+    }
   }
 
   /* ----------------------------------------------------------------- steps */
