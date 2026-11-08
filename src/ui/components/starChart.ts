@@ -193,6 +193,8 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
         waypointLayer.appendChild(link);
         waypointNodes.set(lesson.id, link);
       } else {
+        // A labelled <g> needs a role, or the label is ignored (axe aria-prohibited-attr).
+        group.setAttribute('role', 'img');
         group.setAttribute('aria-label', label);
         waypointLayer.appendChild(group);
         waypointNodes.set(lesson.id, group);
@@ -234,15 +236,15 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
     // An open station is the big target: it goes to the tier's next lesson.
     const nextLesson = tier.lessons.find((l) => !isPassed(l.id)) ?? tier.lessons[0];
     if (unlocked && nextLesson) {
-      const link = svg('a', {
-        href: lessonHref(nextLesson.id),
-        class: 'chart-station-link',
-        'aria-label': `Tier ${tier.tier}, ${tier.name}, ${passed} of ${total} flown. Go to ${nextLesson.title}`,
-      });
+      // Chrome names an SVG link from its <title>. The title starts with the badge's own
+      // words ("Launchpad 0 of 4"), so voice control can say what it sees (WCAG 2.5.3).
+      const link = svg('a', { href: lessonHref(nextLesson.id), class: 'chart-station-link' });
+      link.appendChild(svg('title', { text: `${tier.name} ${passed} of ${total}. Next lesson: ${nextLesson.title}` }));
       link.appendChild(box);
       stationLayer.appendChild(link);
     } else {
-      box.setAttribute('aria-label', `Tier ${tier.tier}, ${tier.name}, locked`);
+      box.setAttribute('role', 'img');
+      box.setAttribute('aria-label', `${tier.name}, locked, tier ${tier.tier}`);
       stationLayer.appendChild(box);
     }
   });
