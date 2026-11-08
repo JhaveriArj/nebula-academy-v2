@@ -38,23 +38,31 @@ export function homePage(): HTMLElement {
   const returning = passed > 0;
 
   const page = el('div', { class: 'home' },
-    el('div', { class: 'hero' },
+    el('section', { class: 'hero', 'aria-labelledby': 'hero-title' },
       el('div', { class: 'hero-field' }, field.canvas),
       el('div', { class: 'hero-aside' },
+        el('h1', { class: 'hero-title', id: 'hero-title' },
+          'Write real Java. A real robot drives. Then put your code on your team’s bot.',
+        ),
+        el('p', { class: 'hero-sub' },
+          'Six tiers, 42 lessons, ages 9 to 18. No account, nothing to install.',
+        ),
+        returning
+          ? el('p', { class: 'hero-progress', text: `${passed} of ${total} lessons passed.` })
+          : null,
         el('a', { href: lessonHref(startAt), class: 'btn btn-start' },
           el('span', { text: returning ? 'Carry on' : 'Start your first mission' }),
           icon('next', 20),
         ),
-        returning
-          ? el('p', { class: 'muted', text: `${passed} of ${total} lessons passed.` })
-          : null,
-        el('p', { class: 'hero-sentence' },
-          'Write real Java. A real robot drives. Then put your code on your team’s bot.',
-        ),
-        el('p', { class: 'muted' },
-          'Six tiers, 42 lessons, ages 9 to 18. No account, nothing to install.',
-        ),
       ),
+      el('img', {
+        class: 'hero-mascot',
+        src: `${import.meta.env.BASE_URL}art/mascot-264.png`,
+        alt: '',
+        width: '152',
+        height: '264',
+        decoding: 'async',
+      }),
     ),
 
     el('div', { class: 'home-panels' },
@@ -94,7 +102,8 @@ export function homePage(): HTMLElement {
     let raf = 0;
     const startedAt = performance.now();
     const play = (now: number) => {
-      const index = Math.floor(((now - startedAt) / 20) % frames.length);
+      // A rAF timestamp can predate startedAt by a frame; clamp so the index never goes negative.
+      const index = Math.floor((Math.max(0, now - startedAt) / 20) % frames.length);
       field.draw(frames[index]!.snapshot);
       raf = requestAnimationFrame(play);
     };

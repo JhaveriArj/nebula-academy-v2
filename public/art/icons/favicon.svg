@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Nebula Academy">
-  <rect width="32" height="32" rx="3" fill="#0E1620"/>
-  <path d="M5 22 L13 22 L19 12 L27 12" fill="none" stroke="#F0A93B" stroke-width="2.5" stroke-linecap="square"/>
-  <circle cx="13" cy="22" r="3" fill="#F0A93B"/>
-  <circle cx="19" cy="12" r="3.5" fill="none" stroke="#DCE0D8" stroke-width="2"/>
+  <rect width="32" height="32" rx="9" fill="#0B0A3A"/>
+  <path d="M11 9 L9 4 M21 9 L23 4" stroke="#C5BAE8" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="9" cy="4" r="2" fill="#FEBC02"/>
+  <circle cx="23" cy="4" r="2" fill="#FEBC02"/>
+  <circle cx="16" cy="18" r="10" fill="#5452F8"/>
+  <circle cx="16" cy="18.5" r="7.5" fill="#C5BAE8"/>
+  <circle cx="13" cy="18" r="2.4" fill="#8262C4"/>
+  <circle cx="19" cy="18" r="2.4" fill="#8262C4"/>
 </svg>

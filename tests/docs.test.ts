@@ -27,7 +27,7 @@ describe('project docs', () => {
   it('DESIGN.md names the palette that theme.css implements', () => {
     const design = read('docs/DESIGN.md');
     const theme = read('src/ui/theme.css');
-    for (const token of ['--ink', '--hull', '--seam', '--chart', '--lamp', '--go']) {
+    for (const token of ['--ink', '--bg', '--surface', '--primary', '--link', '--star', '--badge', '--space', '--go', '--alert']) {
       expect(design, `${token} missing from DESIGN.md`).toContain(token);
       expect(theme, `${token} missing from theme.css`).toContain(token);
     }

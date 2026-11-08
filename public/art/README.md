@@ -6,7 +6,9 @@ viewBox and a documented anchor point; keep both and a replacement drops straigh
 
 | File | What it is | Where it is used | Anchor |
 |---|---|---|---|
-| `logo.png` | The wordmark. Not restyled, per the brief. | Header, every page | — |
+| `logo.png` | The mascot, exactly as supplied. Source of the palette. Not loaded by the app. | — | — |
+| `mascot-112.png` | The mascot resized to 112 px tall (10 KB) | Header, every page | — |
+| `mascot-264.png` | The mascot resized to 264 px tall (43 KB), 2x its display size | Home hero | — |
 | `robot-tank.svg` | Tank drivetrain robot, top down, 18 in square | Field view, Tiers 0–2 | Box centre; forward is −y |
 | `robot-mecanum.svg` | Mecanum robot, rollers drawn at 45° | Field view, Tiers 3–5 | Box centre; forward is −y |
 | `field-tile.svg` | 24 in foam tile, tiles seamlessly | Field view background | Top-left |
@@ -24,9 +26,13 @@ notch, hexagon, delta, octagon, diamond — so a kid can tell Tier 3 from Tier 4
 classroom, and so can a kid who cannot tell teal from amber. Colour is never the only
 signal anywhere in this project.
 
-**Amber only burns on dark.** `--lamp` (`#F0A93B`) measures 1.50:1 against the light
-chrome and may not carry text or an icon there. These sprites all sit on the dark field or
-the dark star chart, which is why they use it freely. See `docs/DESIGN.md`.
+**Yellow only glows in space.** `--star` (`#FEBC02`) measures about 1.5:1 against the
+light page and may not carry text or an icon there. The field and the star chart are space
+surfaces, so they use it freely. See `docs/DESIGN.md`.
+
+The sprite and badge SVGs still use the pre-2026-11-08 colors (grey-green and amber). They are
+reference art and not loaded by the app; recolor them to the `--space-*` tokens before wiring
+them in.
 
 ## The UI icons are not here
 

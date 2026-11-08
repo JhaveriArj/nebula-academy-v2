@@ -1,57 +1,156 @@
-/* Nebula Academy theme. Tokens and rules come from docs/DESIGN.md.
-   Mission control is painted metal in a bright room, watching a dark screen:
-   the chrome is light paint, only the star chart and the console are dark,
-   and --lamp only ever burns on a dark surface. */
+/* Nebula Academy theme. The single source of truth for color, type and shape;
+   docs/DESIGN.md explains every token, scripts/check-contrast.mjs measures them, and
+   scripts/lint-design.mjs keeps hex values out of every other stylesheet.
+
+   Every color comes from the mascot in public/art/logo.png: the deep navy of its outline,
+   the violet suit, the indigo helmet, the lavender visor, the yellow antennae and the
+   magenta chest badge. Two kinds of surface:
+     - the page (bg, surface, ink...) follows the device's light or dark setting;
+     - "space" (the star chart, the code editor, the field, the console) is always a dark
+       screen, in both modes. Only there does --star glow as a light. */
 
 :root {
-  /* Six named colors. */
-  --ink:   #141C27;
-  --hull:  #DCE0D8;
-  --seam:  #B6BDB2;
-  --chart: #0E1620;
-  --lamp:  #F0A93B;
-  --go:    #115E55;
+  /* --- The page, light. --------------------------------------------------- */
+  --bg:           #F5F3FC;  /* lavender-white, tinted toward the suit */
+  --surface:      #FFFFFF;  /* panels that sit on the page */
+  --surface-soft: #EAE5F8;  /* inset fields, the visor tint */
+  --line:         #D3CAEE;  /* hairlines between things */
+  --line-strong:  #7A6DB3;  /* borders a control needs to be seen by (3:1) */
+  --ink:          #15123F;  /* all body text */
+  --ink-mid:      #4A4472;  /* secondary text */
 
-  /* Derived. */
-  --ink-mid:  #46505C;
-  --hull-soft:#EDEFEA;
-  --alert:    #A82A15;
+  /* --- Brand roles. ----------------------------------------------------- */
+  --primary:      #4B3590;  /* suit violet: main buttons, current state */
+  --primary-press:#3A2775;
+  --on-primary:   #FFFFFF;
+  --link:         #3F3DD6;  /* helmet indigo, darkened to pass AA on --bg */
+  --star:         #FEBC02;  /* antenna yellow: a light. On space, or behind --ink. */
+  --on-star:      #15123F;
+  --badge:        #A62961;  /* chest badge magenta: celebration, "you are here" */
+  --go:           #0F6B5C;  /* a test passed */
+  --alert:        #B3261E;  /* the robot got confused */
 
-  /* Type. */
-  --face-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  /* --- Space: the dark working screens. Same in both modes. -------------- */
+  --space:        #0B0A3A;
+  --space-raised: #17145A;
+  --space-line:   #2E2A78;
+  --space-ink:    #ECE8FA;
+  --space-mute:   #B3ACD6;
+  --space-dim:    #8F88C8;
+  --space-go:     #5FD4BE;
+  --space-alert:  #FF8A80;
+  --space-route:  #5A54A8;  /* chart routes and ticks: line work, not text */
+  --space-wall:   #4C468F;
+
+  /* --- Code colors, on space. ------------------------------------------- */
+  --syn-keyword:    #FEBC02;
+  --syn-string:     #7FE0C4;
+  --syn-number:     #A9BEFF;
+  --syn-comment:    #9A93CF;
+  --syn-type:       #F2C6E6;
+  --syn-function:   #ECE8FA;
+  --syn-annotation: #C5BAE8;
+  --syn-operator:   #B3ACD6;
+
+  /* --- Type. Fredoka is round like the helmet; Atkinson Hyperlegible Next is
+         drawn for low vision and carries every word a kid has to read. ------ */
+  --face-display: 'Fredoka', 'Nunito', 'Trebuchet MS', sans-serif;
   --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif;
   --face-code: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   /* Builder sizes. Explorer overrides below. */
   --size-prose: 18px;
   --size-code: 15px;
-  --size-label: 14px;
-  --size-h1: 28px;
-  --size-h2: 22px;
-  --size-h3: 18px;
+  --size-label: 15px;
+  --size-h1: 30px;
+  --size-h2: 23px;
+  --size-h3: 19px;
   --lh-prose: 1.6;
 
-  /* Geometry. No shadows, nothing above 3px. */
-  --radius: 3px;
+  /* --- Shape. Round, like the mascot. ----------------------------------- */
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(21 18 63 / 0.08);
+  --shadow: 0 1px 2px rgb(21 18 63 / 0.06), 0 8px 24px -10px rgb(75 53 144 / 0.28);
+  --shadow-lift: 0 2px 4px rgb(21 18 63 / 0.08), 0 14px 32px -12px rgb(75 53 144 / 0.38);
+
   --seam-w: 1px;
   --tap: 44px;
-  --rail: 160px;
-  --rail-narrow: 56px;
+  --rail: 168px;
+  --rail-narrow: 60px;
   --console-side: 400px;
-  --reading-max: 60ch;
+  --reading-max: 62ch;
 
   /* Spacing, 4px base. */
   --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
   --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  /* Layers. */
+  --z-sticky: 10;
+  --z-skip: 100;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: light;
+}
+
+/* --- The page, dark. Follows the device unless something sets data-theme. --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg:           #100E3E;
+    --surface:      #1A1752;
+    --surface-soft: #221F60;
+    --line:         #35317F;
+    --line-strong:  #8F88C8;
+    --ink:          #ECE8FA;
+    --ink-mid:      #BDB6E0;
+    --primary:      #B9A6F5;
+    --primary-press:#CDBFFA;
+    --on-primary:   #15123F;
+    --link:         #A8A6FF;
+    --badge:        #EE8DB8;
+    --go:           #5FD4BE;
+    --alert:        #FF8A80;
+    --space:        #07062A;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 16px 36px -12px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg:           #100E3E;
+  --surface:      #1A1752;
+  --surface-soft: #221F60;
+  --line:         #35317F;
+  --line-strong:  #8F88C8;
+  --ink:          #ECE8FA;
+  --ink-mid:      #BDB6E0;
+  --primary:      #B9A6F5;
+  --primary-press:#CDBFFA;
+  --on-primary:   #15123F;
+  --link:         #A8A6FF;
+  --badge:        #EE8DB8;
+  --go:           #5FD4BE;
+  --alert:        #FF8A80;
+  --space:        #07062A;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 16px 36px -12px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
 }
 
 :root[data-mode='explorer'] {
   --size-prose: 21px;
   --size-code: 17px;
   --size-label: 16px;
-  --size-h1: 32px;
-  --size-h2: 25px;
-  --size-h3: 20px;
+  --size-h1: 34px;
+  --size-h2: 26px;
+  --size-h3: 21px;
   --lh-prose: 1.65;
 }
 
@@ -68,7 +167,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--hull);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--face-text);
   font-size: var(--size-prose);
@@ -76,32 +175,31 @@ body {
 }
 
 h1, h2, h3, h4, button, th,
-.display { font-family: var(--face-display); font-weight: 700; }
+.display { font-family: var(--face-display); font-weight: 600; }
 
-h1 { font-size: var(--size-h1); line-height: 1.2; margin: 0 0 var(--s4); }
-h2 { font-size: var(--size-h2); line-height: 1.25; margin: var(--s6) 0 var(--s3); }
-h3 { font-size: var(--size-h3); line-height: 1.3; margin: var(--s5) 0 var(--s2); }
+h1 { font-size: var(--size-h1); line-height: 1.15; margin: 0 0 var(--s4); text-wrap: balance; }
+h2 { font-size: var(--size-h2); line-height: 1.2; margin: var(--s6) 0 var(--s3); text-wrap: balance; }
+h3 { font-size: var(--size-h3); line-height: 1.3; margin: var(--s5) 0 var(--s2); text-wrap: balance; }
 
-p, li { max-width: var(--reading-max); }
+p, li { max-width: var(--reading-max); text-wrap: pretty; }
 
 code, pre, .code { font-family: var(--face-code); font-size: var(--size-code); }
 
-:where(a) { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+:where(a) { color: var(--link); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 
-/* Focus is never removed and never only a color change.
-   --ink on paint (12.81:1), --lamp on dark surfaces (9.05:1). */
+/* Focus is never removed and never only a color change. */
 :focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 1px;
+  outline: 3px solid var(--link);
+  outline-offset: 2px;
 }
 .on-dark :focus-visible, .on-dark:focus-visible {
-  outline-color: var(--lamp);
+  outline-color: var(--star);
 }
 
-/* Dark working surfaces: the star chart and the console. Only here does amber glow. */
+/* The dark working screens: the star chart, the console, telemetry, the gamepad. */
 .on-dark {
-  background: var(--chart);
-  color: var(--hull);
+  background: var(--space);
+  color: var(--space-ink);
 }
 
 /* Every touchable thing clears 44x44. */
@@ -113,26 +211,31 @@ button, .btn, [role='button'], input, select, summary {
 
 button, .btn {
   min-width: var(--tap);
-  padding: var(--s3) var(--s5);
-  border: var(--seam-w) solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--hull-soft);
+  padding: var(--s2) var(--s5);
+  border: var(--seam-w) solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out),
+    transform 120ms var(--ease-out), box-shadow 160ms var(--ease-out);
 }
 
-button[aria-pressed='true'] { background: var(--ink); color: var(--hull); }
-button:disabled { color: var(--ink-mid); border-color: var(--seam); cursor: not-allowed; }
+button:active:not(:disabled), .btn:active { transform: translateY(1px); }
 
-/* Panels are a paint change and one hairline. No cards, no float. */
-.panel { background: var(--hull-soft); border: var(--seam-w) solid var(--seam); border-radius: var(--radius); }
-.seam-t { border-top: var(--seam-w) solid var(--seam); }
-.seam-r { border-right: var(--seam-w) solid var(--seam); }
+button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+button:disabled { color: var(--ink-mid); border-color: var(--line); background: var(--surface-soft); cursor: not-allowed; }
+
+.panel { background: var(--surface); border: var(--seam-w) solid var(--line); border-radius: var(--radius); }
+.seam-t { border-top: var(--seam-w) solid var(--line); }
+.seam-r { border-right: var(--seam-w) solid var(--line); }
 
 .muted { color: var(--ink-mid); }
 .pass  { color: var(--go); }
 .fail  { color: var(--alert); }
+.on-dark .pass { color: var(--space-go); }
+.on-dark .fail { color: var(--space-alert); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
@@ -140,7 +243,12 @@ button:disabled { color: var(--ink-mid); border-color: var(--seam); cursor: not-
 }
 
 .skip-link { position: absolute; left: -9999px; }
-.skip-link:focus { left: var(--s4); top: var(--s4); z-index: 100; background: var(--hull-soft); padding: var(--s3); }
+.skip-link:focus {
+  left: var(--s4); top: var(--s4); z-index: var(--z-skip);
+  min-height: var(--tap); display: inline-flex; align-items: center;
+  background: var(--surface); color: var(--ink); padding: var(--s3) var(--s4);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow);
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

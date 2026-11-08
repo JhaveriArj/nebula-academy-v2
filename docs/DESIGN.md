@@ -1,85 +1,84 @@
 # Nebula Academy — Design plan
 
-Written before any CSS, as the brief requires. Reviewed against the brief once and changed; the
-review and what it changed are in [After the review](#after-the-review).
+The visual identity comes from the mascot in `public/art/logo.png`. It was redrawn on
+2026-11-08; the earlier "painted metal" plan and what changed are in
+[The 2026-11-08 redesign](#the-2026-11-08-redesign).
 
 **The brief in one line.** A space-mission academy for kids, run by a real FTC team, that feels
-like a real control room game — not a SaaS landing page, not a template.
+like a friendly mission you join, not a SaaS landing page and not a template.
 
 ---
 
 ## The idea the whole design hangs on
 
-Mission control is **painted metal in a bright room, watching a dark screen.**
+**A friendly astronaut-bot drifting through deep space.** The mascot is rounded, soft violet,
+outlined in deep navy, with two yellow antennae that look switched on. The site borrows all of
+that.
 
-The chrome of this site — bars, rails, panels, buttons — is pale instrument-panel paint under
-fluorescent light. The two surfaces where work actually happens — the **star chart** and the
-**code console** — are dark, because those are screens. Amber only glows on the dark surfaces,
-because amber means *powered*. The painted chrome never lights up; paint does not glow.
-
-That single rule decides the palette, where the accent may appear, and why the Level Map looks
-different from everything else. It is a physical logic, not a style preference, which is what
-keeps it from drifting into a generic dark theme with an accent color.
+The page is the inside of the ship: a pale lavender-white, rounded white panels, violet buttons.
+The places where work happens (the **star chart**, the **code editor**, the **field** and the
+**console**) are windows into *space*: deep navy, the same in light and dark mode. Yellow is the
+antenna light. It means *powered* and it only glows in space, or as a fill behind dark text on
+the one start button. It never carries text on the light page.
 
 ---
 
 ## Palette
 
-Six named colors, three derived. All pairs used for text are measured, not estimated
-(`npm run check:contrast` re-measures them).
+Every color is sampled from the mascot. All text pairs are measured in both modes by
+`scripts/check-contrast.mjs`, which runs in `npm run check`. `src/ui/theme.css` is the only
+file in the project allowed to contain a color value; the design lint rejects a hex or `rgb()`
+anywhere else, and the canvas and the code editor read their colors from it at runtime.
 
-| Token | Hex | Role |
-|---|---|---|
-| `--ink` | `#141C27` | All body text on light. The ground of the star chart and the console. |
-| `--hull` | `#DCE0D8` | Page and panel paint. Cool grey-green, the color of real instrument bezels. |
-| `--seam` | `#B6BDB2` | Every border and panel division. One hairline, never a shadow. |
-| `--chart` | `#0E1620` | The dark working surfaces only: Level Map ground, editor, field view. |
-| `--lamp` | `#F0A93B` | Amber indicator. Live state, current waypoint, the route already flown. **Dark surfaces only.** |
-| `--go` | `#115E55` | A test passed. A checkpoint cleared. Deep teal, not a bright green. |
+| Token | Light | Dark | From the mascot | Role |
+|---|---|---|---|---|
+| `--bg` | `#F5F3FC` | `#100E3E` | suit, lightened | The page |
+| `--surface` | `#FFFFFF` | `#1A1752` | | Panels on the page |
+| `--surface-soft` | `#EAE5F8` | `#221F60` | visor | Inset fields, current step |
+| `--line` | `#D3CAEE` | `#35317F` | visor | Hairlines |
+| `--line-strong` | `#7A6DB3` | `#8F88C8` | | Control borders (3:1) |
+| `--ink` | `#15123F` | `#ECE8FA` | outline navy | Body text |
+| `--ink-mid` | `#4A4472` | `#BDB6E0` | | Secondary text |
+| `--primary` | `#4B3590` | `#B9A6F5` | suit violet | Main buttons, current state |
+| `--link` | `#3F3DD6` | `#A8A6FF` | helmet indigo | Links, focus ring |
+| `--star` | `#FEBC02` | same | antennae | The light. Space only, or behind `--ink` |
+| `--badge` | `#A62961` | `#EE8DB8` | chest badge | The one-second celebration |
+| `--go` | `#0F6B5C` | `#5FD4BE` | | A test passed |
+| `--alert` | `#B3261E` | `#FF8A80` | | The robot got confused |
+| `--space` | `#0B0A3A` | `#07062A` | outline navy | Chart, editor, field, console |
 
-Derived: `--ink-mid #46505C` (secondary text), `--hull-soft #EDEFEA` (inset fields and raised
-panels), `--alert #A82A15` (the robot got confused — errors only).
+`--space-*` tokens (`raised`, `line`, `ink`, `mute`, `dim`, `go`, `alert`, `route`, `wall`) and
+the `--syn-*` code colors live alongside them in `theme.css`.
 
-**Measured contrast** (WCAG 2.1, computed):
+**Dark mode** follows the device (`prefers-color-scheme`). `:root[data-theme='light' | 'dark']`
+overrides it, so a toggle can be added later without touching any other stylesheet.
 
-```
-ink      on hull       12.81:1  AAA      go    on hull        5.70:1  AA
-ink      on hull-soft  14.80:1  AAA      alert on hull        5.22:1  AA
-ink-mid  on hull        6.13:1  AA       lamp  on chart       9.05:1  AAA
-hull     on chart      13.60:1  AAA      seam  on chart       9.45:1  AAA
-lamp     on hull        1.50:1  FAIL  ← enforced as a rule, see below
-```
-
-**The amber rule.** `--lamp` on `--hull` measures 1.50:1 and can never carry text or an icon on
-light paint. Rather than patch this with a darker amber, the failure becomes the rule that gives
-the design its logic: **amber appears only on dark surfaces.** A lesson card on the light chrome
-shows "done" in `--go` and a filled square; the same lesson on the dark star chart shows it as a
-lit amber waypoint. One state, two surfaces, two correct treatments.
+**The yellow rule.** `--star` on `--bg` measures about 1.5:1. The contrast script requires that
+pair to *fail*: yellow is a light, not a text color. If someone darkens it until it passes, the
+rule has been deleted and the stylesheet needs re-reading.
 
 Nothing is colored to decorate. A color on screen means a state the robot or the kid is actually
-in.
+in, or it is the mascot.
 
 ---
 
 ## Type
 
-Two families from Google Fonts, plus the system monospace. Three roles.
+Two families from Google Fonts, plus the system monospace.
 
-**Archivo** — headings, tier names, buttons, telemetry keys, numbers.
-`font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif`
-An industrial grotesque drawn for signage. At 600–800 with the width axis pulled in slightly it
-reads like a stencilled panel label without being a novelty face. Variable, one file.
+**Fredoka** — headings, buttons, navigation, tier names, telemetry keys.
+`font-family: 'Fredoka', 'Nunito', 'Trebuchet MS', sans-serif`
+Round terminals and soft bowls, like the helmet and antennae. Used at 500–600, never above
+46px. Variable, one file.
 
 **Atkinson Hyperlegible Next** — all lesson prose, hints, glossary, mentor docs.
 `font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif`
 Drawn by the Braille Institute to maximize character disambiguation for low vision. It is the
 single best face available for a nine-year-old reading `1 l I` and `0 O` inside sentences about
-Java identifiers. Choosing it is an accessibility decision that happens to also look specific.
+Java identifiers. It stays through any restyle.
 
 **System monospace** — code only. No third webfont.
 `font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace`
-Saves roughly 60 KB on a school Chromebook's first load, and it is already the face the kid will
-meet in Android Studio in Tier 5.
 
 **Sizes.** Explorer in parentheses.
 
@@ -87,11 +86,27 @@ meet in Android Studio in Tier 5.
 |---|---|---|
 | Lesson prose | 18px / 1.6 | 21px / 1.65 |
 | Code | 15px / 1.55 | 17px / 1.6 |
-| Headings | 28 / 22 / 18 | 32 / 25 / 20 |
-| Telemetry + labels | 14px | 16px |
+| Headings | 30 / 23 / 19 | 34 / 26 / 21 |
+| Telemetry + labels | 15px | 16px |
 
-18px is the floor for prose in either mode. Nothing shrinks below 14px anywhere, ever. A
-"larger type" toggle scales the Explorer column again by 1.15 for low vision, independent of mode.
+18px is the floor for prose in either mode. Nothing a kid has to read shrinks below 14px. A
+"larger type" toggle scales again for low vision, independent of mode.
+
+---
+
+## Shape
+
+| Token | Value | Used for |
+|---|---|---|
+| `--radius-xs` | 5px | Inline code |
+| `--radius-sm` | 8px | Code blocks, problem boxes |
+| `--radius` | 12px | Panels, the field, telemetry |
+| `--radius-lg` | 20px | The hero window, the star chart, home lists |
+| `--radius-pill` | 999px | Every button, nav link, step, toggle |
+| `--shadow-sm` / `--shadow` / `--shadow-lift` | violet-tinted | Header / panels / the screens |
+
+The lint accepts a radius only as one of these tokens (or `50%` for circles) and a shadow only
+through a `--shadow-*` token.
 
 ---
 
@@ -99,7 +114,7 @@ meet in Android Studio in Tier 5.
 
 ### Level Map — the one bold thing
 
-A hand-inked navigational star chart, drawn as inline SVG, on `--chart` ground. Tiers are
+A hand-inked navigational star chart, drawn as inline SVG, on `--space` ground. Tiers are
 stations; lessons are waypoints on a flown route. Strokes are drawn with a slight hand wobble
 (a seeded jitter on the path data, generated once at build time, not animated), hatched shading,
 coordinate ticks and margin annotations in the chart's own handwriting. It is the only screen in
@@ -107,7 +122,7 @@ the project with drawing on it.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│ [logo] Nebula Academy             Explorer│Builder      Mentor    Progress │  hull, 56px
+│ [logo] Nebula Academy             Explorer│Builder      Mentor    Progress │ surface, 64px
 ├────────────────────────────────────────────────────────────────────────────┤
 │·     ·        ·      ·            ·        ·      ·        ·      ·        │  chart ground
 │   ╭────────╮                                                               │
@@ -128,12 +143,12 @@ the project with drawing on it.
 ```
 
 Waypoint states are distinguishable **by shape alone** — filled, ringed, hollow, and a dashed
-route — so the chart works in greyscale and for a colorblind kid. Amber is confirmation, never
+route — so the chart works in greyscale and for a colorblind kid. Yellow is confirmation, never
 the only signal.
 
 **The only animation in the project that is not a state change:** completing a lesson extends
 the route stroke to the next waypoint (`stroke-dashoffset`, 900 ms, ease-out), the new waypoint
-lights amber, and that is the whole celebration — one second, then the next-lesson button, per
+lights yellow, and that is the whole celebration — one second, then the next-lesson button, per
 CLAUDE.md. Under `prefers-reduced-motion: reduce` the route is simply already extended.
 
 ### Lesson page — the console
@@ -190,8 +205,9 @@ width; the field view shrinks to 280px tall and stays visible while code runs, b
 must see the robot and the code at the same time. At **200% zoom** the layout is the 1024
 arrangement in a single scrolling column, rail on top as a horizontal route.
 
-**No cards.** Panels are divided by one `--seam` hairline and a change of paint. There is no
-border-radius above 3px, no box-shadow anywhere in the project, and no panel that floats.
+**Few cards.** Panels are a white surface on the lavender page with one `--line` hairline and a
+soft violet shadow. Three things float (the hero window, the star chart frame, the field) because
+they are screens. Lists stay lists, inside one rounded panel, never chopped into a card each.
 
 ---
 
@@ -199,13 +215,12 @@ border-radius above 3px, no box-shadow anywhere in the project, and no panel tha
 
 **1. The panel reports; it does not perform.**
 Every number on screen is read from the robot or the test runner. No decorative metrics, no
-sparkline that isn't data, no progress ring that isn't progress, no "42 lessons!" statistic on
-the home page. If we cannot name the variable behind a number, it comes off the screen.
+sparkline that isn't data, no progress ring that isn't progress. If we cannot name the variable
+behind a number, it comes off the screen.
 
-**2. One room is loud.**
-The Level Map is drawn, hand-feeling and animated. Every other screen is flat paint, one
-hairline, and type. Boldness spent twice is boldness wasted, and a kid should be able to picture
-the chart with their eyes closed.
+**2. Space is loud; the ship is calm.**
+The hero window and the star chart are the bold surfaces: deep navy, yellow light, the mascot.
+Everything on the light page is white panels, one hairline, violet, and type.
 
 **3. Thumb-first, 18px floor.**
 If it needs a mouse, a hover, or a squint, it is broken. 44×44 px minimum on everything
@@ -216,95 +231,64 @@ visible.
 
 ## Motion, icons, and the hero
 
-**Motion.** Four animations exist in the whole project: the route extending on the Level Map, the
-robot moving in the sim (that's the product, not an effect), the Run button's amber lamp while
-code runs, and hints sliding down as they are revealed (120 ms). No entrance animations. No
-scroll-triggered anything. Every one of them is disabled or made instant under
-`prefers-reduced-motion: reduce`.
+**Motion.** The route extending on the Level Map, the robot moving in the sim (that is the
+product, not an effect), the mascot drifting slowly at the edge of the hero, and 120–160 ms
+color transitions on buttons. No entrance animations. No scroll-triggered anything. Every one of
+them is disabled or made instant under `prefers-reduced-motion: reduce`.
 
-**Icons.** Drawn by hand as SVG, 24×24, 1.75px stroke, square cap, no fill. Run, stop, locked,
-passed, failed, hint, export, import, mentor, back-to-chart. No emoji anywhere in the UI — and
-none in lesson prose either, where a screen reader would read them aloud mid-sentence.
+**Icons.** Drawn by hand as SVG in `src/ui/icons.ts`, 24×24, 1.75px stroke, no fill, inheriting
+`currentColor`. No emoji anywhere in the UI or lesson prose.
 
-**Focus.** 3px ring. `--ink` on light paint (12.81:1), `--lamp` on dark surfaces (9.05:1), always
-with a 1px offset so it reads on both. Never removed, never only a color change.
+**Focus.** 3px ring with a 2px offset. `--link` on the page, `--star` in space. Never removed,
+never only a color change.
 
-**The hero is a live thing.** The home page opens with the virtual robot driving a short loop on
-the field — the real sim, the real robot sprite, on a fixed-timestep loop, about six seconds,
-repeating. One button: "Start your first mission." Under reduced motion the robot is parked
-mid-field with its route drawn behind it as a static path. No headline over it, no tagline, no
-gradient. The page's first sentence sits *below* the field and is specific: "Write real Java. A
-real robot drives. Then put your code on your team's bot."
+**The hero is a window into space.** The home page opens with a deep-navy panel: the virtual
+robot driving a short loop on the real sim, the page's one `<h1>` beside it ("Write real Java. A
+real robot drives. Then put your code on your team's bot."), one yellow button, and the mascot
+floating at the edge. Under reduced motion the robot is parked with its route drawn behind it
+and the mascot holds still.
 
 ---
 
 ## Assets
 
-All generated art in `public/art/`, with a README listing every file and where it is used. The
-sprite set is designed to be replaced later with illustrated versions, so every sprite is a
-single SVG with a fixed viewBox and a documented anchor point.
+All art is in `public/art/`, with a README listing every file and where it is used.
 
-```
-public/art/
-  robot-tank.svg          top-down, 18×18 in footprint, anchor at center, wheels on the long sides
-  robot-mecanum.svg       top-down, 18×18 in, four rollers drawn at 45° so rotation reads
-  badge-t0..t5.svg        six mission patches — distinct silhouettes, not six colored circles
-  field-tile.svg          24×24 in foam tile, seam + stud pattern, tiles seamlessly
-  element-cube.svg        generic game element (no season trademarks)
-  element-ball.svg        generic game element
-  goal-zone.svg           corner scoring zone
-  loading.svg             a horizon line sweeping — no spinner
-  icons/*.svg             the UI icon set above
-```
+- `logo.png` is the mascot, kept exactly as supplied. The page loads two resized copies,
+  `mascot-112.png` (header, 10 KB) and `mascot-264.png` (hero, 43 KB), so a Chromebook never
+  downloads the 191 KB original.
+- `icons/favicon.svg` is the mascot's helmet and antennae, drawn in palette colors.
+- The tier badges and field sprites are reference art; the field itself is drawn on canvas from
+  the `--space-*` tokens.
 
-**Tier badges are patches, not dots.** Six shapes — shield, hexagon, circle-with-notch, delta,
-octagon, diamond — each with its own internal mark. A kid can tell Tier 3 from Tier 4 across a
-classroom, and so can a kid who cannot tell teal from amber. `logo.png` stays exactly as it is,
-used only as the wordmark in the header at its native aspect ratio.
+**Tier badges are patches, not dots.** Six shapes, so a kid can tell Tier 3 from Tier 4 across a
+classroom, and so can a kid who cannot tell one color from another.
 
 ---
 
-## After the review
+## The 2026-11-08 redesign
 
-The brief asks me to review this plan and change anything that reads as the default. Five things
-were wrong on the first pass and are now different.
+The first plan was "mission control: painted metal in a bright room, watching a dark screen":
+grey-green `#DCE0D8` chrome, an amber lamp, square 3px corners and no shadows at all. It was
+disciplined, but it did not look like the mascot, a purple, rounded, cartoon astronaut-bot. A kid
+who saw the logo and then the site saw two different brands.
 
-**1. It was a dark console with a cyan accent.** My first instinct was `#0B0E14` everywhere with
-one bright cyan — which is exactly the brief's "near-black with one acid accent" tell, and it is
-also wrong for the room: school fluorescent light plus a glossy Chromebook screen makes a dark UI
-a mirror. **Changed:** the chrome is now *light painted metal* and only the two working surfaces
-are dark. This is better for the actual device and it inverts the cliché instead of avoiding it.
+**What changed:** the palette is sampled from the mascot; Archivo became Fredoka; corners and
+pill buttons replaced 3px squares; soft violet shadows replaced the no-shadow rule; dark mode
+was added; the hero became a space window with a real `<h1>`; the mascot is now visible in the
+header (it rendered at 17×30 px before).
 
-**2. Every lesson step was a rounded card with a grey shadow.** **Changed:** no cards and no
-shadows exist in the project. Panels are a paint change and one `--seam` hairline — how a real
-bezel is actually divided.
-
-**3. The accent was going to be everywhere.** A lit amber button on a light page, an amber
-underline, an amber word in the headline. The measured 1.50:1 failure caught it. **Changed:**
-amber is a lamp that only burns on dark surfaces, which means the light chrome has *no* accent
-color at all and has to work on type, weight and the seam — which is what makes it read as
-disciplined rather than decorated.
-
-**4. Tier badges were six circles in six hues.** **Changed:** six patch silhouettes, because
-color alone is not a signal, and because a real team's patch wall is a much better thing to be
-imitating than a color-coded dashboard legend.
-
-**5. Three webfonts, one of them a tracked-out mono for small labels.** **Changed:** the mono is
-system-only and used for code exclusively. Small labels are Archivo at 14px, normal tracking.
-Tracked-out mono micro-labels are on the brief's list for good reason, and the Chromebook keeps
-60 KB.
-
-Also struck, from the brief's list, before they could happen: no ALL-CAPS eyebrow above any
-heading, no `→` on any button (buttons say "Try it", "Run", "Next lesson"), no fade-and-slide-up,
-no hover-only transitions, no single word colored in a headline, no gradient blobs.
+**What stayed:** Atkinson Hyperlegible for every word a kid reads, the dark working surfaces,
+"yellow is a light, never text on the page", shape-not-color state on the chart, the 44 px tap
+floor, the layout and its breakpoints.
 
 ---
 
 ## Budgets this plan commits to
 
-- Text contrast ≥ 4.5:1 everywhere; measured in CI, not eyeballed.
+- Text contrast ≥ 4.5:1 in light and dark mode; measured in CI, not eyeballed.
 - Lighthouse accessibility ≥ 95.
-- Two webfont files, variable, `font-display: swap`, subset to Latin.
-- No `box-shadow`, no `border-radius > 3px`, no `:hover`-only affordance — all three are grep-able
-  lint rules in `npm run check`.
+- Two webfont files, variable, `font-display: swap`.
+- No color literal outside `theme.css`; radius and shadow only from tokens; no `:hover`-only
+  affordance. All grep-able lint rules in `npm run check`.
 - Tap targets ≥ 44×44 px, verified by a test that walks the rendered DOM.

@@ -12,11 +12,14 @@ export interface TelemetryPanel {
 
 export function createTelemetryPanel(): TelemetryPanel {
   const list = el('dl', { class: 'telemetry-list' });
+  // A <dl> may only hold dt/dd groups, so the empty message sits beside it, not in it.
+  const empty = el('p', { class: 'telemetry-empty', text: 'Nothing sent yet. Telemetry appears when your code calls update().' });
   const robot = el('div', { class: 'telemetry-robot' });
   const element = el('div', { class: 'telemetry on-dark' },
     el('div', { class: 'telemetry-head' },
       el('span', { class: 'telemetry-title display', text: 'Telemetry' }),
     ),
+    empty,
     list,
     el('div', { class: 'telemetry-divider' }),
     robot,
@@ -26,13 +29,15 @@ export function createTelemetryPanel(): TelemetryPanel {
     element,
     update(snapshot) {
       if (!snapshot) {
-        mount(list, el('p', { class: 'telemetry-empty', text: 'Nothing sent yet. Telemetry appears when your code calls update().' }));
+        mount(list);
+        empty.hidden = false;
         mount(robot);
         return;
       }
 
+      empty.hidden = snapshot.telemetry.length > 0;
       if (snapshot.telemetry.length === 0) {
-        mount(list, el('p', { class: 'telemetry-empty', text: 'Nothing sent yet. Telemetry appears when your code calls update().' }));
+        mount(list);
       } else {
         mount(list,
           ...snapshot.telemetry.flatMap((line) =>

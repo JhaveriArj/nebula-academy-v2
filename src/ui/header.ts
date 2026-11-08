@@ -49,7 +49,8 @@ export function createHeader(onModeChange: () => void): Header {
 
   const element = el('header', { class: 'site-header' },
     el('a', { href: '#/', class: 'wordmark', 'aria-label': 'Nebula Academy, home' },
-      el('img', { src: `${BASE}art/logo.png`, alt: 'Nebula Academy', height: '30' }),
+      el('img', { src: `${BASE}art/mascot-112.png`, alt: '', width: '25', height: '44' }),
+      el('span', { class: 'wordmark-name', text: 'Nebula Academy' }),
     ),
     el('nav', { class: 'site-nav', 'aria-label': 'Main' },
       el('a', { href: '#/chart', class: 'nav-link' }, icon('chart', 20), el('span', { text: 'Chart' })),

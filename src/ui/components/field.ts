@@ -3,15 +3,32 @@ import type { SimSnapshot } from '../../sim/simulation';
 
 /* The field view: a top-down canvas of the 12 ft field with the robot on it.
 
-   One of the two dark working surfaces in docs/DESIGN.md, so this is where --lamp is
+   One of the dark "space" surfaces in docs/DESIGN.md, so this is where --star is
    allowed to glow. Everything is drawn from a SimSnapshot, which means the same renderer
-   serves the home page hero, the Watch step and a live run. */
+   serves the home page hero, the Watch step and a live run.
 
-const INK = '#0E1620';
-const SEAM = '#2A3645';
-const HULL = '#DCE0D8';
-const LAMP = '#F0A93B';
-const GO = '#1E8E7E';
+   Canvas cannot read var(--token), so the colors are read from theme.css once per view
+   (and again on resize). theme.css stays the only place a color is written down. */
+
+interface FieldPalette {
+  ground: string; seam: string; wall: string; line: string; chassis: string;
+  wheel: string; star: string; go: string;
+}
+
+function readPalette(): FieldPalette {
+  const css = getComputedStyle(document.documentElement);
+  const v = (name: string) => css.getPropertyValue(name).trim();
+  return {
+    ground: v('--space'),
+    seam: v('--space-line'),
+    wall: v('--space-wall'),
+    line: v('--space-ink'),
+    chassis: v('--space-raised'),
+    wheel: v('--space-mute'),
+    star: v('--star'),
+    go: v('--space-go'),
+  };
+}
 
 export interface FieldView {
   canvas: HTMLCanvasElement;
@@ -29,6 +46,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
 
   let last: SimSnapshot | null = null;
   let side = 0;
+  let colors = readPalette();
 
   const resize = (): void => {
     const box = canvas.parentElement;
@@ -39,6 +57,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     canvas.height = Math.floor(side * dpr);
     canvas.style.width = `${side}px`;
     canvas.style.height = `${side}px`;
+    colors = readPalette();
     draw(last);
   };
 
@@ -56,7 +75,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     const py = (cm: number) => side - cm * scale;
 
     // Tiles.
-    ctx.fillStyle = INK;
+    ctx.fillStyle = colors.ground;
     ctx.fillRect(0, 0, side, side);
     for (let col = 0; col < TILES; col++) {
       for (let row = 0; row < TILES; row++) {
@@ -69,7 +88,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     }
 
     // Seams, one hairline, no shadow.
-    ctx.strokeStyle = SEAM;
+    ctx.strokeStyle = colors.seam;
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (let i = 1; i < TILES; i++) {
@@ -81,7 +100,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     ctx.stroke();
 
     // Walls.
-    ctx.strokeStyle = '#46566B';
+    ctx.strokeStyle = colors.wall;
     ctx.lineWidth = 3;
     ctx.strokeRect(1.5, 1.5, side - 3, side - 3);
 
@@ -89,17 +108,19 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
 
     // The route already driven.
     if (snapshot.trail.length > 1) {
-      ctx.strokeStyle = 'rgba(240, 169, 59, 0.45)';
+      ctx.strokeStyle = colors.star;
+      ctx.globalAlpha = 0.45;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(px(snapshot.trail[0]!.x), py(snapshot.trail[0]!.y));
       for (const point of snapshot.trail.slice(1)) ctx.lineTo(px(point.x), py(point.y));
       ctx.stroke();
+      ctx.globalAlpha = 1;
     }
 
     // Game elements.
     for (const element of snapshot.elements) {
-      ctx.strokeStyle = HULL;
+      ctx.strokeStyle = colors.line;
       ctx.lineWidth = 1.5;
       if (element.kind === 'ball') {
         ctx.beginPath();
@@ -111,7 +132,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
       }
     }
 
-    drawRobot(ctx, snapshot, px, py, scale);
+    drawRobot(ctx, snapshot, px, py, scale, colors);
   }
 
   resize();
@@ -132,6 +153,7 @@ function drawRobot(
   px: (cm: number) => number,
   py: (cm: number) => number,
   scale: number,
+  colors: FieldPalette,
 ): void {
   const { x, y, headingDeg } = snapshot.pose;
   const size = ROBOT_CM * scale;
@@ -142,8 +164,8 @@ function drawRobot(
   ctx.rotate(-(headingDeg * Math.PI) / 180);
 
   // Chassis.
-  ctx.fillStyle = '#1B2736';
-  ctx.strokeStyle = HULL;
+  ctx.fillStyle = colors.chassis;
+  ctx.strokeStyle = colors.line;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.rect(-size / 2, -size / 2, size, size);
@@ -166,7 +188,7 @@ function drawRobot(
           [-size / 2, size / 2 - wheelH],
           [size / 2 - wheelW, size / 2 - wheelH],
         ];
-  ctx.strokeStyle = '#8A93A0';
+  ctx.strokeStyle = colors.wheel;
   ctx.lineWidth = 1.5;
   for (const [wx, wy] of wheels) {
     ctx.strokeRect(wx, wy, wheelW, wheelH);
@@ -178,8 +200,8 @@ function drawRobot(
     }
   }
 
-  // Forward marker, lit amber because this surface is dark.
-  ctx.strokeStyle = LAMP;
+  // Forward marker, lit like the antennae because this surface is dark.
+  ctx.strokeStyle = colors.star;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(0, -size * 0.12);
@@ -187,12 +209,12 @@ function drawRobot(
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(0, -size / 2 - size * 0.2, Math.max(2, size * 0.055), 0, Math.PI * 2);
-  ctx.fillStyle = LAMP;
+  ctx.fillStyle = colors.star;
   ctx.fill();
 
   // The claw, open or closed.
   const claw = snapshot.servos['clawServo'] ?? 0;
-  ctx.strokeStyle = claw > 0.5 ? GO : '#8A93A0';
+  ctx.strokeStyle = claw > 0.5 ? colors.go : colors.wheel;
   ctx.lineWidth = 2;
   const spread = size * (0.22 - claw * 0.14);
   ctx.beginPath();
