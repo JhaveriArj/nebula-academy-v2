@@ -200,10 +200,17 @@ reminder, and the console takes the screen:
 └────┴───────────────────────────────────────────┴───────────────────────────┘
 ```
 
-At **1024×768** the field/telemetry column moves under the editor and the editor keeps full
-width; the field view shrinks to 280px tall and stays visible while code runs, because a kid
-must see the robot and the code at the same time. At **200% zoom** the layout is the 1024
-arrangement in a single scrolling column, rail on top as a horizontal route.
+**The lesson page is fixed to the screen.** From 761 px wide and 561 px tall up, the page
+itself never scrolls: the reading column, the editor, the results and the side column each
+scroll inside their own box. Run, Check, the results and the field are therefore always on a
+768 px screen, and pressing Check never looks like nothing happened.
+
+At **1024×768** the side column narrows to 320 px (352 px when the lesson has a gamepad) and
+stays beside the work, because a kid must see the robot and the code at the same time. The side
+column is ordered field, gamepad, telemetry: driving by hand needs the field and the gamepad on
+screen together, and telemetry is the part allowed to scroll. The gamepad is always two rows,
+sticks over buttons, because one row of four is wider than any side column. At **200% zoom**
+and on phones the layout becomes a single scrolling column, rail on top as a horizontal route.
 
 **Few cards.** Panels are a white surface on the lavender page with one `--line` hairline and a
 soft violet shadow. Three things float (the hero window, the star chart frame, the field) because

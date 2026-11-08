@@ -148,15 +148,17 @@ export function createGamepadPanel(): GamepadPanel {
     el('div', { class: 'pad-shoulders' },
       ...SHOULDERS.map((s) => button(s.key, s.label, 'pad-shoulder')),
     ),
+    // Sticks first: they are what a kid drives with, and a row of two 96 px sticks over a
+    // row of two button clusters is the shortest shape that fits a side column.
     el('div', { class: 'pad-main' },
       stick(left, 'Left', 'stick-left'),
+      stick(right, 'Right', 'stick-right'),
       el('div', { class: 'dpad', role: 'group', 'aria-label': 'D-pad' },
         ...DPAD.map((d) => button(d.key, d.label, `dpad-button ${d.cls}`)),
       ),
       el('div', { class: 'pad-face', role: 'group', 'aria-label': 'Face buttons' },
         ...BUTTONS.map((b) => button(b.key, b.label, `pad-face-button ${b.cls}`)),
       ),
-      stick(right, 'Right', 'stick-right'),
     ),
   );
 

@@ -165,8 +165,10 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   const sideColumn = el('aside', { class: 'lesson-side' },
     fieldBox,
     caption,
-    telemetry.element,
+    // Driving by hand needs the field and the gamepad on screen together, so the
+    // gamepad comes before telemetry; telemetry is the part that may scroll.
     isTeleOp ? gamepad.element : null,
+    telemetry.element,
   );
 
   const shell = el('div', { class: 'lesson-shell', 'data-state': 'reading' },

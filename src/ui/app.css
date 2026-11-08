@@ -106,6 +106,13 @@
 
 .icon-button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
 
+/* The lesson page is fixed to the screen: its panels scroll, the page does not, so Run,
+   the results and the field never leave a 768 px screen. Short or narrow screens (phones,
+   200% zoom) fall back to one scrolling column further down. */
+@media (min-width: 761px) and (min-height: 561px) {
+  #app:has(.lesson) { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+}
+
 /* The outlet is the leftover height, so the lesson can size itself against it rather
    than against a hardcoded header height that would drift the moment the bar wraps. */
 .outlet { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -499,7 +506,7 @@
   max-width: none;
 }
 
-.editor { flex: 1; min-height: 220px; overflow: hidden; border-bottom: var(--seam-w) solid var(--space-line); }
+.editor { flex: 1; min-height: 160px; overflow: hidden; border-bottom: var(--seam-w) solid var(--space-line); }
 .editor .cm-editor { height: 100%; }
 
 .run-bar {
@@ -521,7 +528,7 @@
   flex: 0 1 auto;
   overflow: auto;
   padding: 0 var(--s4);
-  max-height: 46%;
+  max-height: 34%;
   border-bottom: var(--seam-w) solid var(--line);
   background: var(--surface);
 }
@@ -542,6 +549,8 @@
 }
 
 .field-box {
+  flex: 0 1 auto;
+  min-height: 200px;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -552,7 +561,9 @@
   overflow: hidden;
 }
 
-.field-caption { margin: 0; font-size: var(--size-label); min-height: 1.5em; }
+.field-caption { flex: none; margin: 0; font-size: var(--size-label); min-height: 1.5em; }
+/* The caption is a live region, so it stays in the tree; it only gives back its height while empty. */
+.field-caption:empty { min-height: 0; }
 
 .mission { font-size: calc(var(--size-prose) + 5px); line-height: 1.35; }
 
@@ -606,7 +617,7 @@
 
 /* -------------------------------------------------------------- telemetry */
 
-.telemetry { padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
+.telemetry { flex: 0 1 auto; min-height: 140px; overflow: auto; padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
 .telemetry-head { display: flex; justify-content: space-between; align-items: baseline; }
 .telemetry-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
 .telemetry-sub { margin: var(--s3) 0 var(--s1); font-size: calc(var(--size-label) - 1px); letter-spacing: 0.02em; color: var(--space-mute); }
@@ -620,7 +631,7 @@
 
 /* ---------------------------------------------------------------- gamepad */
 
-.gamepad { padding: var(--s3); border-radius: var(--radius); box-shadow: var(--shadow); }
+.gamepad { flex: none; padding: var(--s3); border-radius: var(--radius); box-shadow: var(--shadow); }
 .pad-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s2); }
 .pad-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
 .pad-connected { font-size: calc(var(--size-label) - 2px); color: var(--star); }
@@ -648,7 +659,9 @@
   .pad-button:hover { border-color: var(--space-mute); }
 }
 
-.pad-main { display: grid; grid-template-columns: auto auto auto auto; gap: var(--s2); align-items: center; justify-content: space-between; }
+/* Two rows: the sticks, then the d-pad and face buttons. One row of four is 468 px and no
+   side column is that wide. */
+.pad-main { display: grid; grid-template-columns: auto auto; gap: var(--s3) var(--s4); align-items: center; justify-content: space-around; }
 
 .stick {
   position: relative;
@@ -796,31 +809,14 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 
 /* ------------------------------------------------------------ 1024 x 768 */
 
-/* Below this the 400 px side column no longer fits beside the work, so it moves under
-   it. The step rail keeps its labels: the room freed by moving the side column is
-   exactly the room the names need. */
+/* 1024 x 768: the side column narrows rather than dropping under the work, so the field
+   stays beside the code while it runs, and the gamepad folds into two rows to fit. */
 @media (max-width: 1180px) {
-  .lesson-shell,
-  .lesson-shell[data-state='console'] {
-    grid-template-columns: var(--rail) minmax(0, 1fr);
-    grid-template-areas: 'rail reading' 'side side';
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-  .lesson-shell[data-state='console'] { grid-template-areas: 'rail console' 'side side'; }
-  .lesson-side {
-    flex-direction: row;
-    align-items: stretch;
-    border-inline-start: 0;
-    border-top: var(--seam-w) solid var(--line);
-    overflow-x: auto;
-    max-height: 320px;
-  }
-  .field-box { flex: none; width: 290px; height: 290px; aspect-ratio: auto; }
-  .telemetry { flex: 1 1 280px; min-width: 240px; overflow: auto; }
-  .gamepad { flex: 0 0 auto; }
-  .field-caption { display: none; }
+  :root { --console-side: 320px; }
+  /* Two 136 px button clusters need 352 px once the column's scrollbar is counted. */
+  .lesson-shell:has(.gamepad) { --console-side: 352px; }
   .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
-  .hero-field { max-height: 360px; justify-self: center; width: min(100%, 360px); }
+  .hero-field { max-height: 360px; width: min(100%, 360px); }
   .hero-aside { padding-inline-end: 120px; }
   .hero-mascot { width: 110px; }
 }
@@ -874,5 +870,4 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .tier-row { grid-template-columns: 40px minmax(0, 1fr); }
   .tier-row-count, .tier-row-robot { display: none; }
   .editor { min-height: 260px; }
-  .pad-main { grid-template-columns: auto auto; justify-content: center; gap: var(--s3); }
 }
