@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Tier 5 badge, Deep Space">
+  <!-- Anchor: box centre. The silhouette identifies the tier on its own, so the
+       badge still works in greyscale. -->
+  <path d="M32 3 L61 32 L32 61 L3 32 Z" fill="#16202C" stroke="#DCE0D8" stroke-width="3" stroke-linejoin="miter"/>
+  <path d="M32 16 L36 28 L48 32 L36 36 L32 48 L28 36 L16 32 L28 28 Z" fill="#F0A93B"/>
+</svg>

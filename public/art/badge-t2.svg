@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Tier 2 badge, Docking">
+  <!-- Anchor: box centre. The silhouette identifies the tier on its own, so the
+       badge still works in greyscale. -->
+  <path d="M20 6 H44 L58 32 L44 58 H20 L6 32 Z" fill="#16202C" stroke="#DCE0D8" stroke-width="3" stroke-linejoin="miter"/>
+  <path d="M18 24 H30 V40 H18" fill="none" stroke="#F0A93B" stroke-width="4"/><path d="M46 24 H34 V40 H46" fill="none" stroke="#F0A93B" stroke-width="4"/>
+</svg>

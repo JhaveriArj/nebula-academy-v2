@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Game element, cube">
+  <!-- Generic. No season trademarks, on purpose. Anchor is the centre. -->
+  <rect x="5" y="5" width="22" height="22" fill="#19242F" stroke="#DCE0D8" stroke-width="2.5"/>
+  <path d="M5 5 L27 27 M27 5 L5 27" stroke="#46566B" stroke-width="1.5"/>
+</svg>

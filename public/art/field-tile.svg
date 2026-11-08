@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Foam field tile">
+  <!-- A 24 in foam tile. Tiles seamlessly: the studs sit inside the edges and the seam
+       is drawn on two sides only, so repeating it never doubles a line. -->
+  <rect width="64" height="64" fill="#121C27"/>
+  <path d="M0 0 H64 M0 0 V64" stroke="#2A3645" stroke-width="1.5" fill="none"/>
+  <g fill="#1A2533">
+    <circle cx="12" cy="12" r="2"/>
+    <circle cx="32" cy="12" r="2"/>
+    <circle cx="52" cy="12" r="2"/>
+    <circle cx="12" cy="32" r="2"/>
+    <circle cx="52" cy="32" r="2"/>
+    <circle cx="12" cy="52" r="2"/>
+    <circle cx="32" cy="52" r="2"/>
+    <circle cx="52" cy="52" r="2"/>
+  </g>
+</svg>

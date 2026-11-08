@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Tier 3 badge, First Flight">
+  <!-- Anchor: box centre. The silhouette identifies the tier on its own, so the
+       badge still works in greyscale. -->
+  <path d="M32 4 L60 56 H4 Z" fill="#16202C" stroke="#DCE0D8" stroke-width="3" stroke-linejoin="miter"/>
+  <path d="M32 20 L46 48 H18 Z" fill="none" stroke="#F0A93B" stroke-width="4"/>
+</svg>
