@@ -398,7 +398,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     if (!outcome.passed) {
       const failed = outcome.results.filter((r) => !r.passed).length;
       checkList.prepend(
-        el('p', { class: 'check-summary', text: `${failed} of ${outcome.results.length} checks are not happy yet. Nothing is broken; have another go.` }),
+        el('p', { class: 'check-summary', text: `${failed} of ${outcome.results.length} ${new Intl.PluralRules('en').select(failed) === 'one' ? 'check is' : 'checks are'} not happy yet. Nothing is broken; have another go.` }),
       );
       return;
     }

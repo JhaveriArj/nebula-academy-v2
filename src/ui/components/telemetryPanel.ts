@@ -65,7 +65,7 @@ export function createTelemetryPanel(): TelemetryPanel {
         el('dl', { class: 'telemetry-list telemetry-list-muted' },
           ...Object.entries(snapshot.motors).flatMap(([name, motor]) => [
             el('dt', { text: name }),
-            el('dd', { text: `${motor.power.toFixed(2)}  ${motor.ticks} t${motor.reversed ? '  rev' : ''}` }),
+            el('dd', { text: `${motor.power.toFixed(2)}  ${motor.ticks} ticks${motor.reversed ? ', reversed' : ''}` }),
           ]),
         ),
       );

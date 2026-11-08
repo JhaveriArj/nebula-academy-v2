@@ -58,13 +58,14 @@
   --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif;
   --face-code: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
-  /* Builder sizes. Explorer overrides below. */
-  --size-prose: 18px;
-  --size-code: 15px;
-  --size-label: 15px;
-  --size-h1: 30px;
-  --size-h2: 23px;
-  --size-h3: 19px;
+  /* Builder sizes, in rem so a kid's browser font-size setting still applies (18px = 1.125rem
+     at the default 16px). Explorer overrides below. */
+  --size-prose: 1.125rem;
+  --size-code: 0.9375rem;
+  --size-label: 0.9375rem;
+  --size-h1: 1.875rem;
+  --size-h2: 1.4375rem;
+  --size-h3: 1.1875rem;
   --lh-prose: 1.6;
 
   /* --- Shape. Round, like the mascot. ----------------------------------- */
@@ -145,20 +146,20 @@
 }
 
 :root[data-mode='explorer'] {
-  --size-prose: 21px;
-  --size-code: 17px;
-  --size-label: 16px;
-  --size-h1: 34px;
-  --size-h2: 26px;
-  --size-h3: 21px;
+  --size-prose: 1.3125rem;
+  --size-code: 1.0625rem;
+  --size-label: 1rem;
+  --size-h1: 2.125rem;
+  --size-h2: 1.625rem;
+  --size-h3: 1.3125rem;
   --lh-prose: 1.65;
 }
 
 /* Independent of mode: a low-vision scale-up. */
 :root[data-bigtype='on'] {
-  --size-prose: 24px;
-  --size-code: 19px;
-  --size-label: 17px;
+  --size-prose: 1.5rem;
+  --size-code: 1.1875rem;
+  --size-label: 1.0625rem;
 }
 
 *, *::before, *::after { box-sizing: border-box; }

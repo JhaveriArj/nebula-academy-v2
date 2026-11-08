@@ -36,16 +36,17 @@ export function createHeader(onModeChange: () => void): Header {
 
   const bigType = el('button', {
     type: 'button',
-    class: 'icon-button',
+    class: 'icon-button bigtype-button',
     'aria-pressed': String(getBigType()),
+    // The visible label and the accessible name are the same words; on narrow headers the
+    // label hides and the name stays.
     'aria-label': 'Larger text',
-    title: 'Larger text',
     onclick: () => {
       setBigType(!getBigType());
       applyMode();
       refresh();
     },
-  }, icon('bigtype', 22));
+  }, icon('bigtype', 22), el('span', { class: 'bigtype-label', text: 'Larger text' }));
 
   const element = el('header', { class: 'site-header' },
     el('a', { href: '#/', class: 'wordmark', 'aria-label': 'Nebula Academy, home' },
@@ -55,7 +56,7 @@ export function createHeader(onModeChange: () => void): Header {
     el('nav', { class: 'site-nav', 'aria-label': 'Main' },
       el('a', { href: '#/chart', class: 'nav-link' }, icon('chart', 20), el('span', { text: 'Chart' })),
       el('a', { href: '#/mentor', class: 'nav-link' }, icon('mentor', 20), el('span', { text: 'Mentor' })),
-      el('a', { href: '#/progress', class: 'nav-link' }, icon('export', 20), el('span', { text: 'Progress' })),
+      el('a', { href: '#/progress', class: 'nav-link' }, icon('passed', 20), el('span', { text: 'Progress' })),
       el('a', { href: '#/about', class: 'nav-link' }, el('span', { text: 'About' })),
     ),
     el('div', { class: 'header-controls' },
