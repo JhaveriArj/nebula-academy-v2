@@ -40,7 +40,7 @@ export function chartPage(): ChartPage {
                   el('li', { class: isPassed(lesson.id) ? 'is-flown' : '' },
                     el('a', { href: lessonHref(lesson.id) },
                       el('span', { class: 'chart-index-number display', text: String(i + 1).padStart(2, '0') }),
-                      el('span', { text: lesson.id }),
+                      el('span', { text: lesson.title }),
                     ),
                     isPassed(lesson.id) ? el('span', { class: 'pass', text: 'flown' }) : null,
                   ),

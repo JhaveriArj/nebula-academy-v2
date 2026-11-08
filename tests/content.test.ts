@@ -74,6 +74,8 @@ describe.each(built.map((l) => [l.dir, l] as const))('%s', (_dir, loc) => {
 
   it('frontmatter agrees with pathway.json', () => {
     expect(fm.id).toBe(loc.id);
+    const listed = tier.lessons.find((l) => l.id === loc.id);
+    expect(listed?.title, 'pathway.json title must match the lesson.md title').toBe(fm.title);
     expect(fm.tier).toBe(loc.tier);
     expect(fm.robot).toBe(tier.robot);
     expect(fm.title.length).toBeGreaterThan(2);

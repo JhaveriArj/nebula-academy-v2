@@ -37,19 +37,23 @@
       "lessons": [
         {
           "id": "t0-hello-robot",
-          "dir": "01-hello-robot"
+          "dir": "01-hello-robot",
+          "title": "Hello, robot"
         },
         {
           "id": "t0-run-and-break-it",
-          "dir": "02-run-and-break-it"
+          "dir": "02-run-and-break-it",
+          "title": "Break it on purpose"
         },
         {
           "id": "t0-reading-errors",
-          "dir": "03-reading-errors"
+          "dir": "03-reading-errors",
+          "title": "Reading errors"
         },
         {
           "id": "t0-checkpoint-square",
-          "dir": "04-checkpoint-square"
+          "dir": "04-checkpoint-square",
+          "title": "Checkpoint: square and signature"
         }
       ],
       "checkpoint": "t0-checkpoint-square"
@@ -68,35 +72,43 @@
       "lessons": [
         {
           "id": "t1-first-variable",
-          "dir": "01-first-variable"
+          "dir": "01-first-variable",
+          "title": "Your first variable"
         },
         {
           "id": "t1-decimals",
-          "dir": "02-decimals"
+          "dir": "02-decimals",
+          "title": "Numbers with a point"
         },
         {
           "id": "t1-true-and-false",
-          "dir": "03-true-and-false"
+          "dir": "03-true-and-false",
+          "title": "True or false"
         },
         {
           "id": "t1-words",
-          "dir": "04-words"
+          "dir": "04-words",
+          "title": "Words the robot can say"
         },
         {
           "id": "t1-robot-math",
-          "dir": "05-robot-math"
+          "dir": "05-robot-math",
+          "title": "Robot math"
         },
         {
           "id": "t1-if-else",
-          "dir": "06-if-else"
+          "dir": "06-if-else",
+          "title": "Making a choice"
         },
         {
           "id": "t1-loops",
-          "dir": "07-loops"
+          "dir": "07-loops",
+          "title": "Doing it again"
         },
         {
           "id": "t1-checkpoint-launch",
-          "dir": "08-checkpoint-launch"
+          "dir": "08-checkpoint-launch",
+          "title": "Checkpoint: launch sequence"
         }
       ],
       "checkpoint": "t1-checkpoint-launch"
@@ -115,31 +127,38 @@
       "lessons": [
         {
           "id": "t2-first-method",
-          "dir": "01-first-method"
+          "dir": "01-first-method",
+          "title": "Teaching the robot a trick"
         },
         {
           "id": "t2-parameters",
-          "dir": "02-parameters"
+          "dir": "02-parameters",
+          "title": "Telling it how much"
         },
         {
           "id": "t2-return-values",
-          "dir": "03-return-values"
+          "dir": "03-return-values",
+          "title": "Handing something back"
         },
         {
           "id": "t2-class-with-fields",
-          "dir": "04-class-with-fields"
+          "dir": "04-class-with-fields",
+          "title": "A blueprint with fields"
         },
         {
           "id": "t2-making-an-object",
-          "dir": "05-making-an-object"
+          "dir": "05-making-an-object",
+          "title": "Building one"
         },
         {
           "id": "t2-dot-syntax",
-          "dir": "06-dot-syntax"
+          "dir": "06-dot-syntax",
+          "title": "Reading the dot"
         },
         {
           "id": "t2-checkpoint-helper",
-          "dir": "07-checkpoint-helper"
+          "dir": "07-checkpoint-helper",
+          "title": "Checkpoint: robot helper class"
         }
       ],
       "checkpoint": "t2-checkpoint-helper"
@@ -158,35 +177,43 @@
       "lessons": [
         {
           "id": "t3-what-is-an-opmode",
-          "dir": "01-what-is-an-opmode"
+          "dir": "01-what-is-an-opmode",
+          "title": "What an OpMode is"
         },
         {
           "id": "t3-teleop-init-and-loop",
-          "dir": "02-teleop-init-and-loop"
+          "dir": "02-teleop-init-and-loop",
+          "title": "init and loop"
         },
         {
           "id": "t3-hardwaremap",
-          "dir": "03-hardwaremap"
+          "dir": "03-hardwaremap",
+          "title": "Names and the hardware map"
         },
         {
           "id": "t3-setting-motor-power",
-          "dir": "04-setting-motor-power"
+          "dir": "04-setting-motor-power",
+          "title": "Telling a motor how fast"
         },
         {
           "id": "t3-direction-and-reversing",
-          "dir": "05-direction-and-reversing"
+          "dir": "05-direction-and-reversing",
+          "title": "Which way is forward"
         },
         {
           "id": "t3-gamepad-sticks",
-          "dir": "06-gamepad-sticks"
+          "dir": "06-gamepad-sticks",
+          "title": "Driving by hand"
         },
         {
           "id": "t3-telemetry",
-          "dir": "07-telemetry"
+          "dir": "07-telemetry",
+          "title": "Talking back"
         },
         {
           "id": "t3-checkpoint-teleop",
-          "dir": "08-checkpoint-teleop"
+          "dir": "08-checkpoint-teleop",
+          "title": "Checkpoint: mecanum TeleOp"
         }
       ],
       "checkpoint": "t3-checkpoint-teleop"
@@ -205,35 +232,43 @@
       "lessons": [
         {
           "id": "t4-autonomous-linearopmode",
-          "dir": "01-autonomous-linearopmode"
+          "dir": "01-autonomous-linearopmode",
+          "title": "A program that runs itself"
         },
         {
           "id": "t4-waitforstart",
-          "dir": "02-waitforstart"
+          "dir": "02-waitforstart",
+          "title": "Waiting for the whistle"
         },
         {
           "id": "t4-elapsedtime",
-          "dir": "03-elapsedtime"
+          "dir": "03-elapsedtime",
+          "title": "sleep or a clock"
         },
         {
           "id": "t4-encoders",
-          "dir": "04-encoders"
+          "dir": "04-encoders",
+          "title": "Counting the wheels"
         },
         {
           "id": "t4-imu-turning",
-          "dir": "05-imu-turning"
+          "dir": "05-imu-turning",
+          "title": "Turning to an angle"
         },
         {
           "id": "t4-distance-sensor",
-          "dir": "06-distance-sensor"
+          "dir": "06-distance-sensor",
+          "title": "Stopping before the wall"
         },
         {
           "id": "t4-color-sensor",
-          "dir": "07-color-sensor"
+          "dir": "07-color-sensor",
+          "title": "Reading the floor"
         },
         {
           "id": "t4-checkpoint-auto",
-          "dir": "08-checkpoint-auto"
+          "dir": "08-checkpoint-auto",
+          "title": "Checkpoint: full autonomous"
         }
       ],
       "checkpoint": "t4-checkpoint-auto"
@@ -252,31 +287,38 @@
       "lessons": [
         {
           "id": "t5-servos-and-limits",
-          "dir": "01-servos-and-limits"
+          "dir": "01-servos-and-limits",
+          "title": "Servos and limits"
         },
         {
           "id": "t5-state-machines",
-          "dir": "02-state-machines"
+          "dir": "02-state-machines",
+          "title": "One job at a time"
         },
         {
           "id": "t5-proportional-control",
-          "dir": "03-proportional-control"
+          "dir": "03-proportional-control",
+          "title": "Easing in"
         },
         {
           "id": "t5-hardware-class",
-          "dir": "04-hardware-class"
+          "dir": "04-hardware-class",
+          "title": "One place for the hardware"
         },
         {
           "id": "t5-git-and-github",
-          "dir": "05-git-and-github"
+          "dir": "05-git-and-github",
+          "title": "Git and GitHub"
         },
         {
           "id": "t5-android-studio",
-          "dir": "06-android-studio"
+          "dir": "06-android-studio",
+          "title": "Android Studio and the real SDK"
         },
         {
           "id": "t5-checkpoint-real-robot",
-          "dir": "07-checkpoint-real-robot"
+          "dir": "07-checkpoint-real-robot",
+          "title": "Checkpoint: TeleOp and Auto pair"
         }
       ],
       "checkpoint": "t5-checkpoint-real-robot"

@@ -7,6 +7,7 @@ import { lessonPage } from './pages/lesson';
 import { mentorPage } from './pages/mentor';
 import { aboutPage } from './pages/about';
 import { progressPage } from './pages/progress';
+import { pathway } from '../content/loader';
 
 /* The shell. A header, one outlet, and a route handler. No framework, per
    docs/ARCHITECTURE.md: there are six pages and each builds itself once. */
@@ -77,7 +78,10 @@ function titleFor(route: Route): string {
   const base = 'Nebula Academy';
   switch (route.name) {
     case 'chart': return `Star chart · ${base}`;
-    case 'lesson': return `${route.param ?? 'Lesson'} · ${base}`;
+    case 'lesson': {
+      const lesson = pathway.tiers.flatMap((t) => t.lessons).find((l) => l.id === route.param);
+      return `${lesson?.title ?? 'Lesson'} · ${base}`;
+    }
     case 'mentor': return `Mentor guides · ${base}`;
     case 'about': return `About · ${base}`;
     case 'progress': return `Your progress · ${base}`;

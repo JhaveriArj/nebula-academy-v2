@@ -42,6 +42,9 @@ export interface Lesson {
 export interface PathwayLesson {
   id: string;
   dir: string;
+  /** Mirrors the lesson.md frontmatter title so the chart index can be read without
+      loading 42 lessons. tests/content.test.ts checks the two never drift apart. */
+  title: string;
 }
 
 export interface PathwayTier {

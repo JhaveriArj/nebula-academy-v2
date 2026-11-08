@@ -159,7 +159,7 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       const open = unlocked && !passed;
       const state = passed ? 'is-flown' : open ? 'is-open' : 'is-locked';
 
-      const label = `Tier ${tier.tier} lesson ${i + 1}, ${lesson.id}${
+      const label = `Tier ${tier.tier} lesson ${i + 1}: ${lesson.title}${
         passed ? ', flown' : unlocked ? '' : ', locked'
       }`;
 
