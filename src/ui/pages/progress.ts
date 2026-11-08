@@ -8,6 +8,7 @@ import { pathway } from '../../content/loader';
 
 export function progressPage(onChange: () => void): HTMLElement {
   const status = el('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
+  const clearRow = el('div', { class: 'clear-row' });
 
   const download = () => {
     const blob = new Blob([exportJson()], { type: 'application/json' });
@@ -60,21 +61,42 @@ export function progressPage(onChange: () => void): HTMLElement {
     status,
     el('h2', { text: 'Start again' }),
     el('p', { text: 'This clears every passed lesson and every piece of code you have written, in this browser only. Save a file first if you might want it back.' }),
-    el('div', { class: 'button-row' },
-      el('button', {
-        type: 'button',
-        class: 'btn btn-danger',
-        onclick: () => {
-          const ok = confirm('Clear all progress and saved code in this browser? A file you have already saved is not affected.');
-          if (!ok) return;
-          reset();
-          mount(status, 'Cleared. Tier 0 is open and the rest is locked again.');
-          onChange();
-          render();
-        },
-      }, el('span', { text: 'Clear everything' })),
-    ),
+    clearRow,
   );
+
+  // Clearing cannot be undone, so it still asks first, but inline rather than through a
+  // browser confirm(): the question names what is lost and the buttons say what they do.
+  function askToClear(): void {
+    const question = el('p', { class: 'clear-question', tabindex: '-1', text: 'Clear every passed lesson and all your saved code in this browser? A file you have already saved is not affected.' });
+    mount(clearRow,
+      question,
+      el('div', { class: 'button-row' },
+        el('button', {
+          type: 'button',
+          class: 'btn btn-danger',
+          onclick: () => {
+            reset();
+            showClearButton();
+            mount(status, 'Cleared. Tier 0 is open and the rest is locked again.');
+            onChange();
+            render();
+          },
+        }, el('span', { text: 'Yes, clear everything' })),
+        el('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { showClearButton(); (clearRow.querySelector('button') as HTMLElement | null)?.focus(); } },
+          el('span', { text: 'Keep my progress' })),
+      ),
+    );
+    question.focus();
+  }
+
+  function showClearButton(): void {
+    mount(clearRow,
+      el('div', { class: 'button-row' },
+        el('button', { type: 'button', class: 'btn btn-danger', onclick: askToClear }, el('span', { text: 'Clear everything' })),
+      ),
+    );
+  }
+  showClearButton();
 
   function render(): void {
     const now = counts();

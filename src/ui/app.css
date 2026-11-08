@@ -554,6 +554,9 @@
 }
 
 .run-spacer { flex: 1; }
+.reset-notice { display: flex; align-items: center; gap: var(--s1); margin: 0; font-size: var(--size-label); color: var(--ink-mid); }
+.clear-question { font-weight: 700; }
+.clear-question:focus { outline: none; }
 
 /* The results slot sits in whichever column is visible. In the console state it is a
    bounded, scrollable strip so a long list of checks cannot push the console away. */

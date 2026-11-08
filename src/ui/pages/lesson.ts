@@ -94,15 +94,33 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     icon('run', 20), el('span', { text: 'Run' }));
   const stopButton = el('button', { type: 'button', class: 'btn', disabled: true, onclick: () => stopEverything('You stopped the robot.') },
     icon('stop', 20), el('span', { text: 'Stop' }));
+  // Reset acts at once and offers Undo, instead of a browser confirm() (HIG alerts.md:
+  // "avoid displaying alerts for common, undoable actions"). The status line is mounted
+  // empty up front so its first message is announced.
+  const resetNotice = el('p', { class: 'reset-notice', role: 'status', 'aria-live': 'polite' });
+  const clearResetNotice = () => mount(resetNotice);
   const resetButton = el('button', {
     type: 'button',
     class: 'btn btn-quiet',
     onclick: () => {
-      if (!confirm('Put the starting code back? Anything you have written here will go.')) return;
+      const before = editor.getCode();
+      if (before === lesson.starter) return;
       editor.setCode(lesson.starter);
       setDraft(lesson.frontmatter.id, lesson.starter);
       console_.clear();
       editor.markError(null);
+      mount(resetNotice,
+        el('span', { text: 'Back to the starting code.' }),
+        el('button', {
+          type: 'button',
+          class: 'link-button',
+          onclick: () => {
+            editor.setCode(before);
+            setDraft(lesson.frontmatter.id, before);
+            mount(resetNotice, el('span', { text: 'Your code is back.' }));
+          },
+        }, el('span', { text: 'Undo' })),
+      );
     },
   }, icon('reset', 20), el('span', { text: 'Reset' }));
 
@@ -111,6 +129,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
 
   const runBar = el('div', { class: 'run-bar' },
     runButton, stopButton, resetButton,
+    resetNotice,
     el('span', { class: 'run-spacer' }),
     checkButton,
   );
@@ -222,6 +241,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   }
 
   async function onRun(): Promise<void> {
+    clearResetNotice();
     stopEverything();
     console_.clear();
     editor.markError(null);

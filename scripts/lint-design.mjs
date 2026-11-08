@@ -52,6 +52,8 @@ for (const file of files) {
   if (rel(file).startsWith('src/ui/') && ext === '.ts') {
     const src = readFileSync(file, 'utf8');
     src.split('\n').forEach((line, i) => {
+      if (/(^|[^\w.])(confirm|alert|prompt)\(/.test(line.replace(/\/\/.*$/, '')))
+        problems.push(`${rel(file)}:${i + 1}  browser dialog. DESIGN.md: undo for undoable actions, an inline question for the rest.`);
       if (/['"`]#[0-9a-fA-F]{3,8}['"`]/.test(line))
         problems.push(`${rel(file)}:${i + 1}  color literal in UI code. Read it from theme.css instead.`);
     });
