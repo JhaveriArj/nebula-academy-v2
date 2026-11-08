@@ -81,12 +81,24 @@ const nebulaTheme = EditorView.theme(
       backgroundColor: 'color-mix(in srgb, var(--syn-number) 28%, transparent)',
     },
     '&.cm-focused': { outline: '3px solid var(--star)', outlineOffset: '-3px' },
-    '.cm-line.cm-locked': { backgroundColor: 'color-mix(in srgb, var(--space-ink) 5%, transparent)', color: 'var(--space-mute)' },
+    '.cm-line.cm-locked': { color: 'var(--space-mute)' },
+    '.cm-line.cm-editable': { backgroundColor: 'color-mix(in srgb, var(--star) 10%, transparent)' },
+    '.cm-edit-gutter-col': { width: '6px' },
+    '.cm-edit-mark': { display: 'block', width: '4px', height: '100%', minHeight: '1.2em', backgroundColor: 'var(--star)', borderRadius: 'var(--radius-pill)' },
     '.cm-line.cm-error-line': { backgroundColor: 'color-mix(in srgb, var(--space-alert) 22%, transparent)' },
     '.cm-scroller': { overflow: 'auto', lineHeight: '1.55' },
   },
   { dark: true },
 );
+
+class EditMarker extends GutterMarker {
+  override toDOM() {
+    const span = document.createElement('span');
+    span.className = 'cm-edit-mark';
+    span.setAttribute('aria-hidden', 'true');
+    return span;
+  }
+}
 
 class ErrorMarker extends GutterMarker {
   override toDOM() {
@@ -115,6 +127,8 @@ export function createEditor(options: {
   locked: LockedRegion | null;
   onChange?: (code: string) => void;
   onRun?: () => void;
+  /** Called when a kid tries to type on a locked line, so the page can say why nothing happened. */
+  onLockedEdit?: () => void;
 }): CodeEditor {
   const element = document.createElement('div');
   element.className = 'editor on-dark';
@@ -140,6 +154,7 @@ export function createEditor(options: {
         const last = tr.startState.doc.lineAt(Math.min(toA, tr.startState.doc.length)).number;
         if (first <= from || last >= to) blocked = true;
       });
+      if (blocked) options.onLockedEdit?.();
       return blocked ? [] : tr;
     });
 
@@ -158,7 +173,7 @@ export function createEditor(options: {
         const { from, to } = lockedLineNumbers(doc);
         for (let n = 1; n <= doc.lines; n++) {
           const classes: string[] = [];
-          if (lockedRegion && (n <= from || n >= to)) classes.push('cm-locked');
+          if (lockedRegion) classes.push(n <= from || n >= to ? 'cm-locked' : 'cm-editable');
           if (errorLine === n) classes.push('cm-error-line');
           if (classes.length) {
             marks.push(Decoration.line({ class: classes.join(' ') }).range(doc.line(n).from));
@@ -169,6 +184,19 @@ export function createEditor(options: {
     },
     { decorations: (v) => v.decorations },
   );
+
+  // In Explorer, the lines a kid may change carry a yellow bar in their own gutter, so the
+  // difference never rests on a faint background tint alone.
+  const editGutter = gutter({
+    class: 'cm-edit-gutter-col',
+    lineMarker: (view, lineBlock) => {
+      if (!lockedRegion) return null;
+      const n = view.state.doc.lineAt(lineBlock.from).number;
+      const { from, to } = lockedLineNumbers(view.state.doc);
+      return n > from && n < to ? new EditMarker() : null;
+    },
+    lineMarkerChange: () => true,
+  });
 
   const errorGutter = gutter({
     class: 'cm-error-gutter-col',
@@ -185,6 +213,7 @@ export function createEditor(options: {
       doc: options.code,
       extensions: [
         lineNumbers(),
+        editGutter,
         errorGutter,
         history(),
         bracketMatching(),

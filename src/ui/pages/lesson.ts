@@ -85,6 +85,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     locked: lockedFor(lesson),
     onChange: (code) => queueDraftSave(lesson.frontmatter.id, code),
     onRun: () => void onRun(),
+    onLockedEdit: () => console_.setStatus('That line is locked. Change the lines marked in yellow.'),
   });
 
   const fieldBox = el('div', { class: 'field-box' }, field.canvas);
