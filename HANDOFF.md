@@ -39,11 +39,8 @@ Homebrew keg-only JDK without it being on `PATH`, so the gate just runs.
    `src/ui/components/field.ts` still draws the robot, tiles and elements procedurally in
    canvas with the same shapes. Swap to an image cache + `drawImage`, and use
    `badge-t0..t5.svg` on the star-chart stations and the home tier list.
-2. **`docs/ADDING_A_LESSON.md`**, written for a mentor who does not know TypeScript.
-   `npm run new-lesson <tier> <slug>` already scaffolds all six files and registers the
-   lesson in `pathway.json`; the doc should walk through that and through reading a
-   failing check.
-3. **`README.md`**: setup, `npm run check`, deploy to Pages, how to add a lesson.
+2. ~~`docs/ADDING_A_LESSON.md`~~ Done.
+3. ~~`README.md`~~ Done.
 4. ~~Polish pass.~~ Done on `design-polish`; see **Design polish (2026-11-08)** below.
 5. **Push and watch CI.** Neither workflow has ever run. `deploy.yml` needs Pages enabled
    with "GitHub Actions" as the source.
