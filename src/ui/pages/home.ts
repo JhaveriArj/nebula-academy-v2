@@ -5,6 +5,7 @@ import { playWatch, type WatchSpec } from '../../sim/watch';
 import { counts, isPassed } from '../../progress/store';
 import { pathway } from '../../content/loader';
 import { lessonHref } from '../router';
+import { frameIndex } from '../frames';
 
 /* The home page.
 
@@ -102,8 +103,7 @@ export function homePage(): HTMLElement {
     let raf = 0;
     const startedAt = performance.now();
     const play = (now: number) => {
-      // A rAF timestamp can predate startedAt by a frame; clamp so the index never goes negative.
-      const index = Math.floor((Math.max(0, now - startedAt) / 20) % frames.length);
+      const index = frameIndex(now, startedAt, frames.length, true);
       field.draw(frames[index]!.snapshot);
       raf = requestAnimationFrame(play);
     };

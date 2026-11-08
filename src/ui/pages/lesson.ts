@@ -1,5 +1,6 @@
 import { el, mount, prefersReducedMotion } from '../dom';
 import { icon } from '../icons';
+import { frameIndex } from '../frames';
 import { renderMarkdown } from '../markdown';
 import { loadLesson, nextLessonId, tierOf } from '../../content/loader';
 import { SECTION_ORDER, type Lesson, type SectionName } from '../../content/types';
@@ -554,7 +555,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
 
     const startedAt = performance.now();
     const show = (now: number) => {
-      const index = Math.min(frames.length - 1, Math.floor((now - startedAt) / 20));
+      const index = frameIndex(now, startedAt, frames.length, false);
       const frame = frames[index]!;
       field.draw(frame.snapshot);
       telemetry.update(frame.snapshot);
