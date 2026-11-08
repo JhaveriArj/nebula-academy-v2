@@ -82,6 +82,10 @@ better-interface skills) and a fix per finding. Verified in a real browser at 13
   inline code on tinted panels, the hero edge in dark mode, rem type tokens, and the star-chart
   ARIA that Lighthouse flagged.
 
+**Load time.** The lesson page (CodeMirror and the Java runtime) is now loaded on first use and
+prefetched when the browser is idle. The first-load script went from 568 KB to 80 KB (22 KB
+gzipped), and home-page LCP on Fast 3G with a 4× slower CPU went from 2.6 s to 1.5 s.
+
 **Lighthouse** (production build via `vite preview`, desktop, 2026-11-08)
 
 | Page | Accessibility | Best practices | SEO |
@@ -104,8 +108,7 @@ place of the existing 1 px press.
   exception). A redraw with more room between waypoints would fix it properly.
 - **The field is small in TeleOp lessons** (200 px tall at 1366) because the gamepad needs the
   room, and telemetry scrolls under it. Check this on real Chromebook hardware.
-- **The main JS bundle is 568 KB.** It drives LCP (about 2.6 s on Fast 3G with a 4× slower CPU).
-  Splitting CodeMirror and the interpreter out of the home route would fix it.
+
 - The sprite and badge SVGs in `public/art` still use the old grey-green and amber palette
   (they are not wired in; item 1 above).
 - Not yet tested: a real screen reader (only the accessibility tree was read), forced-colors

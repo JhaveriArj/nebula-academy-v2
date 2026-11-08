@@ -3,11 +3,15 @@ import { applyMode, createHeader } from './header';
 import { parseHash, startRouter, type Route } from './router';
 import { homePage } from './pages/home';
 import { chartPage } from './pages/chart';
-import { lessonPage } from './pages/lesson';
+// The lesson page carries CodeMirror and the Java runtime, which no other page needs, so it
+// is loaded on first use. That keeps them off the home page's first load.
+let lessonModule: Promise<typeof LessonPageModule> | null = null;
+const loadLesson = (): Promise<typeof LessonPageModule> => (lessonModule ??= import('./pages/lesson'));
 import { mentorPage } from './pages/mentor';
 import { aboutPage } from './pages/about';
 import { progressPage } from './pages/progress';
 import { pathway } from '../content/loader';
+import type * as LessonPageModule from './pages/lesson';
 
 /* The shell. A header, one outlet, and a route handler. No framework, per
    docs/ARCHITECTURE.md: there are six pages and each builds itself once. */
@@ -32,7 +36,10 @@ export function startApp(root: HTMLElement): void {
 
   mount(root, header.element, outlet);
 
+  let renderTicket = 0;
+
   function render(route: Route): void {
+    renderTicket++;
     // Let the page it replaces release timers, workers and the editor.
     outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:leave', { bubbles: false }));
 
@@ -49,14 +56,22 @@ export function startApp(root: HTMLElement): void {
         }
         break;
       }
-      case 'lesson':
-        mount(outlet, lessonPage(route.param ?? '', {
-          onPassed: (lessonId) => {
-            celebrateOn = lessonId;
-            header.refresh();
-          },
-        }));
+      case 'lesson': {
+        const ticket = ++renderTicket;
+        mount(outlet, el('p', { class: 'prose-page muted', role: 'status', text: 'Opening the lesson.' }));
+        void loadLesson().then(({ lessonPage }) => {
+          // The kid may have gone somewhere else while it loaded.
+          if (ticket !== renderTicket) return;
+          mount(outlet, lessonPage(route.param ?? '', {
+            onPassed: (lessonId) => {
+              celebrateOn = lessonId;
+              header.refresh();
+            },
+          }));
+          outlet.focus({ preventScroll: true });
+        });
         break;
+      }
       case 'mentor':
         mount(outlet, mentorPage(route.param));
         break;
@@ -77,6 +92,12 @@ export function startApp(root: HTMLElement): void {
   }
 
   startRouter(render);
+
+  // Fetch the lesson code once the first page is up and the browser is idle, so opening a
+  // lesson later does not wait on it.
+  const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback
+    ?? ((cb: () => void) => setTimeout(cb, 1500));
+  idle(() => void loadLesson());
 }
 
 function titleFor(route: Route): string {
