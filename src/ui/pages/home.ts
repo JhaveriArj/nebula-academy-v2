@@ -54,7 +54,8 @@ export function homePage(): HTMLElement {
       el('div', { class: 'hero-field' }, field.canvas),
       el('div', { class: 'hero-aside' },
         el('h1', { class: 'hero-title', id: 'hero-title' },
-          'Write real Java. A real robot drives. Then put your code on your team’s bot.',
+          // The no-break space keeps "A" from ending a line on its own.
+          'Write real Java. A\u00a0real robot drives. Then put your code on your team’s bot.',
         ),
         el('p', { class: 'hero-sub' },
           'Six tiers, 42 lessons, ages 9 to 18. No account, nothing to install.',

@@ -113,7 +113,6 @@ place of the existing 1 px press.
   (they are not wired in; item 1 above).
 - Not yet tested: a real screen reader (only the accessibility tree was read), forced-colors
   mode, and a physical touch Chromebook.
-- The home headline wraps with "A" alone at the end of the first line at 1366; a copy tweak.
 
 ## Open decisions for you
 
