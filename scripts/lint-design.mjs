@@ -37,6 +37,12 @@ for (const file of files) {
       const sh = line.match(/box-shadow\s*:\s*([^;]+)/);
       if (sh && !isTheme && !/none|var\(--/.test(sh[1]))
         problems.push(`${at}  box-shadow without a token. Use a --shadow-* token from theme.css.`);
+      const fs = line.match(/font-size\s*:\s*([0-9.]+)px/);
+      if (fs && Number(fs[1]) < 14)
+        problems.push(`${at}  font-size ${fs[1]}px. DESIGN.md: nothing a kid reads goes under 14 px.`);
+      const minus = line.match(/font-size\s*:\s*calc\(var\(--size-label\)\s*-\s*([0-9.]+)px\)/);
+      if (minus && Number(minus[1]) >= 2)
+        problems.push(`${at}  --size-label minus ${minus[1]}px drops under 14 px in Builder. Wrap it in max(14px, ...).`);
       if (/:hover/.test(line) && !/:focus|:active|@media \(hover/.test(src))
         problems.push(`${at}  :hover with no :focus counterpart. The baseline device is a touchscreen.`);
     });

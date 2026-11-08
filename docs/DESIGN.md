@@ -91,6 +91,9 @@ Java identifiers. It stays through any restyle.
 
 18px is the floor for prose in either mode. Nothing a kid has to read shrinks below 14px. A
 "larger type" toggle scales again for low vision, independent of mode.
+The design lint rejects any `font-size` under 14px and any `--size-label` minus 2px or more,
+which lands at 13px in Builder. SVG text on the star chart is in viewBox units, so its sizes are
+set to render at 14px or more on a 1000px-wide chart, the 1024×768 case.
 
 ---
 
@@ -145,6 +148,11 @@ the project with drawing on it.
 Waypoint states are distinguishable **by shape alone** — filled, ringed, hollow, and a dashed
 route — so the chart works in greyscale and for a colorblind kid. Yellow is confirmation, never
 the only signal.
+
+**Targets on the chart.** Waypoints sit as close as 25 viewBox units, so a waypoint's own hit
+circle cannot be 44px at every width. Two full-size ways reach the same lessons: each open
+**station** is a link to its tier's next lesson, and the "Every lesson" list under the chart has
+a 44px link per waypoint. Station badges grow with their names and use natural case.
 
 **The only animation in the project that is not a state change:** completing a lesson extends
 the route stroke to the next waypoint (`stroke-dashoffset`, 900 ms, ease-out), the new waypoint

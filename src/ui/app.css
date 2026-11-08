@@ -320,7 +320,9 @@
 
 /* ------------------------------------------------------------------ chart */
 
-.chart-page { padding: var(--s5) var(--s4) var(--s8); max-width: 1280px; margin: 0 auto; }
+/* width: 100% matters: the outlet is a flex column, and without it the page shrinks to fit
+   its content and the chart renders about 800 px wide. */
+.chart-page { width: 100%; padding: var(--s5) var(--s4) var(--s8); max-width: 1280px; margin: 0 auto; }
 .chart-head { margin-bottom: var(--s4); }
 .chart-head h1 { margin-bottom: var(--s1); }
 
@@ -350,7 +352,9 @@
 .chart-hollow { fill: none; stroke: var(--space-dim); stroke-width: 2; stroke-dasharray: 2 3; }
 
 .chart-waypoint.is-locked .chart-dot { fill: var(--space-wall); }
-.chart-waypoint-label { fill: var(--space-mute); font-family: var(--face-display); font-size: 12px; font-weight: 500; }
+/* SVG text is in viewBox units (1200 wide). These sizes render at 14 px or more once the
+   chart is 1000 px wide, which is the 1024 x 768 case. */
+.chart-waypoint-label { fill: var(--space-mute); font-family: var(--face-display); font-size: 18px; font-weight: 500; }
 .chart-link { cursor: pointer; }
 .chart-link:focus-visible .chart-hit { fill: color-mix(in srgb, var(--star) 20%, transparent); stroke: var(--star); stroke-width: 3; }
 
@@ -360,10 +364,16 @@
 
 .chart-station-shell { fill: var(--space-raised); stroke: var(--space-route); stroke-width: 2; }
 .chart-station.is-locked .chart-station-shell { stroke: var(--space-wall); stroke-dasharray: 6 4; }
-.chart-station-name { fill: var(--space-ink); font-family: var(--face-display); font-size: 15px; font-weight: 600; letter-spacing: 0.02em; }
-.chart-station-count { fill: var(--space-mute); font-family: var(--face-display); font-size: 12px; }
+.chart-station-name { fill: var(--space-ink); font-family: var(--face-display); font-size: 20px; font-weight: 600; }
+.chart-station-count { fill: var(--space-mute); font-family: var(--face-display); font-size: 18px; }
 .chart-station.is-open .chart-station-count { fill: var(--star); }
-.chart-note { fill: var(--space-dim); font-family: var(--face-display); font-size: 12px; }
+.chart-note { fill: var(--space-dim); font-family: var(--face-display); font-size: 18px; }
+.chart-station-link { cursor: pointer; }
+.chart-station-link:focus-visible { outline: none; }
+.chart-station-link:focus-visible .chart-station-shell { stroke: var(--star); stroke-width: 4; }
+@media (hover: hover) {
+  .chart-station-link:hover .chart-station-shell { stroke: var(--star); }
+}
 
 /* The only animation that is not a state change: the route reaching the next waypoint. */
 .chart-route.is-extending {
@@ -643,7 +653,7 @@
 .gamepad { flex: none; padding: var(--s3); border-radius: var(--radius); box-shadow: var(--shadow); }
 .pad-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s2); }
 .pad-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
-.pad-connected { font-size: calc(var(--size-label) - 2px); color: var(--star); }
+.pad-connected { font-size: max(14px, calc(var(--size-label) - 1px)); color: var(--star); }
 
 .pad-shoulders { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); margin-bottom: var(--s3); }
 
@@ -687,7 +697,7 @@
 
 .stick-well { width: 76px; height: 76px; border: var(--seam-w) dashed var(--space-wall); border-radius: 50%; display: grid; place-items: center; }
 .stick-thumb { width: 34px; height: 34px; background: var(--space-mute); border-radius: 50%; }
-.stick-label { position: absolute; bottom: 4px; font-family: var(--face-display); font-size: 11px; color: var(--space-mute); letter-spacing: 0.02em; }
+.stick-label { position: absolute; bottom: 4px; font-family: var(--face-display); font-size: 14px; line-height: 1; color: var(--space-mute); }
 .stick:focus-visible { outline: 3px solid var(--star); outline-offset: 2px; }
 
 .dpad { display: grid; grid-template-columns: repeat(3, var(--tap)); grid-template-rows: repeat(3, var(--tap)); gap: 2px; }
@@ -695,7 +705,7 @@
 .dpad-left { grid-area: 2 / 1; }
 .dpad-right { grid-area: 2 / 3; }
 .dpad-down { grid-area: 3 / 2; }
-.dpad-button span { font-size: 11px; }
+.dpad-button span { font-size: 14px; }
 
 .pad-face { display: grid; grid-template-columns: repeat(3, var(--tap)); grid-template-rows: repeat(3, var(--tap)); gap: 2px; }
 .pad-y { grid-area: 1 / 2; }
@@ -803,7 +813,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 }
 
 .tier-tab[aria-current='page'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.tier-tab-name { font-weight: 400; font-size: calc(var(--size-label) - 2px); }
+.tier-tab-name { font-weight: 400; font-size: max(14px, calc(var(--size-label) - 1px)); }
 
 @media (hover: hover) {
   .tier-tab:hover:not([aria-current='page']) { border-color: var(--primary); }

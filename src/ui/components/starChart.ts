@@ -164,7 +164,9 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       }`;
 
       const group = svg('g', { class: `chart-waypoint ${state}` });
-      // A 22px transparent circle keeps the tap target at 44px, per CLAUDE.md.
+      // A 22-unit transparent circle around the mark. Waypoints sit as close as 25 units, so
+      // this cannot reach 44 px at every width; the station (below) and the "Every lesson"
+      // list on the chart page are the full-size ways to the same lessons (WCAG 2.5.8).
       group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 22, class: 'chart-hit' }));
       if (passed) {
         group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 6.5, class: 'chart-dot' }));
@@ -203,31 +205,46 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       total: tier.lessons.length,
     };
     const box = svg('g', { class: `chart-station ${unlocked ? 'is-open' : 'is-locked'}` });
+    // The badge grows with its name, so the name can be set large enough to read at 1024 px.
+    const width = Math.max(120, Math.round(tier.name.length * 11.5 + 36));
     box.appendChild(
       svg('path', {
-        d: stationOutline(station, 1700 + tier.tier * 13),
+        d: stationOutline(station, 1700 + tier.tier * 13, width, 64),
         class: 'chart-station-shell',
       }),
     );
     box.appendChild(
       svg('text', {
         x: station.x,
-        y: station.y - 4,
+        y: station.y - 3,
         'text-anchor': 'middle',
         class: 'chart-station-name',
-        text: tier.name.toUpperCase(),
+        text: tier.name,
       }),
     );
     box.appendChild(
       svg('text', {
         x: station.x,
-        y: station.y + 15,
+        y: station.y + 20,
         'text-anchor': 'middle',
         class: 'chart-station-count',
         text: unlocked ? `${passed} of ${total}` : 'locked',
       }),
     );
-    stationLayer.appendChild(box);
+    // An open station is the big target: it goes to the tier's next lesson.
+    const nextLesson = tier.lessons.find((l) => !isPassed(l.id)) ?? tier.lessons[0];
+    if (unlocked && nextLesson) {
+      const link = svg('a', {
+        href: lessonHref(nextLesson.id),
+        class: 'chart-station-link',
+        'aria-label': `Tier ${tier.tier}, ${tier.name}, ${passed} of ${total} flown. Go to ${nextLesson.title}`,
+      });
+      link.appendChild(box);
+      stationLayer.appendChild(link);
+    } else {
+      box.setAttribute('aria-label', `Tier ${tier.tier}, ${tier.name}, locked`);
+      stationLayer.appendChild(box);
+    }
   });
 
   // Margin annotations, in the chart's own handwriting.
@@ -258,10 +275,8 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
 }
 
 /** A station drawn as a wobbled rounded box, not a perfect rectangle. */
-function stationOutline(centre: Point, seed: number): string {
+function stationOutline(centre: Point, seed: number, w = 112, h = 54): string {
   const random = rng(seed);
-  const w = 112;
-  const h = 54;
   const jitter = () => (random() - 0.5) * 4;
   const l = centre.x - w / 2;
   const r = centre.x + w / 2;
