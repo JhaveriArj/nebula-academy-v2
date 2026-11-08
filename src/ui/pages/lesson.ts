@@ -149,7 +149,12 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     stuckButton,
   );
 
-  const readingColumn = el('div', { class: 'lesson-reading' }, prose, hintBox, checkList, actions);
+  /* Check results, hints and the next-lesson button have to be visible in BOTH layouts.
+     The reading column is hidden in the console state, so this slot is re-parented into
+     whichever column is on screen rather than being duplicated. */
+  const resultsSlot = el('div', { class: 'results-slot' }, hintBox, checkList, actions);
+
+  const readingColumn = el('div', { class: 'lesson-reading' }, prose, resultsSlot);
   const consoleColumn = el('div', { class: 'lesson-console' },
     el('p', { class: 'lesson-reminder' }),
     editor.element,
@@ -441,7 +446,11 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       watchTimer = 0;
     }
     step = name;
-    shell.setAttribute('data-state', CONSOLE_STEPS.has(name) ? 'console' : 'reading');
+    const consoleState = CONSOLE_STEPS.has(name);
+    shell.setAttribute('data-state', consoleState ? 'console' : 'reading');
+    // Move the results, hints and next-lesson button to the column that is showing.
+    if (consoleState) consoleColumn.insertBefore(resultsSlot, console_.element);
+    else readingColumn.appendChild(resultsSlot);
     for (const [key, button] of railButtons) {
       const done = SECTION_ORDER.indexOf(key) < SECTION_ORDER.indexOf(name);
       button.setAttribute('aria-current', key === name ? 'step' : 'false');

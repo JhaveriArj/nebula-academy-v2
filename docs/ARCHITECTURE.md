@@ -100,13 +100,27 @@ the same thing the kid will experience, which is not true of any split-runtime d
 An interpreter for a subset could drift into accepting things that are not Java. Two mechanisms
 stop that.
 
-**A real `javac` gate in CI.** `.github/workflows/ci.yml` installs a JDK and compiles **every**
+**A real `javac` gate.** `.github/workflows/ci.yml` installs a JDK and compiles **every**
 `starter.java` and `solution.java` against real `.java` stub sources of the FTC mock
 (`ftc-stubs/`, generated from the same signature table the interpreter registers). If a lesson
 file is not genuinely valid Java that would compile in Android Studio, CI fails. This is the
 guarantee that kid code pastes into a real `FtcRobotController` project unchanged.
-Locally it is `npm run verify:javac`, which skips itself with a notice when no JDK is present —
-there is no JDK on the authoring machine, which is also why the test path could not depend on one.
+Locally it is `npm run verify:javac`, which finds a Homebrew keg-only JDK without needing
+it on `PATH`, and skips itself with a notice when no JDK is installed at all — the Vitest
+path never depends on one.
+
+Two things worth knowing about the gate. Java requires a public class to live in a file
+named after it, and lesson files are called `starter.java` and `solution.java`, so each is
+copied to `<ClassName>.java` before compiling. And the interpreter resolves SDK types by
+simple name, so it does **not** require imports: a lesson missing one runs perfectly here
+and fails in Android Studio. The gate caught exactly that on its first real run (a missing
+`import com.qualcomm.robotcore.util.ElapsedTime`), and `tests/content.test.ts` now checks
+imports directly so the same mistake is caught on a machine with no JDK.
+
+The remaining gap is honest and small: a kid writing their own code in the browser can
+omit an import and Nebula will not complain, though their lesson files always will be
+checked. Making the interpreter demand imports would be more faithful and would risk false
+positives on correct code, which `checker.ts` is written never to produce.
 
 **One signature table, three consumers.** `src/ftc-mock/signatures.ts` is the single source of
 truth. The interpreter registers from it, `ftc-stubs/` is generated from it, and

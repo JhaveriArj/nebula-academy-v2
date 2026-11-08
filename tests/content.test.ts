@@ -205,6 +205,16 @@ describe.each(built.map((l) => [l.dir, l] as const))('%s', (_dir, loc) => {
     expect(frames[frames.length - 1]!.snapshot.timeMs).toBeGreaterThanOrEqual(lesson.watch.durationMs - 20);
   });
 
+  it('imports every SDK type it names, as real javac requires', () => {
+    /* The interpreter resolves SDK types by simple name and does not need imports, so a
+       missing one runs here and fails in Android Studio. The javac gate catches it, but
+       only on a machine with a JDK; this catches it everywhere. It found a real missing
+       ElapsedTime import in Tier 4 lesson 03. */
+    for (const [file, source] of [['starter.java', lesson.starter], ['solution.java', lesson.solution]] as const) {
+      expect(missingImports(source), `${file} uses a type it never imports`).toEqual([]);
+    }
+  });
+
   it('calls nothing outside docs/FTC_MOCK_COVERAGE.md', () => {
     for (const [file, source] of [['starter.java', lesson.starter], ['solution.java', lesson.solution]] as const) {
       const unknown = unknownSdkCalls(source);
@@ -264,6 +274,28 @@ function glossaryTerms(): string[] {
     );
   }
   return glossaryCache;
+}
+
+/** SDK types a lesson names without importing them. */
+function missingImports(source: string): string[] {
+  const imported = new Set(
+    [...source.matchAll(/^\s*import\s+(?:static\s+)?([\w.]+);/gm)].map((m) => m[1]!.split('.').pop()!),
+  );
+  const body = source
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/\/\/.*$/gm, ' ')
+    .replace(/"(?:[^"\\]|\\.)*"/g, '""')
+    .replace(/^\s*(?:package|import)\b.*$/gm, '');
+
+  const missing = new Set<string>();
+  for (const cls of ALL_NATIVE_CLASSES) {
+    // java.lang needs no import, and a nested type is reached through its outer one.
+    if (cls.fqn.startsWith('java.')) continue;
+    const outer = cls.simple.split('.')[0]!;
+    if (imported.has(outer)) continue;
+    if (new RegExp(`\\b${outer}\\b`).test(body)) missing.add(outer);
+  }
+  return [...missing].sort();
 }
 
 /** Method and field names used in a lesson that the mocked SDK does not provide. */

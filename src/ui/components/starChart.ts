@@ -45,7 +45,11 @@ function wobbled(from: Point, to: Point, seed: number, amount = 5): string {
   return parts.join(' ');
 }
 
-/** Waypoints run from just outside this tier's station towards the next one. */
+/** Waypoints run from just outside this tier's station towards the next one.
+
+    The span is capped at a little over half the distance to the next station so a long
+    tier never crowds into it, and at 30 px a waypoint so a short tier does not stretch
+    its handful of waypoints across the whole chart. */
 function waypointsFor(station: Point, towards: Point, count: number, seed: number): Point[] {
   const random = rng(seed);
   const dx = towards.x - station.x;
@@ -53,8 +57,8 @@ function waypointsFor(station: Point, towards: Point, count: number, seed: numbe
   const length = Math.hypot(dx, dy) || 1;
   const ux = dx / length;
   const uy = dy / length;
-  const start = 78;
-  const span = Math.min(length - 150, 34 * count);
+  const start = 72;
+  const span = Math.max(0, Math.min(length * 0.55, 30 * count));
   const gap = count > 1 ? span / (count - 1) : 0;
 
   return Array.from({ length: count }, (_, i) => {
@@ -118,7 +122,8 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
 
   tiers.forEach((tier, index) => {
     const station = stations[index]!;
-    const next = stations[index + 1] ?? { x: station.x + 220, y: station.y - 120 };
+    // The last tier has no next station, so its trail runs into open chart instead.
+    const next = stations[index + 1] ?? { x: 650, y: 660 };
     const unlocked = isTierUnlocked(tier.tier);
     const points = waypointsFor(station, next, tier.lessons.length, 1000 + tier.tier * 7);
 

@@ -85,7 +85,9 @@
 
 .icon-button[aria-pressed='true'] { background: var(--ink); color: var(--hull); border-color: var(--ink); }
 
-.outlet { flex: 1; min-height: 0; }
+/* The outlet is the leftover height, so the lesson can size itself against it rather
+   than against a hardcoded header height that would drift the moment the bar wraps. */
+.outlet { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .outlet:focus { outline: none; }
 
 /* ----------------------------------------------------------- common parts */
@@ -269,7 +271,9 @@
 
 /* ----------------------------------------------------------------- lesson */
 
-.lesson { display: flex; flex-direction: column; min-height: calc(100vh - 57px); }
+/* Bounded rather than minimum, so the grid inside gives its panels a scrollbar instead
+   of pushing the console off the bottom of a 768 px screen. */
+.lesson { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
 .lesson-bar {
   display: flex;
@@ -294,6 +298,7 @@
   min-height: 0;
   grid-template-columns: var(--rail) minmax(0, 1fr) var(--console-side);
   grid-template-areas: 'rail reading side';
+  overflow: hidden;
 }
 
 .lesson-shell[data-state='console'] {
@@ -305,6 +310,7 @@
   grid-area: rail;
   display: flex;
   flex-direction: column;
+  overflow: auto;
   padding: var(--s3) var(--s2);
   gap: var(--s1);
   border-inline-end: var(--seam-w) solid var(--seam);
@@ -378,6 +384,20 @@
 
 .run-spacer { flex: 1; }
 
+/* The results slot sits in whichever column is visible. In the console state it is a
+   bounded, scrollable strip so a long list of checks cannot push the console away. */
+.results-slot { min-height: 0; }
+.lesson-console > .results-slot {
+  flex: 0 1 auto;
+  overflow: auto;
+  padding: 0 var(--s4);
+  max-height: 46%;
+  border-bottom: var(--seam-w) solid var(--seam);
+}
+.lesson-console > .results-slot:empty { display: none; }
+.lesson-console > .results-slot .check-results { margin-top: var(--s3); }
+.lesson-console > .results-slot .lesson-actions { margin: var(--s3) 0; }
+
 .lesson-side {
   grid-area: side;
   display: flex;
@@ -422,8 +442,9 @@
 .console {
   display: flex;
   flex-direction: column;
-  min-height: 140px;
-  max-height: 42%;
+  flex: 0 0 auto;
+  min-height: 120px;
+  max-height: 38%;
   padding: var(--s3) var(--s4);
   gap: var(--s2);
   overflow: auto;
@@ -650,7 +671,14 @@ hr { border: 0; border-top: var(--seam-w) solid var(--seam); margin: var(--s5) 0
 
 /* ------------------------------------------------- phones and 200% zoom */
 
+@media (max-height: 560px) {
+  .lesson { flex: none; }
+  .lesson-shell { overflow: visible; }
+}
+
 @media (max-width: 760px) {
+  .lesson { flex: none; }
+  .lesson-shell { overflow: visible; }
   .site-header { gap: var(--s2); }
   .site-nav { order: 3; width: 100%; margin-inline-start: 0; }
   .nav-link span { display: none; }
