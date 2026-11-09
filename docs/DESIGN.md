@@ -50,8 +50,13 @@ anywhere else, and the canvas and the code editor read their colors from it at r
 `--space-*` tokens (`raised`, `line`, `ink`, `mute`, `dim`, `go`, `alert`, `route`, `wall`) and
 the `--syn-*` code colors live alongside them in `theme.css`.
 
-**Dark mode** follows the device (`prefers-color-scheme`). `:root[data-theme='light' | 'dark']`
-overrides it, so a toggle can be added later without touching any other stylesheet.
+**Dark mode** follows the device (`prefers-color-scheme`) by default. The header's **Display**
+panel (a native popover) offers Auto, Light and Dark, which sets `:root[data-theme]`, and the
+Larger text switch; both are saved in the progress file.
+
+**Art.** The sprites and tier badges in `public/art` are image files, so they carry the palette's
+hex values directly instead of reading `theme.css`. They are the only exception to the
+one-file rule; keep them in step with the `--space-*` and `--star` tokens.
 
 **The yellow rule.** `--star` on `--bg` measures about 1.5:1. The contrast script requires that
 pair to *fail*: yellow is a light, not a text color. If someone darkens it until it passes, the

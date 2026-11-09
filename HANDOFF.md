@@ -35,10 +35,9 @@ Homebrew keg-only JDK without it being on `PATH`, so the gate just runs.
 
 ## Next, in order
 
-1. **Wire the sprites into the field view.** `public/art/*.svg` are drawn and documented;
-   `src/ui/components/field.ts` still draws the robot, tiles and elements procedurally in
-   canvas with the same shapes. Swap to an image cache + `drawImage`, and use
-   `badge-t0..t5.svg` on the star-chart stations and the home tier list.
+1. ~~Wire the sprites into the field view.~~ Done: the art is recolored to the mascot palette;
+   the field draws the robots, tiles and elements from it; the tier badges are on the home
+   tier list and the chart stations.
 2. ~~`docs/ADDING_A_LESSON.md`~~ Done.
 3. ~~`README.md`~~ Done.
 4. ~~Polish pass.~~ Done on `design-polish`; see **Design polish (2026-11-08)** below.
@@ -105,16 +104,26 @@ grid, blur and translucent materials; "replace borders with shadows"; a 0.96 pre
 place of the existing 1 px press.
 
 **Left in the polish column**
-- **Waypoints sit 25 viewBox units apart**, so a waypoint's own target is about 21 px at 1024.
-  Stations and the "Every lesson" list are the full-size routes (WCAG 2.5.8's equivalent-control
-  exception). A redraw with more room between waypoints would fix it properly.
 - **The field is small in TeleOp lessons** (200 px tall at 1366) because the gamepad needs the
   room, and telemetry scrolls under it. Check this on real Chromebook hardware.
 
-- The sprite and badge SVGs in `public/art` still use the old grey-green and amber palette
-  (they are not wired in; item 1 above).
 - Not yet tested: a real screen reader (only the accessibility tree was read), forced-colors
   mode, and a physical touch Chromebook.
+
+## Second design pass (2026-11-08)
+
+- **Display panel**: one header button opens a native popover with a Larger text switch and
+  Auto / Light / Dark. Replaces the lone "An" button.
+- **Art in use**: robots (violet like the mascot), foam tiles and game elements on the field;
+  tier patches on the home list and chart stations.
+- **Star chart redrawn** as a switchback trail, one tier per row; every waypoint has a 49 px
+  target at 1024 and none overlap.
+- Craft: clearer panel-title hierarchy on home, the lesson column's first heading flush with the
+  top, an icon on every nav link.
+- `tests/layout-rules.test.ts` guards three layout rules after one of them was deleted by a big
+  stylesheet edit during this pass (caught before it shipped).
+- Lighthouse after this pass: accessibility, best practices and SEO all 100 on home, chart and
+  a lesson page.
 
 ## Open decisions for you
 
