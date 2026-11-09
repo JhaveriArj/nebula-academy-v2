@@ -1,10 +1,13 @@
 import { el } from './dom';
 import { icon } from './icons';
-import { getBigType, getMode, setBigType, setMode, type Mode } from '../progress/store';
+import { getAppearance, getBigType, getMode, setAppearance, setBigType, setMode, type Appearance, type Mode } from '../progress/store';
 
-/* The header. Light painted metal, per docs/DESIGN.md, so no amber appears here.
-   The mode toggle is two buttons rather than a switch, because a switch does not say
-   which way is which and a nine-year-old should not have to guess. */
+/* The header. The mode toggle is two buttons rather than a switch, because a switch does
+   not say which way is which and a nine-year-old should not have to guess.
+
+   Text size and light/dark live together behind one Display button, in a native popover
+   (top layer, light dismiss, Escape closes it), so the header holds one kind of control per
+   job instead of three (HIG toolbars.md: "avoid overcrowding"). */
 
 export interface Header {
   element: HTMLElement;
@@ -36,17 +39,50 @@ export function createHeader(onModeChange: () => void): Header {
 
   const bigType = el('button', {
     type: 'button',
-    class: 'icon-button bigtype-button',
-    'aria-pressed': String(getBigType()),
-    // The visible label and the accessible name are the same words; on narrow headers the
-    // label hides and the name stays.
-    'aria-label': 'Larger text',
+    class: 'display-toggle',
+    role: 'switch',
+    'aria-checked': String(getBigType()),
     onclick: () => {
       setBigType(!getBigType());
       applyMode();
       refresh();
     },
-  }, icon('bigtype', 22), el('span', { class: 'bigtype-label', text: 'Larger text' }));
+  }, el('span', { text: 'Larger text' }), el('span', { class: 'display-switch', 'aria-hidden': 'true' }));
+
+  const appearanceButtons = new Map<Appearance, HTMLButtonElement>();
+  const appearanceButton = (value: Appearance, label: string) => {
+    const button = el('button', {
+      type: 'button',
+      class: 'mode-button',
+      'aria-pressed': String(getAppearance() === value),
+      onclick: () => {
+        setAppearance(value);
+        applyMode();
+        refresh();
+      },
+    }, label);
+    appearanceButtons.set(value, button);
+    return button;
+  };
+
+  const panel = el('div', { id: 'display-panel', class: 'display-panel', popover: 'auto', role: 'dialog', 'aria-label': 'Display' },
+    el('p', { class: 'display-title', text: 'Display' }),
+    bigType,
+    el('p', { class: 'display-label', id: 'appearance-label', text: 'Light or dark' }),
+    el('div', { class: 'mode-toggle', role: 'group', 'aria-labelledby': 'appearance-label' },
+      appearanceButton('auto', 'Auto'),
+      appearanceButton('light', 'Light'),
+      appearanceButton('dark', 'Dark'),
+    ),
+    el('p', { class: 'display-note', text: 'Auto follows this computer\'s setting.' }),
+  );
+
+  const displayButton = el('button', {
+    type: 'button',
+    class: 'icon-button display-button',
+    popovertarget: 'display-panel',
+    'aria-label': 'Display',
+  }, icon('contrast', 22), el('span', { class: 'display-button-label', text: 'Display' }));
 
   const element = el('header', { class: 'site-header' },
     el('a', { href: '#/', class: 'wordmark', 'aria-label': 'Nebula Academy, home' },
@@ -64,15 +100,19 @@ export function createHeader(onModeChange: () => void): Header {
         makeModeButton('explorer', 'Explorer', 'Ages 9 to 12: larger text, more code filled in'),
         makeModeButton('builder', 'Builder', 'Ages 13 to 18: full editing and the Why panels'),
       ),
-      bigType,
+      displayButton,
     ),
+    panel,
   );
 
   function refresh(): void {
     for (const [mode, button] of modeButtons) {
       button.setAttribute('aria-pressed', String(getMode() === mode));
     }
-    bigType.setAttribute('aria-pressed', String(getBigType()));
+    bigType.setAttribute('aria-checked', String(getBigType()));
+    for (const [value, button] of appearanceButtons) {
+      button.setAttribute('aria-pressed', String(getAppearance() === value));
+    }
   }
 
   return { element, refresh };
@@ -83,4 +123,10 @@ export function applyMode(): void {
   const root = document.documentElement;
   root.setAttribute('data-mode', getMode());
   root.setAttribute('data-bigtype', getBigType() ? 'on' : 'off');
+  const appearance = getAppearance();
+  const before = root.getAttribute('data-theme');
+  if (appearance === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', appearance);
+  // The field canvas cannot read CSS variables live; tell it to repaint.
+  if (before !== root.getAttribute('data-theme')) dispatchEvent(new Event('nebula:appearance'));
 }

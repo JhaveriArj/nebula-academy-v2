@@ -5,6 +5,8 @@ import { pathway } from '../content/loader';
    lid mid-lesson should find their code where they left it. */
 
 export type Mode = 'explorer' | 'builder';
+/** 'auto' follows the device's light or dark setting. */
+export type Appearance = 'auto' | 'light' | 'dark';
 
 export interface LessonProgress {
   passed: boolean;
@@ -22,6 +24,7 @@ export interface ProgressFile {
    *  asks their age instead of quietly starting a nine-year-old in Builder. */
   modeChosen: boolean;
   bigType: boolean;
+  appearance: Appearance;
   lessons: Record<string, LessonProgress>;
   /** lessonId -> the kid's current code. */
   drafts: Record<string, string>;
@@ -37,6 +40,7 @@ const empty = (): ProgressFile => ({
   mode: 'builder',
   modeChosen: false,
   bigType: false,
+  appearance: 'auto',
   lessons: {},
   drafts: {},
 });
@@ -87,6 +91,7 @@ export function normalise(input: unknown): ProgressFile {
   file.modeChosen = raw.modeChosen === true
     || Object.values(raw.lessons ?? {}).some((l) => typeof l === 'object' && l !== null && (l as Partial<LessonProgress>).passed === true);
   file.bigType = raw.bigType === true;
+  if (raw.appearance === 'light' || raw.appearance === 'dark') file.appearance = raw.appearance;
 
   const known = new Set(pathway.tiers.flatMap((t) => t.lessons.map((l) => l.id)));
   for (const [id, value] of Object.entries(raw.lessons ?? {})) {
@@ -118,6 +123,13 @@ export function setMode(mode: Mode): void {
 export const hasChosenMode = (): boolean => load().modeChosen;
 
 export const getBigType = (): boolean => load().bigType;
+
+export const getAppearance = (): Appearance => load().appearance;
+
+export function setAppearance(appearance: Appearance): void {
+  load().appearance = appearance;
+  save();
+}
 
 export function setBigType(on: boolean): void {
   load().bigType = on;

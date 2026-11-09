@@ -106,20 +106,66 @@
 
 .icon-button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
 
-/* "An" alone means nothing to a nine-year-old, so the button says what it does where the
-   header has room. */
-.bigtype-label { display: none; }
+/* Display: one button, one panel. The panel is a native popover in the top layer, pinned
+   under the header's right edge. */
+.display-button { gap: var(--s2); }
+.display-button-label { display: none; }
 @media (min-width: 1281px) {
-  .bigtype-button { gap: var(--s2); padding: 0 var(--s4) 0 var(--s3); border-radius: var(--radius-pill); font-weight: 600; }
-  .bigtype-label { display: inline; }
+  .display-button { padding: 0 var(--s4) 0 var(--s3); border-radius: var(--radius-pill); font-weight: 600; }
+  .display-button-label { display: inline; }
 }
 
-/* The lesson page is fixed to the screen: its panels scroll, the page does not, so Run,
-   the results and the field never leave a 768 px screen. Short or narrow screens (phones,
-   200% zoom) fall back to one scrolling column further down. */
-@media (min-width: 761px) and (min-height: 561px) {
-  #app:has(.lesson) { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+.display-panel {
+  position: fixed;
+  inset: 72px var(--s4) auto auto;
+  margin: 0;
+  width: min(320px, calc(100vw - 2 * var(--s4)));
+  padding: var(--s4);
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--seam-w) solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
 }
+.display-panel::backdrop { background: transparent; }
+.display-title { margin: 0 0 var(--s3); font-family: var(--face-display); font-weight: 600; font-size: var(--size-h3); }
+.display-label { margin: var(--s4) 0 var(--s2); font-family: var(--face-display); font-weight: 600; font-size: var(--size-label); color: var(--ink-mid); }
+.display-note { margin: var(--s2) 0 0; font-size: var(--size-label); color: var(--ink-mid); }
+.display-panel .mode-toggle { width: 100%; }
+.display-panel .mode-button { flex: 1; padding: 0 var(--s2); }
+
+/* A labelled on/off switch: the words say what it does, the track says whether it is on. */
+.display-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 var(--s2) 0 var(--s4);
+  border-color: var(--line);
+  background: var(--surface-soft);
+}
+.display-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
+  transition: background-color 160ms var(--ease-out);
+}
+.display-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform 160ms var(--ease-out);
+}
+.display-toggle[aria-checked='true'] .display-switch { background: var(--primary); }
+.display-toggle[aria-checked='true'] .display-switch::after { transform: translateX(20px); }
 
 /* The outlet is the leftover height, so the lesson can size itself against it rather
    than against a hardcoded header height that would drift the moment the bar wraps. */

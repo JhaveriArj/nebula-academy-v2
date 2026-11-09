@@ -138,12 +138,24 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
   resize();
   const onResize = () => resize();
   addEventListener('resize', onResize);
+  // Light/dark changed, from the Display panel or (on Auto) from the device itself.
+  const recolor = () => {
+    colors = readPalette();
+    draw(last);
+  };
+  addEventListener('nebula:appearance', recolor);
+  const scheme = matchMedia('(prefers-color-scheme: dark)');
+  scheme.addEventListener('change', recolor);
 
   return {
     canvas,
     draw,
     resize,
-    destroy: () => removeEventListener('resize', onResize),
+    destroy: () => {
+      removeEventListener('resize', onResize);
+      removeEventListener('nebula:appearance', recolor);
+      scheme.removeEventListener('change', recolor);
+    },
   };
 }
 

@@ -23,3 +23,15 @@ describe('modeChosen', () => {
     expect(file.modeChosen).toBe(false);
   });
 });
+
+describe('appearance', () => {
+  it('defaults to auto, which follows the device', () => {
+    expect(normalise({}).appearance).toBe('auto');
+  });
+
+  it('keeps light and dark, and ignores anything else', () => {
+    expect(normalise({ appearance: 'dark' }).appearance).toBe('dark');
+    expect(normalise({ appearance: 'light' }).appearance).toBe('light');
+    expect(normalise({ appearance: 'purple' }).appearance).toBe('auto');
+  });
+});
