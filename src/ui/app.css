@@ -338,7 +338,8 @@
 
 .home-panel { padding: var(--s5); border-inline-start: var(--seam-w) solid var(--line); }
 .home-panel:first-child { border-inline-start: 0; }
-.home-panel h2 { margin-top: 0; font-size: var(--size-h3); }
+/* The title needs a clear step above 18 px body text, not 19 px over 18. */
+.home-panel h2 { margin-top: 0; margin-bottom: var(--s2); font-size: calc(var(--size-h3) + 3px); }
 .home-panel p { color: var(--ink-mid); }
 
 .panel-link {
@@ -583,6 +584,9 @@
 
 /* Focus lands here after a step change; the heading is a target, not a control. */
 .lesson-prose [tabindex='-1']:focus, .lesson-reminder:focus { outline: none; }
+
+/* The column's own padding is the top margin; the first heading does not add another. */
+.lesson-prose > :first-child { margin-top: 0; }
 
 .lesson-reading { grid-area: reading; padding: var(--s5) var(--s6); overflow: auto; min-height: 0; background: var(--surface); }
 .lesson-shell[data-state='console'] .lesson-reading { display: none; }

@@ -93,7 +93,7 @@ export function createHeader(onModeChange: () => void): Header {
       el('a', { href: '#/chart', class: 'nav-link' }, icon('chart', 20), el('span', { text: 'Chart' })),
       el('a', { href: '#/mentor', class: 'nav-link' }, icon('mentor', 20), el('span', { text: 'Mentor' })),
       el('a', { href: '#/progress', class: 'nav-link' }, icon('passed', 20), el('span', { text: 'Progress' })),
-      el('a', { href: '#/about', class: 'nav-link' }, el('span', { text: 'About' })),
+      el('a', { href: '#/about', class: 'nav-link' }, icon('robot', 20), el('span', { text: 'About' })),
     ),
     el('div', { class: 'header-controls' },
       el('div', { class: 'mode-toggle', role: 'group', 'aria-label': 'Reading mode' },
