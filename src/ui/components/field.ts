@@ -44,7 +44,7 @@ const ready = (img: HTMLImageElement | undefined): img is HTMLImageElement =>
 
 interface FieldPalette {
   ground: string; seam: string; wall: string; line: string; chassis: string;
-  wheel: string; star: string; go: string; electric: string;
+  wheel: string; star: string; go: string;
 }
 
 function readPalette(): FieldPalette {
@@ -59,7 +59,6 @@ function readPalette(): FieldPalette {
     wheel: v('--space-mute'),
     star: v('--star'),
     go: v('--space-go'),
-    electric: v('--electric-glow'),
   };
 }
 
@@ -71,10 +70,10 @@ export interface FieldView {
   destroy(): void;
 }
 
-export function createFieldView(options: { label?: string; glow?: boolean } = {}): FieldView {
-  /** The home page's showpiece screen: the route and the robot glow, and elements pulse. */
-  const glow = options.glow === true;
-  const calm = matchMedia('(prefers-reduced-motion: reduce)');
+export function createFieldView(options: { label?: string; instrument?: boolean } = {}): FieldView {
+  /** The home page's instrument: softer seams, and no trail on the canvas, because the page
+   *  draws the route over it in ink. */
+  const instrument = options.instrument === true;
   const canvas = document.createElement('canvas');
   canvas.className = 'field-canvas';
   canvas.setAttribute('role', 'img');
@@ -131,8 +130,8 @@ export function createFieldView(options: { label?: string; glow?: boolean } = {}
       }
     }
 
-    // Seams, one hairline. On the glowing screen they are softer, a grid you feel more than see.
-    ctx.globalAlpha = glow ? 0.55 : 1;
+    // Seams, one hairline; softer on the instrument, a grid you feel more than see.
+    ctx.globalAlpha = instrument ? 0.55 : 1;
     ctx.strokeStyle = colors.seam;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -153,36 +152,18 @@ export function createFieldView(options: { label?: string; glow?: boolean } = {}
     if (!snapshot) return;
 
     // The route already driven.
-    if (snapshot.trail.length > 1) {
+    if (!instrument && snapshot.trail.length > 1) {
       ctx.strokeStyle = colors.star;
-      ctx.globalAlpha = glow ? 0.85 : 0.45;
-      ctx.lineWidth = glow ? 2.5 : 2;
-      if (glow) {
-        ctx.shadowColor = colors.star;
-        ctx.shadowBlur = 10;
-      }
+      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(px(snapshot.trail[0]!.x), py(snapshot.trail[0]!.y));
       for (const point of snapshot.trail.slice(1)) ctx.lineTo(px(point.x), py(point.y));
       ctx.stroke();
       ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
     }
 
-    // Game elements. On the glowing screen each one breathes a soft halo.
-    if (glow) {
-      const t = calm.matches ? 0 : performance.now() / 900;
-      ctx.strokeStyle = colors.electric;
-      ctx.lineWidth = 1.5;
-      snapshot.elements.forEach((element, i) => {
-        const pulse = 0.5 + 0.5 * Math.sin(t + i * 1.7);
-        ctx.globalAlpha = 0.25 + 0.35 * pulse;
-        ctx.beginPath();
-        ctx.arc(px(element.x), py(element.y), px(element.r) * (1.5 + 0.35 * pulse), 0, Math.PI * 2);
-        ctx.stroke();
-      });
-      ctx.globalAlpha = 1;
-    }
+    // Game elements.
     for (const element of snapshot.elements) {
       const sprite = element.kind === 'ball' ? art.ball : art.cube;
       if (ready(sprite)) {
@@ -202,12 +183,7 @@ export function createFieldView(options: { label?: string; glow?: boolean } = {}
       }
     }
 
-    if (glow) {
-      ctx.shadowColor = colors.electric;
-      ctx.shadowBlur = 18;
-    }
     drawRobot(ctx, snapshot, px, py, scale, colors, snapshot.kind === 'tank' ? art.tank : art.mecanum);
-    ctx.shadowBlur = 0;
   }
 
   resize();

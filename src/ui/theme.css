@@ -32,21 +32,22 @@
   --electric-glow:#5452F8;  /* the helmet itself, for light and glow only */
   --shine:        #FFFFFF;  /* the travelling highlight on the start button */
 
-  /* One color per tier, for its tile on the home page. Never text, never the only cue:
-     every tier also has its own badge silhouette. */
-  --tier-0: #FEBC02;
-  --tier-1: #5452F8;
-  --tier-2: #2BB59F;
-  --tier-3: #E0457B;
-  --tier-4: #8262C4;
-  --tier-5: #38A3D9;
-
-  /* Depth on the page: how strongly the nebula glows, the star dots, the faint grid. */
-  --nebula-a: 16%;
-  --nebula-b: 12%;
-  --nebula-c: 8%;
-  --grid-line: color-mix(in srgb, var(--primary) 7%, transparent);
-  --star-dot:  color-mix(in srgb, var(--primary) 22%, transparent);
+  /* The home page is an engineering notebook read at night, the same in light and dark:
+     a navy ink ramp for the cover, and paper as the one warm material. */
+  --nb-page:     #0E0D2C;
+  --nb-raised:   #17163C;
+  --nb-raised-2: #201F4A;
+  --nb-deep:     #090820;
+  --nb-text:     #EEEDF7;
+  --nb-text-2:   #B7B4D4;
+  --nb-text-3:   #938FBC;
+  --nb-line:     color-mix(in srgb, var(--nb-text) 9%, transparent);
+  --nb-shadow:   #03021A;
+  --paper:       #F2EADA;
+  --paper-line:  #E1D5BE;
+  --paper-ink:   #201C3D;
+  --paper-ink-2: #5B5470;
+  --face-ui: 'Lexend', system-ui, -apple-system, sans-serif;
   --alert:        #B3261E;  /* the robot got confused */
 
   /* --- Space: the dark working screens. Same in both modes. -------------- */
@@ -96,14 +97,8 @@
   --shadow-sm: 0 1px 2px rgb(21 18 63 / 0.08);
   --shadow: 0 1px 2px rgb(21 18 63 / 0.06), 0 8px 24px -10px rgb(75 53 144 / 0.28);
   --shadow-lift: 0 2px 4px rgb(21 18 63 / 0.08), 0 14px 32px -12px rgb(75 53 144 / 0.38);
-  --glow-star: 0 0 0 1px color-mix(in srgb, var(--star) 70%, transparent),
-    0 10px 30px -8px color-mix(in srgb, var(--star) 65%, transparent),
-    0 0 56px -10px color-mix(in srgb, var(--star) 55%, transparent);
-  --glow-star-strong: 0 0 0 1px var(--star),
-    0 14px 36px -8px color-mix(in srgb, var(--star) 80%, transparent),
-    0 0 80px -8px color-mix(in srgb, var(--star) 70%, transparent);
-  --glow-electric: 0 0 0 1px color-mix(in srgb, var(--electric-glow) 40%, transparent),
-    0 16px 44px -18px color-mix(in srgb, var(--electric-glow) 70%, transparent);
+  --paper-shadow: 0 1px 0 var(--paper-line), 0 24px 48px -24px var(--nb-shadow);
+  --screen-glow: drop-shadow(0 0 6px color-mix(in srgb, var(--star) 70%, transparent));
 
   --seam-w: 1px;
   --tap: 44px;
@@ -144,11 +139,6 @@
     --alert:        #FF8A80;
     --electric:     #A8A6FF;
     --electric-glow:#7472FF;
-    --nebula-a: 42%;
-    --nebula-b: 30%;
-    --nebula-c: 16%;
-    --grid-line: color-mix(in srgb, var(--space-ink) 5%, transparent);
-    --star-dot:  color-mix(in srgb, var(--space-ink) 75%, transparent);
     --space:        #07062A;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);
@@ -174,11 +164,6 @@
   --alert:        #FF8A80;
   --electric:   #A8A6FF;
   --electric-glow:#7472FF;
-  --nebula-a: 42%;
-  --nebula-b: 30%;
-  --nebula-c: 16%;
-  --grid-line: color-mix(in srgb, var(--space-ink) 5%, transparent);
-  --star-dot:  color-mix(in srgb, var(--space-ink) 75%, transparent);
   --space:        #07062A;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);

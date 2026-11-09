@@ -44,6 +44,8 @@ export function startApp(root: HTMLElement): void {
     outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:leave', { bubbles: false }));
 
     document.title = titleFor(route);
+    // The home page is always the navy notebook cover; the header matches it there.
+    document.body.dataset.route = route.name;
 
     switch (route.name) {
       case 'chart': {

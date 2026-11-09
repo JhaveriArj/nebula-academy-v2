@@ -69,7 +69,7 @@ in, or it is the mascot.
 
 ## Type
 
-Two families from Google Fonts, plus the system monospace.
+Three families from Google Fonts, plus the system monospace.
 
 **Fredoka** — headings, buttons, navigation, tier names, telemetry keys.
 `font-family: 'Fredoka', 'Nunito', 'Trebuchet MS', sans-serif`
@@ -82,7 +82,11 @@ Drawn by the Braille Institute to maximize character disambiguation for low visi
 single best face available for a nine-year-old reading `1 l I` and `0 O` inside sentences about
 Java identifiers. It stays through any restyle.
 
-**System monospace** — code only. No third webfont.
+**Lexend** — the home page, the header and the Display panel (`--face-ui`). A geometric sans
+built for reading ease, so it sits next to Atkinson without fighting it. 400 to 600, one
+variable file.
+
+**System monospace** — code, and the home page's labels and captions.
 `font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace`
 
 **Sizes.** Explorer in parentheses.
@@ -242,9 +246,9 @@ Every number on screen is read from the robot or the test runner. No decorative 
 sparkline that isn't data, no progress ring that isn't progress. If we cannot name the variable
 behind a number, it comes off the screen.
 
-**2. The landing page has depth; the work pages stay calm.**
-The home page is built in layers: the page (nebula glows from the mascot's colors, two star
-layers, a faint grid that fades out), sections, raised cards, and the live screen on top.
+**2. The landing page is a notebook; the work pages stay calm.**
+The home page is an FTC team's engineering notebook at night: a navy desk, one instrument (the
+simulator), and warm paper for the things people write on (the mentor rubric, the tier list).
 Lesson, chart, mentor and progress pages keep plain panels, one hairline, violet and type,
 because a kid is working there, not looking around.
 
@@ -264,13 +268,11 @@ something being wrong; the design lint rejects them in `src/ui/`.
 ## Motion, icons, and the hero
 
 **Motion.** The robot moving in the sim (the product, not an effect); the route extending on the
-Level Map; on the home page only: the mascot drifting, a beam of light circling the live
-screen, a shine crossing the start button, the live dot breathing, and sections easing in as
-they scroll into view. Hover lifts cards and rows by a few pixels; presses scale to 0.98.
-Every animation is opted in under `prefers-reduced-motion: no-preference`, rule by rule (no
-global 0.001 ms override, which modern-web-guidance warns can make motion more jarring). Scroll
-reveals use a CSS scroll timeline and start part-way visible, so nothing is ever hidden from a
-page that is not scrolled.
+Level Map; on the home page, one thing: the robot drives its route once, 500 ms after load, and
+the route draws itself in yellow ink behind it. Nothing loops, nothing scrolls in, nothing pulses.
+Hover changes color or underline only. Under `prefers-reduced-motion: reduce` the route is
+already drawn and the robot is parked at its end. Motion is handled rule by rule (no global
+0.001 ms override, which modern-web-guidance warns can make motion more jarring).
 
 **Icons.** Drawn by hand as SVG in `src/ui/icons.ts`, 24×24, 1.75px stroke, no fill, inheriting
 `currentColor`. No emoji anywhere in the UI or lesson prose.
@@ -278,16 +280,29 @@ page that is not scrolled.
 **Focus.** 3px ring with a 2px offset. `--link` on the page, `--star` in space. Never removed,
 never only a color change.
 
-**The hero is the mascot in front of a live screen.** The page's one `<h1>` and the actions sit
-on the left; on the right, the real simulator runs on a glowing screen (robot and route glow,
-game elements pulse, a beam circles the frame) and the mascot stands in front of its corner.
-The start button is the antenna light: yellow, glowing, with electric indigo (from the helmet)
-as the second accent on the secondary action. Under reduced motion the robot is parked with its
-route drawn behind it and nothing else moves.
+**The hero is the instrument.** The page's one `<h1>` and the actions sit on the left. On the
+right, the real simulator sits in a frame with ruler ticks, mono grid references (A to F, 0 to
+12 ft), a faint scanline and vignette, and runs off the right edge of the window like a screen
+too big for the desk. The mascot leans on the frame's left edge, standing on a hairline desk
+with a cast shadow; no halo, no glow.
 
-**Tier colors.** Each tier has its own color (`--tier-0` to `--tier-5`) for its tile on the home
-page. It is never text and never the only cue: every tier also has its badge silhouette and its
-name.
+**The home page, top to bottom.** Hero; three rows that alternate sides, each with a real
+artifact (the actual lines of lesson 1 with the number circled in ink, two scale drawings of
+`sleep(1000)` and `sleep(2000)`, the Tier 0 mentor rubric on paper); then the six tiers written
+on a ruled notebook page, with a big drop-cap number each and a hand-inked circle on the tier
+you are in.
+
+**Hand-inked marks.** Anything the mascot or a person "draws" (the circle round the number, the
+ticks on the rubric, the you-are-here circle, the measurement brackets) goes through one SVG
+filter, `#nb-wobble` (feTurbulence plus feDisplacementMap), so it looks drawn rather than set.
+The UI around it stays precise.
+
+**Yellow is rationed to three places** on the home page: the start button, the route, and the
+you-are-here circle. Glow is used once, on the route.
+
+**Home page type.** Fredoka for the `<h1>` and the tier numbers only; Lexend (400 to 600) for
+everything else on the home page and in the header and Display panel; system monospace for
+labels, in sentence case at 14px, never uppercase or tracked. Headings stay at weight 500.
 
 **First visit.** Until a kid has picked a mode, the one start button is two: "I am 9 to 12"
 (Explorer) and "I am 13 to 18" (Builder). One tap sets the mode and starts lesson 1, so the
@@ -327,6 +342,17 @@ header (it rendered at 17×30 px before).
 **What stayed:** Atkinson Hyperlegible for every word a kid reads, the dark working surfaces,
 "yellow is a light, never text on the page", shape-not-color state on the chart, the 44 px tap
 floor, the layout and its breakpoints.
+
+---
+
+## The 2026-11-09 notebook pass
+
+The third pass ("break the template") replaced the landing page's nebula, glows, equal feature
+cards and scroll reveals with the notebook described under *Motion, icons, and the hero*. It
+followed the [unslop](https://github.com/heydamir/unslop) skill (CC BY 4.0, Damir Sokolovsky)
+where it and the brief disagreed: no nebula or grain, sentence-case mono labels at 14px rather
+than 13px uppercase, `<h1>` at weight 500. The tier colors and glow tokens were removed; the home
+page uses the `--nb-*` and `--paper-*` tokens in `theme.css` and stays navy in light and dark.
 
 ---
 

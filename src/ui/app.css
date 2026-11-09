@@ -42,7 +42,10 @@
 .wordmark img { display: block; height: 44px; width: auto; }
 /* Hierarchy in the header: the brand is the loudest thing, then the mode switch, then the
    quiet text links, then Display. */
-.wordmark-name { font-family: var(--face-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; }
+.wordmark-name { font-family: var(--face-ui); font-weight: 600; font-size: 20px; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; }
+
+/* The header and the Display panel are interface, so they are set in the interface face. */
+.site-header, .site-header button, .display-panel, .display-panel button { font-family: var(--face-ui); }
 
 .site-nav { display: flex; gap: var(--s1); margin-inline-start: auto; flex-wrap: wrap; }
 
@@ -55,7 +58,7 @@
   padding: 0 var(--s3);
   border-radius: var(--radius-pill);
   text-decoration: none;
-  font-family: var(--face-display);
+  font-family: var(--face-ui);
   font-weight: 500;
   font-size: var(--size-label);
   color: var(--ink-mid);
@@ -74,7 +77,6 @@
   margin-left: -3px;
   border-radius: 50%;
   background: var(--electric-glow);
-  box-shadow: var(--glow-electric);
 }
 
 @media (hover: hover) {
@@ -150,8 +152,8 @@
   box-shadow: var(--shadow-lift);
 }
 .display-panel::backdrop { background: transparent; }
-.display-title { margin: 0 0 var(--s3); font-family: var(--face-display); font-weight: 600; font-size: var(--size-h3); }
-.display-label { margin: var(--s4) 0 var(--s2); font-family: var(--face-display); font-weight: 600; font-size: var(--size-label); color: var(--ink-mid); }
+.display-title { margin: 0 0 var(--s3); font-family: var(--face-ui); font-weight: 600; font-size: var(--size-h3); }
+.display-label { margin: var(--s4) 0 var(--s2); font-family: var(--face-ui); font-weight: 600; font-size: var(--size-label); color: var(--ink-mid); }
 .display-note { margin: var(--s2) 0 0; font-size: var(--size-label); color: var(--ink-mid); }
 .display-panel .mode-toggle { width: 100%; }
 .display-panel .mode-button { flex: 1; padding: 0 var(--s2); }
@@ -265,400 +267,397 @@
 
 /* ------------------------------------------------------------------- home */
 
-/* The landing page has real depth: a page layer (nebula glow, two star layers, a faint grid),
-   section layers, raised cards, and the live screen on top. Every color is a token or a mix
-   of one. The width grows with the window instead of leaving wide screens empty. */
-.home {
-  --home-max: min(1320px, calc(100% - 2 * var(--s5)));
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s8);
-  padding: var(--s7) 0 var(--s8);
-  overflow: clip;
-}
-.home > * { width: var(--home-max); margin-inline: auto; }
+/* The home page: an FTC team's engineering notebook, read at night. A navy ink cover in both
+   light and dark mode, paper as the one warm material, precise type for everything that
+   teaches, hand-drawn ink for everything the mascot touches. The one moment of color is the
+   robot's route drawing itself in yellow. Yellow appears three times: the start button, the
+   route, and the "you are here" mark on the notebook page. */
 
-.home::before,
-.home::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+.nb {
+  --edge: max(32px, calc((100% - 1200px) / 2));
+  background: var(--nb-page);
+  color: var(--nb-text);
+  font-family: var(--face-ui);
+  overflow-x: clip;
 }
-/* Nebula glow: three soft clouds pulled from the mascot (suit violet, helmet indigo, badge
-   magenta), over the page color. */
-.home::before {
-  background:
-    radial-gradient(60rem 36rem at 12% -6%, color-mix(in srgb, var(--primary) var(--nebula-a), transparent), transparent 70%),
-    radial-gradient(48rem 32rem at 92% 8%, color-mix(in srgb, var(--electric-glow) var(--nebula-b), transparent), transparent 70%),
-    radial-gradient(44rem 30rem at 70% 78%, color-mix(in srgb, var(--badge) var(--nebula-c), transparent), transparent 70%),
-    var(--bg);
-}
-/* Stars (two scales, so the field has depth) and a faint grid that fades out downwards. */
-.home::after {
-  background:
-    radial-gradient(circle at 20% 30%, var(--star-dot) 0 1px, transparent 1.6px) 0 0 / 140px 140px,
-    radial-gradient(circle at 70% 80%, var(--star-dot) 0 0.8px, transparent 1.3px) 40px 60px / 90px 90px,
-    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 48px 48px,
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 48px 48px;
-  mask-image: linear-gradient(to bottom, black, transparent 85%);
-}
+.nb-defs { position: absolute; width: 0; height: 0; }
+.nb :focus-visible { outline-color: var(--star); }
 
-/* --- Hero: the copy on the left, the stage on the right. --- */
-.hero {
+/* --- Hero: the headline large and left, the instrument big and running off the right edge. */
+.nb-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: var(--s7);
+  grid-template-columns: minmax(0, 33rem) minmax(0, 1fr);
+  column-gap: 96px;
   align-items: center;
+  min-height: calc(100vh - 68px);
+  padding: 64px 0 96px var(--edge);
 }
-.hero-copy { display: flex; flex-direction: column; gap: var(--s5); align-items: flex-start; }
-.hero-title {
+.nb-hero-copy { display: flex; flex-direction: column; gap: 24px; }
+.nb-title {
   margin: 0;
-  font-size: clamp(2.25rem, 1.2rem + 3vw, 4rem);
-  line-height: 1.04;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ink);
+  max-width: 10ch;
+  font-family: var(--face-display);
+  font-weight: 500;
+  font-size: clamp(2.75rem, 1.4rem + 3.6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--nb-text);
+  text-wrap: balance;
 }
-.hero-sub { margin: 0; max-width: 34ch; color: var(--ink-mid); font-size: calc(var(--size-prose) + 2px); }
-.hero-progress {
+.nb-lede { margin: 0; max-width: 32rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); }
+.nb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 8px; }
+.nb-start { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.nb-start-label { margin: 0; font-size: 1rem; color: var(--nb-text-2); }
+.nb-start .nb-actions { gap: 12px; margin-top: 8px; }
+
+.nb-button {
   display: inline-flex;
   align-items: center;
-  gap: var(--s2);
-  margin: 0;
-  padding: var(--s1) var(--s3);
-  border-radius: var(--radius-pill);
-  background: var(--surface-soft);
-  font-family: var(--face-display);
-  font-weight: 600;
-  color: var(--go);
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius-sm);
+  font-family: var(--face-ui);
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background-color 160ms var(--ease-out), scale 120ms var(--ease-out);
 }
-.hero-progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--go); }
-.hero-actions { display: flex; flex-wrap: wrap; gap: var(--s3); }
-
-/* A soft nebula breathing behind the start button, ported from 21st.dev's "Nebula CTA Glow"
-   (a blurred circle pulsing between scale 1 and 1.2, opacity 0.35 and 0.65, over 4 s), in the
-   antenna's yellow instead of cyan, and in CSS instead of framer-motion. */
-.hero-actions,
-.start-choice-buttons { position: relative; isolation: isolate; }
-.hero-actions::before,
-.start-choice-buttons::before {
-  content: '';
-  position: absolute;
-  left: 40px;
-  top: 50%;
-  width: 160px;
-  height: 160px;
-  margin-top: -80px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--star) 30%, transparent);
-  filter: blur(40px);
-  opacity: 0.45;
-  z-index: -1;
-  pointer-events: none;
+.nb-button:active { scale: 0.98; }
+.nb-button-primary { background: var(--star); color: var(--on-star); }
+.nb-button-light { background: var(--nb-text); color: var(--nb-page); }
+@media (hover: hover) {
+  .nb-button-primary:hover { background: color-mix(in srgb, var(--star) 82%, var(--nb-text)); }
+  .nb-button-light:hover { background: var(--nb-text-2); }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .hero-actions::before,
-  .start-choice-buttons::before { animation: nebula-breathe 4s ease-in-out infinite; }
-}
-@keyframes nebula-breathe {
-  0%, 100% { scale: 1; opacity: 0.35; }
-  50% { scale: 1.2; opacity: 0.65; }
-}
-
-/* The start button: the antenna light. A yellow pill that glows, lifts toward the pointer
-   and presses in. Its travelling shine is ported from Magic UI's Shimmer Button. */
-.btn-start {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  min-height: 56px;
-  padding: var(--s3) var(--s6);
-  border-color: var(--star);
-  background: var(--star);
-  color: var(--on-star);
-  font-size: calc(var(--size-label) + 3px);
-  box-shadow: var(--glow-star);
-}
-.btn-start::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--shine) 55%, transparent) 50%, transparent 65%);
-  translate: -120% 0;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .btn-start::after { animation: shine 4.2s var(--ease-out) 1.2s infinite; }
-  .btn-start { transition: translate 160ms var(--ease-out), box-shadow 200ms var(--ease-out), scale 120ms var(--ease-out); }
-  .btn-start:active { scale: 0.98; }
-}
-@keyframes shine {
-  0% { translate: -120% 0; }
-  45%, 100% { translate: 120% 0; }
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .btn-start:hover { translate: 0 -2px; box-shadow: var(--glow-star-strong); }
-}
-.btn-start:focus-visible { outline-color: var(--electric); outline-offset: 3px; }
-
-/* The second accent: electric indigo, for the secondary action. */
-.btn-electric {
-  min-height: 56px;
-  padding: var(--s3) var(--s5);
-  border-color: color-mix(in srgb, var(--electric) 55%, transparent);
-  background: color-mix(in srgb, var(--electric-glow) 8%, var(--surface));
-  color: var(--electric);
-  font-size: calc(var(--size-label) + 1px);
+.nb-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--nb-text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--nb-text-3);
+  transition: text-decoration-color 160ms var(--ease-out);
 }
 @media (hover: hover) {
-  .btn-electric:hover { border-color: var(--electric); box-shadow: var(--glow-electric); }
+  .nb-link:hover { text-decoration-color: var(--nb-text); }
 }
 
-.start-choice { display: flex; flex-direction: column; gap: var(--s3); }
-.start-choice-label { margin: 0; font-family: var(--face-display); font-weight: 600; font-size: calc(var(--size-label) + 3px); color: var(--ink); }
-.start-choice-buttons { display: flex; flex-wrap: wrap; gap: var(--s3); }
-.start-choice-note { margin: 0; color: var(--ink-mid); font-size: var(--size-label); }
-
-/* The stage: a live screen with the mascot standing in front of it. */
-.hero-stage { position: relative; padding: var(--s4) 0 var(--s4) clamp(64px, 9vw, 150px); }
-.hero-screen {
+/* --- The instrument. A frame with ruler ticks on two edges, grid references in mono, a
+   faint scanline and vignette over the screen, and the route in ink on top. */
+.nb-instrument {
   position: relative;
-  padding: var(--s3);
-  border-radius: var(--radius-lg);
-  background: var(--space);
-  border: var(--seam-w) solid var(--space-line);
-  box-shadow: var(--glow-electric), var(--shadow-lift);
+  margin: 0;
+  width: min(720px, calc(100vh - 230px));
+  justify-self: end;
+  /* Runs off the right edge of the window, like a screen too big for the desk. */
+  margin-right: -88px;
 }
-/* A beam of light travelling round the screen's edge, ported from Magic UI's Border Beam
-   (a rotating conic gradient, masked to the border, instead of motion's offset-path). */
-@property --beam {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
+.nb-instrument-frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 28px;
+  gap: 8px;
+  padding: 16px 16px 8px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--nb-raised);
+  border: var(--seam-w) solid var(--nb-line);
 }
-.hero-screen::before {
+/* Ticks every half foot along the top and left edges of the screen. */
+.nb-instrument-frame::before,
+.nb-instrument-frame::after {
   content: '';
   position: absolute;
-  inset: -1px;
-  padding: 2px;
-  border-radius: inherit;
-  background: conic-gradient(from var(--beam), transparent 0 70%, var(--electric-glow) 82%, var(--star) 90%, transparent 100%);
-  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
   pointer-events: none;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .hero-screen::before { animation: beam 7s linear infinite; }
+.nb-instrument-frame::before {
+  left: 44px;
+  right: 16px;
+  top: 4px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, var(--nb-text-3) 0 1px, transparent 1px calc(100% / 24));
+  opacity: 0.6;
 }
-@keyframes beam { to { --beam: 360deg; } }
-
-.hero-screen-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  margin: 0 0 var(--s3);
-  padding-inline: var(--s1);
-  font-family: var(--face-display);
-  font-weight: 600;
-  font-size: var(--size-label);
-  color: var(--space-mute);
+.nb-instrument-frame::after {
+  top: 16px;
+  bottom: 44px;
+  left: 4px;
+  width: 8px;
+  background: repeating-linear-gradient(180deg, var(--nb-text-3) 0 1px, transparent 1px calc(100% / 24));
+  opacity: 0.6;
 }
-.live-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--space-go);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--space-go) 22%, transparent);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .live-dot { animation: live 2.4s ease-in-out infinite; }
-}
-@keyframes live { 50% { opacity: 0.45; } }
-
-.hero-field {
+.nb-screen {
+  position: relative;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border-radius: var(--radius);
   overflow: hidden;
-  background: var(--space);
+  background: var(--nb-deep);
 }
-.field-canvas { display: block; }
-
-/* The mascot, large, standing in front of the bottom-left corner of the screen, with a
-   soft glow behind it so it lifts off the page. */
-.hero-mascot {
-  position: absolute;
-  left: 0;
-  bottom: -2%;
-  width: clamp(150px, 15vw, 230px);
-  height: auto;
-  filter: drop-shadow(0 18px 30px color-mix(in srgb, var(--primary) 45%, transparent));
-  pointer-events: none;
-  z-index: 2;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hero-mascot { animation: drift 6s ease-in-out infinite alternate; }
-}
-@keyframes drift {
-  from { translate: 0 0; rotate: -3deg; }
-  to { translate: 0 -14px; rotate: 2deg; }
-}
-
-/* --- Features: three raised cards, each with an icon, a short title and a link. --- */
-.home-features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--s5);
-}
-.feature-card {
-  --mx: -400px;
-  --my: -400px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s3);
-  padding: var(--s6) var(--s5) var(--s5);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  border: var(--seam-w) solid var(--line);
-  box-shadow: var(--shadow);
-}
-/* The pointer spotlight on the border, after Magic UI's Magic Card. */
-.feature-card::before {
+.nb-screen::after {
   content: '';
   position: absolute;
-  inset: -1px;
-  padding: 1px;
-  border-radius: inherit;
-  background: radial-gradient(260px circle at var(--mx) var(--my), var(--electric-glow), transparent 70%);
-  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
-  opacity: 0;
-  transition: opacity 200ms var(--ease-out);
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--nb-text) 3%, transparent) 0 1px, transparent 1px 3px),
+    radial-gradient(closest-side, transparent 70%, color-mix(in srgb, var(--nb-shadow) 55%, transparent));
+}
+.nb-route-layer { position: absolute; inset: 0; width: 100%; height: 100%; filter: var(--screen-glow); }
+.nb-route {
+  fill: none;
+  stroke: var(--star);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.nb-ruler {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--face-code);
+  font-size: 0.875rem;
+  color: var(--nb-text-3);
+}
+.nb-ruler-y { display: flex; flex-direction: column; justify-content: space-around; align-items: center; }
+.nb-ruler-x { grid-column: 2; display: flex; justify-content: space-between; align-items: center; }
+.nb-ruler li { max-width: none; }
+.nb-caption {
+  /* Stays clear of the part of the frame that runs off the window. */
+  margin: 16px 120px 0 44px;
+  font-family: var(--face-code);
+  font-size: 0.875rem;
+  color: var(--nb-text-3);
+}
+
+/* The mascot leans on the frame's left edge and stands on the desk the instrument sits on:
+   a hairline running out from under the frame, with a shadow cast away from the light. */
+.nb-mascot {
+  position: absolute;
+  left: -150px;
+  bottom: 0;
+  width: 156px;
   pointer-events: none;
 }
-@media (hover: hover) {
-  .feature-card:hover::before { opacity: 1; }
+.nb-mascot img { position: relative; z-index: 1; display: block; width: 100%; height: auto; rotate: 8deg; transform-origin: 70% 100%; }
+.nb-mascot::before {
+  content: '';
+  position: absolute;
+  right: -2px;
+  bottom: -1px;
+  width: 260px;
+  border-top: var(--seam-w) solid var(--nb-line);
 }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .feature-card { transition: translate 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
-  .feature-card:hover { translate: 0 -4px; box-shadow: var(--shadow-lift); }
+.nb-mascot::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: -18%;
+  bottom: -6px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--nb-shadow), transparent);
+  skew: -30deg 0;
 }
-.feature-icon {
+
+/* --- How a lesson works: three editorial rows, each with its own kind of visual. */
+.nb-story {
+  display: flex;
+  flex-direction: column;
+  gap: 160px;
+  padding: 64px var(--edge) 160px;
+}
+.nb-row {
   display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius);
-  color: var(--electric);
-  background: color-mix(in srgb, var(--electric-glow) 14%, var(--surface));
-  border: var(--seam-w) solid color-mix(in srgb, var(--electric-glow) 30%, transparent);
-}
-.feature-title { margin: var(--s2) 0 0; font-size: calc(var(--size-h3) + 5px); line-height: 1.15; }
-.feature-body { margin: 0; color: var(--ink-mid); }
-.feature-card .panel-link { margin-top: auto; }
-
-.panel-link {
-  display: inline-flex;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 96px;
   align-items: center;
-  gap: var(--s2);
-  min-height: var(--tap);
-  font-family: var(--face-display);
-  font-weight: 600;
-  font-size: var(--size-label);
-  color: var(--electric);
 }
-
-/* --- Tiers: one row per tier, each with its own color, badge and metadata chips. --- */
-.home-tiers-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s2) var(--s5); margin-bottom: var(--s4); }
-.home-tiers-head h2 { margin: 0; font-size: calc(var(--size-h2) + 6px); }
-.home-tiers-head p { margin: 0; color: var(--ink-mid); }
-.tier-list {
-  list-style: none;
-  padding: 0;
+.nb-row-flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.nb-row-text { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.nb-row-text h2 {
   margin: 0;
-  display: grid;
-  gap: var(--s3);
+  max-width: 16ch;
+  font-family: var(--face-ui);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--nb-text);
 }
-.tier-list li { max-width: none; }
-.tier-row {
+.nb-row-text p { margin: 0; max-width: 30rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); }
+
+/* The editor: a 12px window, the one marked line on a lighter step, the number circled. */
+.nb-editor {
+  margin: 0;
+  border-radius: var(--radius);
+  background: var(--nb-deep);
+  border: var(--seam-w) solid var(--nb-line);
+  overflow: hidden;
+}
+.nb-editor-tab {
+  padding: 12px 20px;
+  border-bottom: var(--seam-w) solid var(--nb-line);
+  font-family: var(--face-code);
+  font-size: 0.875rem;
+  color: var(--nb-text-3);
+}
+.nb-code { margin: 0; padding: 16px 0; font-family: var(--face-code); font-size: 0.9375rem; line-height: 1.75; color: var(--nb-text); overflow-x: auto; }
+.nb-code code { display: block; }
+.nb-code-line { display: block; padding-right: 20px; white-space: pre; }
+.nb-code-line.is-marked { background: color-mix(in srgb, var(--nb-text) 6%, transparent); }
+.nb-code-n { display: inline-block; width: 52px; padding-right: 20px; text-align: right; color: var(--nb-text-3); }
+.nb-code .syn-fn { color: var(--syn-function); }
+.nb-code .syn-num { color: var(--syn-number); }
+.nb-code .syn-com { color: var(--syn-comment); }
+.nb-code-target { position: relative; }
+.nb-code-circle {
+  position: absolute;
+  left: -20px;
+  top: -14px;
+  width: calc(100% + 40px);
+  height: calc(100% + 28px);
+  overflow: visible;
+}
+.nb-code-circle path,
+.nb-here path { fill: none; stroke-linecap: round; }
+.nb-code-circle path { stroke: var(--nb-text); stroke-width: 4; }
+.nb-editor-note { margin: 0; padding: 12px 20px 16px; border-top: var(--seam-w) solid var(--nb-line); font-size: 0.9375rem; color: var(--nb-text-2); }
+
+/* Before and after: two small fields with 4px corners, measured in ink. */
+.nb-before-after { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.nb-mini { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.nb-mini-label { font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-2); }
+.nb-mini-field { display: block; width: 100%; height: auto; border-radius: var(--radius-xs); background: var(--nb-deep); border: var(--seam-w) solid var(--nb-line); }
+.nb-mini-grid { stroke: var(--nb-line); stroke-width: 0.6; }
+.nb-mini-path { stroke: var(--nb-text-3); stroke-width: 1.4; stroke-dasharray: 3 3; }
+.nb-mini-robot { fill: var(--nb-raised-2); stroke: var(--nb-text); stroke-width: 1.2; }
+.nb-mini-start { fill: none; stroke: var(--nb-text-3); stroke-width: 0.8; stroke-dasharray: 2 2; }
+.nb-mini-measure { fill: none; stroke: var(--nb-text); stroke-width: 1.2; }
+.nb-mini-cm { fill: var(--nb-text); font-family: var(--face-code); }
+
+/* The rubric: paper, sharp corners, tilted as if dropped on the desk, ink ticks. */
+.nb-rubric {
+  margin: 0 0 0 auto;
+  max-width: 34rem;
+  padding: 28px 32px 32px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--paper-shadow);
+  rotate: -1.5deg;
+}
+.nb-rubric-title { margin: 0 0 16px; font-weight: 600; font-size: 1.125rem; }
+.nb-rubric table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+.nb-rubric th, .nb-rubric td { padding: 12px 0; border-top: var(--seam-w) solid var(--paper-line); text-align: start; vertical-align: top; }
+.nb-rubric thead th { padding-top: 0; border-top: 0; font-family: var(--face-code); font-weight: 400; font-size: 0.875rem; color: var(--paper-ink-2); }
+.nb-rubric tbody th { width: 40%; padding-right: 16px; font-weight: 500; }
+.nb-rubric td { position: relative; padding-left: 32px; color: var(--paper-ink-2); }
+.nb-tick { position: absolute; left: 0; top: 10px; width: 24px; height: 24px; overflow: visible; }
+.nb-tick path { fill: none; stroke: var(--paper-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.nb-rubric-q { margin: 16px 0 0; font-size: 0.9375rem; color: var(--paper-ink-2); }
+
+/* --- The notebook page: ruled paper, a big number per tier, one yellow "you are here". */
+.nb-tiers { padding: 0 var(--edge) 160px; }
+.nb-paper {
+  position: relative;
+  padding: 56px 64px 32px;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 63px, var(--paper-line) 63px 64px);
+  background-position: 0 40px;
+  color: var(--paper-ink);
+  box-shadow: var(--paper-shadow);
+}
+/* A second sheet underneath, a little crooked, so it reads as a notebook and not a card. */
+.nb-paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--paper-line);
+  rotate: 1deg;
+  translate: 6px 6px;
+}
+.nb-tiers { position: relative; isolation: isolate; }
+.nb-paper-title { margin: 0 0 24px; font-family: var(--face-ui); font-weight: 500; font-size: 2rem; letter-spacing: -0.02em; line-height: 1.2; }
+.nb-tier-list { list-style: none; margin: 0; padding: 0; }
+.nb-tier-list li { max-width: none; }
+.nb-tier {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto 24px;
-  gap: var(--s4);
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  grid-template-rows: 64px 64px;
+  column-gap: 24px;
   align-items: center;
-  min-height: 84px;
-  padding: var(--s3) var(--s5) var(--s3) var(--s3);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  border: var(--seam-w) solid var(--line);
-  color: var(--ink);
+  margin-inline: -16px;
+  padding-inline: 16px;
+  color: var(--paper-ink);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
+  transition: background-color 160ms var(--ease-out);
 }
 @media (hover: hover) {
-  .tier-row:hover { border-color: color-mix(in srgb, var(--tier) 60%, var(--line)); box-shadow: var(--shadow); }
+  .nb-tier:hover { background: color-mix(in srgb, var(--paper-ink) 5%, transparent); }
 }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .tier-row { transition: translate 200ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 200ms var(--ease-out); }
-  .tier-row:hover { translate: 4px 0; }
+.nb-tier:focus-visible { outline-color: var(--paper-ink); outline-offset: -2px; }
+.nb-tier-num {
+  position: relative;
+  grid-row: 1 / 3;
+  justify-self: center;
+  font-family: var(--face-display);
+  font-weight: 500;
+  font-size: 5.5rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-.tier-row:focus-visible { outline-offset: 2px; }
-.tier-row-tile {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--tier) 18%, var(--surface));
-  border: var(--seam-w) solid color-mix(in srgb, var(--tier) 50%, transparent);
-  box-shadow: 0 10px 24px -14px var(--tier);
-}
-.tier-row-badge { display: block; width: 40px; height: 40px; }
-.tier-row-text { display: grid; gap: 2px; min-width: 0; }
-.tier-row-kicker { font-family: var(--face-display); font-weight: 600; font-size: var(--size-label); color: var(--ink-mid); }
-.tier-row-name { font-family: var(--face-display); font-weight: 700; font-size: calc(var(--size-h3) + 2px); line-height: 1.15; }
-.tier-row-sub { color: var(--ink-mid); font-size: var(--size-label); }
-.tier-row-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s2); }
-.meta-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s1);
-  padding: var(--s1) var(--s3);
-  border-radius: var(--radius-pill);
-  background: var(--surface-soft);
-  border: var(--seam-w) solid var(--line);
-  font-size: var(--size-label);
-  color: var(--ink-mid);
-  white-space: nowrap;
-}
-.meta-chip .icon { color: var(--electric); }
-.tier-row-go { display: grid; place-items: center; color: var(--ink-mid); }
+.nb-here { position: absolute; inset: -18px -26px; width: calc(100% + 52px); height: calc(100% + 36px); overflow: visible; }
+.nb-here path { stroke: var(--star); stroke-width: 4; }
+.nb-tier-name { align-self: end; padding-bottom: 4px; font-weight: 500; font-size: 1.5rem; letter-spacing: -0.01em; }
+.nb-tier-sub { grid-column: 2; grid-row: 2; align-self: start; padding-top: 4px; font-size: 1rem; color: var(--paper-ink-2); }
+.nb-tier-meta { grid-column: 3; grid-row: 1; align-self: end; padding-bottom: 8px; font-family: var(--face-code); font-size: 0.875rem; color: var(--paper-ink-2); }
 
-/* --- Scroll reveal, ported from Magic UI's Blur Fade but driven by a CSS scroll timeline
-   (modern-web-guidance: "Use Scroll-Driven Animations ... instead of JS listeners").
-   Content is visible by default; the reveal only runs where the browser supports it and
-   the person has not asked for less motion. --- */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation: reveal linear both;
-      animation-timeline: view();
-      animation-range: entry calc(var(--i, 0) * 6%) entry calc(60% + var(--i, 0) * 6%);
-    }
-  }
+/* The header on the home page wears the cover's navy, so the page reads as one object. */
+body[data-route='home'] .site-header {
+  background: color-mix(in srgb, var(--nb-page) 88%, transparent);
+  border-bottom-color: var(--nb-line);
+  box-shadow: none;
+  color: var(--nb-text);
 }
-/* It starts part-way visible, never at zero: a page rendered without scrolling (print, a
-   preview, a screen reader's virtual cursor) still shows every section (impeccable: "Reveal
-   animations must enhance an already-visible default"). */
-@keyframes reveal {
-  from { opacity: 0.35; translate: 0 24px; filter: blur(4px); }
-  to { opacity: 1; translate: 0 0; filter: blur(0); }
+body[data-route='home'] .wordmark,
+body[data-route='home'] .nav-link[aria-current='page'] { color: var(--nb-text); }
+body[data-route='home'] .nav-link { color: var(--nb-text-2); }
+body[data-route='home'] .mode-toggle { background: var(--nb-raised); border-color: var(--nb-line); }
+body[data-route='home'] .mode-button { color: var(--nb-text-2); }
+body[data-route='home'] .mode-button[aria-pressed='true'] { background: var(--nb-text); color: var(--nb-page); }
+body[data-route='home'] .display-button { background: var(--nb-raised); color: var(--nb-text-2); }
+@media (hover: hover) {
+  body[data-route='home'] .nav-link:hover { background: var(--nb-raised); color: var(--nb-text); }
 }
-@media print {
-  .reveal { animation: none !important; }
+
+/* --- Narrower screens: the instrument moves under the copy, then everything stacks. */
+@media (max-width: 1180px) {
+  .nb-hero { grid-template-columns: minmax(0, 1fr); row-gap: 64px; padding-right: var(--edge); min-height: 0; }
+  .nb-instrument { width: min(100%, 640px); margin: 0 0 0 auto; }
+  .nb-caption { margin-right: 0; }
+  .nb-row, .nb-row-flip { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+  .nb-row-flip .nb-before-after { order: 2; }
+}
+@media (max-width: 760px) {
+  .nb { --edge: 20px; }
+  .nb-hero { padding-top: 40px; }
+  .nb-mascot { width: 88px; left: -84px; }
+  .nb-instrument { margin: 0 0 0 48px; width: calc(100% - 48px); }
+  .nb-story { gap: 96px; padding-bottom: 96px; }
+  .nb-paper { padding: 40px 20px 16px; }
+  .nb-tier { grid-template-columns: 64px minmax(0, 1fr); }
+  .nb-tier-num { font-size: 3.5rem; }
+  .nb-tier-meta { display: none; }
+  .nb-rubric { rotate: 0deg; }
+  /* Side by side, each field is too narrow for its measurement to read. */
+  .nb-before-after { grid-template-columns: minmax(0, 18rem); gap: 32px; }
 }
 
 /* ------------------------------------------------------------------ chart */
@@ -1196,8 +1195,6 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   :root { --console-side: 320px; }
   /* Two 136 px button clusters need 352 px once the column's scrollbar is counted. */
   .lesson-shell:has(.gamepad) { --console-side: 352px; }
-  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s6); }
-  .hero-stage { width: min(100%, 620px); justify-self: center; }
 }
 
 /* Narrower still: the rail narrows before the work gives up its width. */
@@ -1236,14 +1233,6 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .nav-link .icon { display: none; }
   .mode-button { padding: 0 var(--s3); }
 
-  .home { padding: var(--s3) var(--s3) var(--s7); gap: var(--s5); }
-  .home { gap: var(--s7); padding-top: var(--s5); }
-  .hero-stage { padding-left: 0; }
-  .hero-mascot { width: 110px; left: -8px; bottom: -6%; }
-  .hero-actions, .start-choice-buttons, .btn-start, .btn-electric { width: 100%; }
-  .tier-row { grid-template-columns: 52px minmax(0, 1fr) 20px; padding: var(--s3); }
-  .tier-row-tile { width: 52px; height: 52px; }
-  .tier-row-meta { display: none; }
 
   .lesson-shell,
   .lesson-shell[data-state='console'] {

@@ -14,7 +14,7 @@ const block = (selector) => {
 };
 const read = (text) => {
   const out = {};
-  for (const m of text.matchAll(/--([a-z-]+):\s*(#[0-9A-Fa-f]{6})/g)) out[m[1]] = m[2];
+  for (const m of text.matchAll(/--([a-z0-9-]+):\s*(#[0-9A-Fa-f]{6})/g)) out[m[1]] = m[2];
   return out;
 };
 
@@ -45,6 +45,13 @@ const PAGE = [
   ['link', 'surface', 4.5, 'a link on a panel'],
   ['electric', 'bg', 4.5, 'secondary accent text on the page'],
   ['electric', 'surface', 4.5, 'secondary accent text on a card'],
+  ['nb-text', 'nb-page', 4.5, 'home: text on the navy cover'],
+  ['nb-text-2', 'nb-page', 4.5, 'home: body text on the cover'],
+  ['nb-text-3', 'nb-page', 4.5, 'home: labels on the cover'],
+  ['nb-text-3', 'nb-raised', 4.5, 'home: labels on a raised surface'],
+  ['nb-text-3', 'nb-deep', 4.5, 'home: labels in the editor and fields'],
+  ['paper-ink', 'paper', 4.5, 'home: ink on paper'],
+  ['paper-ink-2', 'paper', 4.5, 'home: secondary ink on paper'],
   ['go', 'surface', 4.5, 'a test passed'],
   ['alert', 'surface', 4.5, 'the robot got confused'],
   ['badge', 'surface', 4.5, 'the one-second celebration'],

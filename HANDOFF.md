@@ -138,6 +138,21 @@ plain CSS and TypeScript, since the app is not React. Reduced motion is now hand
 the global 0.001 ms override is gone. Lighthouse 100/100/100 (desktop and mobile); home LCP
 1.6 s on Fast 3G with a 4× slower CPU, after preloading the hero mascot.
 
+## Notebook pass (2026-11-09)
+
+"Break the template": the landing page is now an FTC team's engineering notebook at night (see
+docs/DESIGN.md, *Motion, icons, and the hero*). Asymmetric hero with the simulator framed as an
+instrument (ruler ticks, mono grid references, scanline, vignette) running off the right edge,
+the mascot leaning on it with a cast shadow; three alternating rows with real artifacts (lesson 1
+code with the number inked, `sleep(1000)` vs `sleep(2000)` drawn to scale, the Tier 0 rubric on
+paper); the six tiers on a ruled notebook page. One animation: the robot drives once and the
+route draws in yellow ink. Lexend added (Google Fonts, home page and header). The nebula, glows,
+tier colors, Magic UI ports and scroll reveals from the overhaul above are gone.
+`field.ts` gained an `instrument` option and lost `glow`. Checks: lint, 71 contrast pairs, 1065
+tests, build; Lighthouse 100 on a11y, best practices and SEO; local LCP 106 ms, CLS 0; no
+horizontal scroll at 1440, 1366, 1024 and 390. `public/art/mascot-264.png` is no longer used
+anywhere and can be deleted.
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for
