@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Corner scoring zone">
-  <path d="M2 2 H62 V62 H2 Z" fill="none" stroke="#F0A93B" stroke-width="2.5" stroke-dasharray="8 6"/>
-  <path d="M2 18 H18 V2" fill="none" stroke="#F0A93B" stroke-width="2.5"/>
-  <path d="M62 46 H46 V62" fill="none" stroke="#F0A93B" stroke-width="2.5"/>
+  <path d="M2 2 H62 V62 H2 Z" fill="none" stroke="#FEBC02" stroke-width="2.5" stroke-dasharray="8 6"/>
+  <path d="M2 18 H18 V2" fill="none" stroke="#FEBC02" stroke-width="2.5"/>
+  <path d="M62 46 H46 V62" fill="none" stroke="#FEBC02" stroke-width="2.5"/>
 </svg>

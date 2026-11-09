@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" width="120" height="40" role="img" aria-label="Loading">
   <!-- A horizon line sweeping, not a spinner. docs/DESIGN.md.
        Respects prefers-reduced-motion by holding still. -->
-  <path d="M6 28 H114" stroke="#2A3645" stroke-width="2" fill="none"/>
-  <g fill="none" stroke="#F0A93B" stroke-width="2.5" stroke-linecap="square">
+  <path d="M6 28 H114" stroke="#2E2A78" stroke-width="2" fill="none"/>
+  <g fill="none" stroke="#FEBC02" stroke-width="2.5" stroke-linecap="square">
     <path d="M6 28 H40">
       <animate attributeName="d"
                values="M6 28 H30; M40 28 H78; M90 28 H114; M6 28 H30"
                dur="1.8s" repeatCount="indefinite"/>
     </path>
   </g>
-  <circle cx="60" cy="14" r="3" fill="#F0A93B" opacity="0.65"/>
+  <circle cx="60" cy="14" r="3" fill="#FEBC02" opacity="0.65"/>
   <style>
     @media (prefers-reduced-motion: reduce) {
       animate { display: none; }

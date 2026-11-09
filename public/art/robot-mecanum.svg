@@ -2,23 +2,23 @@
   <!-- Anchor: centre of the box. Forward is towards -y. Footprint is 18 in square.
        The rollers are drawn at 45 degrees so rotation reads at a glance, and the two
        right-hand wheels are marked, because those are the ones a lesson reverses. -->
-  <rect x="12" y="8" width="76" height="84" fill="#1B2736" stroke="#DCE0D8" stroke-width="3"/>
-  <g stroke="#8A93A0" stroke-width="2.5" fill="#0E1620">
+  <rect x="12" y="8" width="76" height="84" fill="#4B3590" stroke="#ECE8FA" stroke-width="3"/>
+  <g stroke="#B3ACD6" stroke-width="2.5" fill="#0B0A3A">
     <rect x="2" y="14" width="16" height="26"/>
     <rect x="82" y="14" width="16" height="26"/>
     <rect x="2" y="60" width="16" height="26"/>
     <rect x="82" y="60" width="16" height="26"/>
   </g>
-  <g stroke="#B6BDB2" stroke-width="2" stroke-linecap="square">
+  <g stroke="#C5BAE8" stroke-width="2" stroke-linecap="square">
     <path d="M3 39 L17 15"/>
     <path d="M83 15 L97 39"/>
     <path d="M3 85 L17 61"/>
     <path d="M83 61 L97 85"/>
   </g>
-  <path d="M24 26 H76" stroke="#46566B" stroke-width="2"/>
-  <path d="M24 74 H76" stroke="#46566B" stroke-width="2"/>
-  <g stroke="#F0A93B" stroke-width="3.5" stroke-linecap="square">
+  <path d="M24 26 H76" stroke="#4C468F" stroke-width="2"/>
+  <path d="M24 74 H76" stroke="#4C468F" stroke-width="2"/>
+  <g stroke="#FEBC02" stroke-width="3.5" stroke-linecap="square">
     <path d="M50 38 V6"/>
   </g>
-  <circle cx="50" cy="4" r="4.5" fill="#F0A93B"/>
+  <circle cx="50" cy="4" r="4.5" fill="#FEBC02"/>
 </svg>

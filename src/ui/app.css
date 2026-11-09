@@ -382,16 +382,7 @@
   .tier-row:hover { background: var(--surface-soft); }
 }
 
-.tier-row-number {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--surface-soft);
-  color: var(--primary);
-  font-size: var(--size-label);
-}
+.tier-row-badge { display: block; width: 44px; height: 44px; }
 .tier-row-robot {
   font-size: calc(var(--size-label) - 1px);
   padding: 2px var(--s3);
@@ -445,6 +436,7 @@
 
 .chart-station-shell { fill: var(--space-raised); stroke: var(--space-route); stroke-width: 2; }
 .chart-station.is-locked .chart-station-shell { stroke: var(--space-wall); stroke-dasharray: 6 4; }
+.chart-station.is-locked .chart-station-badge { opacity: 0.45; }
 .chart-station-name { fill: var(--space-ink); font-family: var(--face-display); font-size: 20px; font-weight: 600; }
 .chart-station-count { fill: var(--space-mute); font-family: var(--face-display); font-size: 18px; }
 .chart-station.is-open .chart-station-count { fill: var(--star); }

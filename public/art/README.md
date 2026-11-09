@@ -30,9 +30,11 @@ signal anywhere in this project.
 light page and may not carry text or an icon there. The field and the star chart are space
 surfaces, so they use it freely. See `docs/DESIGN.md`.
 
-The sprite and badge SVGs still use the pre-2026-11-08 colors (grey-green and amber). They are
-reference art and not loaded by the app; recolor them to the `--space-*` tokens before wiring
-them in.
+The sprites and badges use the mascot palette's hex values (they are image files, so they
+cannot read `theme.css`; keep them in step with its `--space-*` and `--star` tokens). The field
+canvas draws the robots, the foam tile and the game elements from these files, falling back to
+drawn shapes until they load. The tier badges appear on the home tier list and the star-chart
+stations.
 
 ## The UI icons are not here
 

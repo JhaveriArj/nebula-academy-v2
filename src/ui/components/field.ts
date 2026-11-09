@@ -10,6 +10,38 @@ import type { SimSnapshot } from '../../sim/simulation';
    Canvas cannot read var(--token), so the colors are read from theme.css once per view
    (and again on resize). theme.css stays the only place a color is written down. */
 
+/* The reference art in public/art, drawn onto the canvas once loaded. Until an image has
+   arrived (or if it never does), the field falls back to the shapes drawn below, so the
+   first frame is never blank. */
+const BASE = import.meta.env.BASE_URL;
+const SPRITE_FILES = {
+  tank: 'robot-tank.svg',
+  mecanum: 'robot-mecanum.svg',
+  tile: 'field-tile.svg',
+  cube: 'element-cube.svg',
+  ball: 'element-ball.svg',
+} as const;
+type SpriteName = keyof typeof SPRITE_FILES;
+const repaintOnLoad = new Set<() => void>();
+let sprites: Record<SpriteName, HTMLImageElement> | null = null;
+
+function loadSprites(): Record<SpriteName, HTMLImageElement> {
+  if (sprites) return sprites;
+  const out = {} as Record<SpriteName, HTMLImageElement>;
+  for (const [name, file] of Object.entries(SPRITE_FILES) as [SpriteName, string][]) {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => repaintOnLoad.forEach((repaint) => repaint());
+    img.src = `${BASE}art/${file}`;
+    out[name] = img;
+  }
+  sprites = out;
+  return out;
+}
+
+const ready = (img: HTMLImageElement | undefined): img is HTMLImageElement =>
+  !!img && img.complete && img.naturalWidth > 0;
+
 interface FieldPalette {
   ground: string; seam: string; wall: string; line: string; chassis: string;
   wheel: string; star: string; go: string;
@@ -47,6 +79,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
   let last: SimSnapshot | null = null;
   let side = 0;
   let colors = readPalette();
+  const art = loadSprites();
 
   const resize = (): void => {
     const box = canvas.parentElement;
@@ -74,9 +107,16 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     const px = (cm: number) => cm * scale;
     const py = (cm: number) => side - cm * scale;
 
-    // Tiles.
+    // Tiles: the foam-tile art where it has loaded, then the painted alliance tiles over it.
     ctx.fillStyle = colors.ground;
     ctx.fillRect(0, 0, side, side);
+    if (ready(art.tile)) {
+      for (let col = 0; col < TILES; col++) {
+        for (let row = 0; row < TILES; row++) {
+          ctx.drawImage(art.tile, px(col * TILE_CM), py((row + 1) * TILE_CM), px(TILE_CM), px(TILE_CM));
+        }
+      }
+    }
     for (let col = 0; col < TILES; col++) {
       for (let row = 0; row < TILES; row++) {
         const colour = tileColorAt(col * TILE_CM + 1, row * TILE_CM + 1);
@@ -120,6 +160,12 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
 
     // Game elements.
     for (const element of snapshot.elements) {
+      const sprite = element.kind === 'ball' ? art.ball : art.cube;
+      if (ready(sprite)) {
+        const s = element.kind === 'ball' ? px(element.r * 2) : px(element.r * 1.9);
+        ctx.drawImage(sprite, px(element.x) - s / 2, py(element.y) - s / 2, s, s);
+        continue;
+      }
       ctx.strokeStyle = colors.line;
       ctx.lineWidth = 1.5;
       if (element.kind === 'ball') {
@@ -132,10 +178,12 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
       }
     }
 
-    drawRobot(ctx, snapshot, px, py, scale, colors);
+    drawRobot(ctx, snapshot, px, py, scale, colors, snapshot.kind === 'tank' ? art.tank : art.mecanum);
   }
 
   resize();
+  const repaint = () => draw(last);
+  repaintOnLoad.add(repaint);
   const onResize = () => resize();
   addEventListener('resize', onResize);
   // Light/dark changed, from the Display panel or (on Auto) from the device itself.
@@ -152,6 +200,7 @@ export function createFieldView(options: { label?: string } = {}): FieldView {
     draw,
     resize,
     destroy: () => {
+      repaintOnLoad.delete(repaint);
       removeEventListener('resize', onResize);
       removeEventListener('nebula:appearance', recolor);
       scheme.removeEventListener('change', recolor);
@@ -166,6 +215,7 @@ function drawRobot(
   py: (cm: number) => number,
   scale: number,
   colors: FieldPalette,
+  sprite: HTMLImageElement | undefined,
 ): void {
   const { x, y, headingDeg } = snapshot.pose;
   const size = ROBOT_CM * scale;
@@ -175,56 +225,62 @@ function drawRobot(
   // Field heading is counter-clockwise from +y; canvas rotation is clockwise from +x.
   ctx.rotate(-(headingDeg * Math.PI) / 180);
 
-  // Chassis.
-  ctx.fillStyle = colors.chassis;
-  ctx.strokeStyle = colors.line;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.rect(-size / 2, -size / 2, size, size);
-  ctx.fill();
-  ctx.stroke();
+  if (ready(sprite)) {
+    // The sprite's 100x100 box is the robot's 18 in footprint; forward is up, as here.
+    ctx.drawImage(sprite, -size / 2, -size / 2, size, size);
+  } else {
+    // Chassis.
+    ctx.fillStyle = colors.chassis;
+    ctx.strokeStyle = colors.line;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.rect(-size / 2, -size / 2, size, size);
+    ctx.fill();
+    ctx.stroke();
 
-  // Wheels. The tank robot has two, centred on its long sides; the mecanum robot has
-  // four at the corners, with the roller drawn at 45 degrees so rotation reads at a glance.
-  const wheelW = size * 0.2;
-  const wheelH = size * 0.3;
-  const wheels: [number, number][] =
-    snapshot.kind === 'tank'
-      ? [
-          [-size / 2, -wheelH / 2],
-          [size / 2 - wheelW, -wheelH / 2],
-        ]
-      : [
-          [-size / 2, -size / 2],
-          [size / 2 - wheelW, -size / 2],
-          [-size / 2, size / 2 - wheelH],
-          [size / 2 - wheelW, size / 2 - wheelH],
-        ];
-  ctx.strokeStyle = colors.wheel;
-  ctx.lineWidth = 1.5;
-  for (const [wx, wy] of wheels) {
-    ctx.strokeRect(wx, wy, wheelW, wheelH);
-    if (snapshot.kind === 'mecanum') {
-      ctx.beginPath();
-      ctx.moveTo(wx, wy + wheelH);
-      ctx.lineTo(wx + wheelW, wy);
-      ctx.stroke();
+    // Wheels. The tank robot has two, centred on its long sides; the mecanum robot has
+    // four at the corners, with the roller drawn at 45 degrees so rotation reads at a glance.
+    const wheelW = size * 0.2;
+    const wheelH = size * 0.3;
+    const wheels: [number, number][] =
+      snapshot.kind === 'tank'
+        ? [
+            [-size / 2, -wheelH / 2],
+            [size / 2 - wheelW, -wheelH / 2],
+          ]
+        : [
+            [-size / 2, -size / 2],
+            [size / 2 - wheelW, -size / 2],
+            [-size / 2, size / 2 - wheelH],
+            [size / 2 - wheelW, size / 2 - wheelH],
+          ];
+    ctx.strokeStyle = colors.wheel;
+    ctx.lineWidth = 1.5;
+    for (const [wx, wy] of wheels) {
+      ctx.strokeRect(wx, wy, wheelW, wheelH);
+      if (snapshot.kind === 'mecanum') {
+        ctx.beginPath();
+        ctx.moveTo(wx, wy + wheelH);
+        ctx.lineTo(wx + wheelW, wy);
+        ctx.stroke();
+      }
     }
+
+    // Forward marker, lit like the antennae because this surface is dark.
+    ctx.strokeStyle = colors.star;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -size * 0.12);
+    ctx.lineTo(0, -size / 2 - size * 0.14);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -size / 2 - size * 0.2, Math.max(2, size * 0.055), 0, Math.PI * 2);
+    ctx.fillStyle = colors.star;
+    ctx.fill();
+
   }
 
-  // Forward marker, lit like the antennae because this surface is dark.
-  ctx.strokeStyle = colors.star;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(0, -size * 0.12);
-  ctx.lineTo(0, -size / 2 - size * 0.14);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(0, -size / 2 - size * 0.2, Math.max(2, size * 0.055), 0, Math.PI * 2);
-  ctx.fillStyle = colors.star;
-  ctx.fill();
-
-  // The claw, open or closed.
+  // The claw, open or closed. Drawn live on top of either robot, because it moves.
   const claw = snapshot.servos['clawServo'] ?? 0;
   ctx.strokeStyle = claw > 0.5 ? colors.go : colors.wheel;
   ctx.lineWidth = 2;

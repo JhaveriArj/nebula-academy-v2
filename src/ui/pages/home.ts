@@ -108,7 +108,9 @@ export function homePage(): HTMLElement {
           // Each row looks like a tappable list row, so it is one: it opens the chart.
           el('li', {},
             el('a', { href: '#/chart', class: 'tier-row' },
-              el('span', { class: 'tier-row-number display', text: `T${t.tier}` }),
+              // The tier's patch: a different silhouette per tier, so it reads without color.
+              el('img', { class: 'tier-row-badge', src: `${import.meta.env.BASE_URL}art/badge-t${t.tier}.svg`, alt: '', width: '44', height: '44', decoding: 'async' }),
+              el('span', { class: 'visually-hidden', text: `Tier ${t.tier}: ` }),
               el('span', { class: 'tier-row-name' },
                 el('strong', { text: t.name }),
                 el('span', { class: 'muted', text: ` · ${t.subtitle}` }),

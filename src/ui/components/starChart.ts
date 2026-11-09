@@ -208,7 +208,9 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
     };
     const box = svg('g', { class: `chart-station ${unlocked ? 'is-open' : 'is-locked'}` });
     // The badge grows with its name, so the name can be set large enough to read at 1024 px.
-    const width = Math.max(120, Math.round(tier.name.length * 11.5 + 36));
+    // Room for the tier's patch on the left, then the name.
+    const width = Math.max(150, Math.round(tier.name.length * 11.5 + 84));
+    const left = station.x - width / 2;
     box.appendChild(
       svg('path', {
         d: stationOutline(station, 1700 + tier.tier * 13, width, 64),
@@ -216,8 +218,19 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       }),
     );
     box.appendChild(
+      svg('image', {
+        href: `${import.meta.env.BASE_URL}art/badge-t${tier.tier}.svg`,
+        x: left + 10,
+        y: station.y - 20,
+        width: 40,
+        height: 40,
+        class: 'chart-station-badge',
+        'aria-hidden': 'true',
+      }),
+    );
+    box.appendChild(
       svg('text', {
-        x: station.x,
+        x: station.x + 24,
         y: station.y - 3,
         'text-anchor': 'middle',
         class: 'chart-station-name',
@@ -226,7 +239,7 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
     );
     box.appendChild(
       svg('text', {
-        x: station.x,
+        x: station.x + 24,
         y: station.y + 20,
         'text-anchor': 'middle',
         class: 'chart-station-count',
