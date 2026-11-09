@@ -14,7 +14,7 @@ import { lessonHref } from '../router';
    route extending when a lesson is completed, which is the whole celebration. */
 
 const W = 1200;
-const H = 700;
+const H = 1040;
 
 /** A seeded generator, so the chart's hand-drawn wobble is the same every render. */
 function rng(seed: number): () => number {
@@ -50,25 +50,29 @@ function wobbled(from: Point, to: Point, seed: number, amount = 5): string {
     The span is capped at a little over half the distance to the next station so a long
     tier never crowds into it, and at 30 px a waypoint so a short tier does not stretch
     its handful of waypoints across the whole chart. */
-function waypointsFor(station: Point, towards: Point, count: number, seed: number): Point[] {
-  const random = rng(seed);
-  const dx = towards.x - station.x;
-  const dy = towards.y - station.y;
-  const length = Math.hypot(dx, dy) || 1;
-  const ux = dx / length;
-  const uy = dy / length;
-  const start = 72;
-  const span = Math.max(0, Math.min(length * 0.55, 30 * count));
-  const gap = count > 1 ? span / (count - 1) : 0;
+/* The layout. One tier per row, the route switching back at the end of each row like a
+   trail down a mountain: Tier 0 runs left to right, Tier 1 right to left, and so on. Every
+   waypoint sits ROUTE_STEP apart, which is what lets each one carry a full-size tap target
+   (HIT_R) without overlapping its neighbour, even on a 1024 px screen. The positions are
+   worked out here rather than read from content/pathway.json, so the chart can never be
+   laid out too tight by a content edit. */
+const ROW_H = 160;
+const TOP = 110;
+const ROUTE_STEP = 112;
+const HIT_R = 30;
 
-  return Array.from({ length: count }, (_, i) => {
-    const along = start + gap * i;
-    const sway = (random() - 0.5) * 16;
-    return {
-      x: station.x + ux * along - uy * sway,
-      y: station.y + uy * along + ux * sway,
-    };
-  });
+function stationAt(index: number): Point {
+  return { x: index % 2 === 0 ? 150 : W - 150, y: TOP + index * ROW_H };
+}
+
+function waypointsFor(index: number, station: Point, count: number, seed: number): Point[] {
+  const random = rng(seed);
+  const dir = index % 2 === 0 ? 1 : -1;
+  return Array.from({ length: count }, (_, i) => ({
+    x: station.x + dir * (170 + ROUTE_STEP * i),
+    // A gentle, seeded sway so the route reads as hand-plotted, not ruled.
+    y: station.y + Math.sin(i * 1.3 + seed) * 14 + (random() - 0.5) * 6,
+  }));
 }
 
 export interface StarChart {
@@ -79,7 +83,7 @@ export interface StarChart {
 
 export function createStarChart(options: { reducedMotion: boolean }): StarChart {
   const tiers = pathway.tiers;
-  const stations = tiers.map((t) => t.station);
+  const stations = tiers.map((_, i) => stationAt(i));
 
   const root = svg('svg', {
     viewBox: `0 0 ${W} ${H}`,
@@ -92,7 +96,7 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
   // Stars. Scattered, seeded, three sizes, never animated.
   const stars = rng(80231);
   const starLayer = svg('g', { class: 'chart-stars', 'aria-hidden': 'true' });
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 220; i++) {
     const x = stars() * W;
     const y = stars() * H;
     const r = stars() < 0.08 ? 1.9 : stars() < 0.4 ? 1.2 : 0.7;
@@ -122,10 +126,8 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
 
   tiers.forEach((tier, index) => {
     const station = stations[index]!;
-    // The last tier has no next station, so its trail runs into open chart instead.
-    const next = stations[index + 1] ?? { x: 650, y: 660 };
     const unlocked = isTierUnlocked(tier.tier);
-    const points = waypointsFor(station, next, tier.lessons.length, 1000 + tier.tier * 7);
+    const points = waypointsFor(index, station, tier.lessons.length, 1000 + tier.tier * 7);
 
     // The route through this tier's waypoints.
     const segments: Point[] = [station, ...points];
@@ -164,10 +166,9 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       }`;
 
       const group = svg('g', { class: `chart-waypoint ${state}` });
-      // A 22-unit transparent circle around the mark. Waypoints sit as close as 25 units, so
-      // this cannot reach 44 px at every width; the station (below) and the "Every lesson"
-      // list on the chart page are the full-size ways to the same lessons (WCAG 2.5.8).
-      group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 22, class: 'chart-hit' }));
+      // A transparent circle around the mark is the tap target: 60 units across, about
+      // 49 px on a 1024 px screen, and never overlapping the next waypoint.
+      group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: HIT_R, class: 'chart-hit' }));
       if (passed) {
         group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 6.5, class: 'chart-dot' }));
       } else if (open) {
@@ -179,7 +180,7 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
       group.appendChild(
         svg('text', {
           x: point.x,
-          y: point.y - 15,
+          y: point.y - 22,
           class: 'chart-waypoint-label',
           'text-anchor': 'middle',
           'aria-hidden': 'true',

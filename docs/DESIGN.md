@@ -149,10 +149,14 @@ Waypoint states are distinguishable **by shape alone** — filled, ringed, hollo
 route — so the chart works in greyscale and for a colorblind kid. Yellow is confirmation, never
 the only signal.
 
-**Targets on the chart.** Waypoints sit as close as 25 viewBox units, so a waypoint's own hit
-circle cannot be 44px at every width. Two full-size ways reach the same lessons: each open
-**station** is a link to its tier's next lesson, and the "Every lesson" list under the chart has
-a 44px link per waypoint. Station badges grow with their names and use natural case.
+**Layout and targets.** The chart is a switchback trail: one tier per row, Tier 0 running left
+to right, Tier 1 right to left, and so on, each row starting at its station (a badge with the
+tier's patch and name) and hopping down to the next. Waypoints sit 112 viewBox units apart with a
+seeded sway, so every waypoint has a 60-unit tap circle (about 49 px at 1024 px) that never
+overlaps its neighbour. The layout is computed in `starChart.ts`, not read from
+`content/pathway.json`, so a content edit cannot squeeze it. Each open station is also a link to
+its tier's next lesson, and the "Every lesson" list under the chart repeats every waypoint as a
+44 px link.
 
 **The only animation in the project that is not a state change:** completing a lesson extends
 the route stroke to the next waypoint (`stroke-dashoffset`, 900 ms, ease-out), the new waypoint
