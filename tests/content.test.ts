@@ -1,3 +1,4 @@
+import { missingImports } from '../src/runtime/java/imports';
 import { describe, it, expect } from 'vitest';
 import {
   loadPathway, lessonLocations, lessonFoldersOnDisk, missingFiles, loadLesson,
@@ -213,7 +214,7 @@ describe.each(built.map((l) => [l.dir, l] as const))('%s', (_dir, loc) => {
        only on a machine with a JDK; this catches it everywhere. It found a real missing
        ElapsedTime import in Tier 4 lesson 03. */
     for (const [file, source] of [['starter.java', lesson.starter], ['solution.java', lesson.solution]] as const) {
-      expect(missingImports(source), `${file} uses a type it never imports`).toEqual([]);
+      expect(missingImports(source).map((m) => m.name), `${file} uses a type it never imports`).toEqual([]);
     }
   });
 
@@ -279,27 +280,6 @@ function glossaryTerms(): string[] {
 }
 
 /** SDK types a lesson names without importing them. */
-function missingImports(source: string): string[] {
-  const imported = new Set(
-    [...source.matchAll(/^\s*import\s+(?:static\s+)?([\w.]+);/gm)].map((m) => m[1]!.split('.').pop()!),
-  );
-  const body = source
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/\/\/.*$/gm, ' ')
-    .replace(/"(?:[^"\\]|\\.)*"/g, '""')
-    .replace(/^\s*(?:package|import)\b.*$/gm, '');
-
-  const missing = new Set<string>();
-  for (const cls of ALL_NATIVE_CLASSES) {
-    // java.lang needs no import, and a nested type is reached through its outer one.
-    if (cls.fqn.startsWith('java.')) continue;
-    const outer = cls.simple.split('.')[0]!;
-    if (imported.has(outer)) continue;
-    if (new RegExp(`\\b${outer}\\b`).test(body)) missing.add(outer);
-  }
-  return [...missing].sort();
-}
-
 /** Method and field names used in a lesson that the mocked SDK does not provide. */
 function unknownSdkCalls(source: string): string[] {
   const { unit } = parse(source);

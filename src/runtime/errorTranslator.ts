@@ -1,4 +1,5 @@
 import { formatDiagnostic, type Diagnostic, type JavaThrow } from './java/diagnostics';
+import type { MissingImport } from './java/imports';
 import type { RunStopReason } from './java/interpreter';
 
 /* Turns a compiler diagnostic or a Java exception into something a nine-year-old can act
@@ -280,6 +281,20 @@ export function translateThrow(t: JavaThrow, source: string): FriendlyError {
         fix: t.message ?? null,
       };
   }
+}
+
+/** Builder mode asks for SDK imports, as Android Studio will. The raw text is what javac
+ *  prints for the same mistake. */
+export function translateMissingImport(missing: MissingImport, source: string): FriendlyError {
+  const className = /\bclass\s+(\w+)/.exec(source)?.[1] ?? 'YourOpMode';
+  return {
+    kind: 'compile',
+    headline: `The robot does not know a kind of thing called ${missing.name} on line ${missing.line}.`,
+    fix: `Add this line near the top, with the other import lines: import ${missing.fqn}; Android Studio needs it, so Builder asks for it too.`,
+    line: missing.line,
+    column: null,
+    raw: `${className}.java:${missing.line}: error: cannot find symbol\n  symbol:   class ${missing.name}\n  location: class ${className}`,
+  };
 }
 
 export function translateLimit(reason: RunStopReason, simMs: number, line: number): FriendlyError {

@@ -117,10 +117,13 @@ and fails in Android Studio. The gate caught exactly that on its first real run 
 `import com.qualcomm.robotcore.util.ElapsedTime`), and `tests/content.test.ts` now checks
 imports directly so the same mistake is caught on a machine with no JDK.
 
-The remaining gap is honest and small: a kid writing their own code in the browser can
-omit an import and Nebula will not complain, though their lesson files always will be
-checked. Making the interpreter demand imports would be more faithful and would risk false
-positives on correct code, which `checker.ts` is written never to produce.
+**Builder asks for imports; Explorer does not** (decided 2026-11-08). Rather than make the
+interpreter demand imports, `src/runtime/java/imports.ts` checks the source before Run and
+Check in Builder mode, the same check that guards every lesson file. A missing import stops
+the run with a kid-readable error naming the exact line to add, with javac's own "cannot find
+symbol" text behind "Show the real error". Builder kids (13 to 18) are about to use Android
+Studio, so their code should compile there unchanged; Explorer kids are not asked to manage
+imports. A test proves no lesson's starting code trips the check.
 
 **One signature table, three consumers.** `src/ftc-mock/signatures.ts` is the single source of
 truth. The interpreter registers from it, `ftc-stubs/` is generated from it, and

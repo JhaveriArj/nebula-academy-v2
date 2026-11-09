@@ -1,5 +1,7 @@
 import { el, mount, prefersReducedMotion } from '../dom';
 import { icon } from '../icons';
+import { missingImports } from '../../runtime/java/imports';
+import { translateMissingImport } from '../../runtime/errorTranslator';
 import { frameIndex } from '../frames';
 import { renderMarkdown } from '../markdown';
 import { loadLesson, nextLessonId, tierOf } from '../../content/loader';
@@ -252,6 +254,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     console_.clear();
     editor.markError(null);
     const code = editor.getCode();
+    if (stoppedByMissingImport(code)) return;
     setBusy(true);
     console_.setStatus('Running.');
 
@@ -347,12 +350,28 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     liveFrame = requestAnimationFrame(tick);
   }
 
+  /** Builder asks for SDK imports, as Android Studio will; Explorer does not. */
+  function stoppedByMissingImport(code: string): boolean {
+    if (getMode() !== 'builder') return false;
+    const missing = missingImports(code)[0];
+    if (!missing) return false;
+    const error = translateMissingImport(missing, code);
+    console_.showError(error);
+    editor.markError(missing.line);
+    console_.setStatus(null);
+    return true;
+  }
+
   async function onCheck(): Promise<void> {
     stopEverything();
     console_.clear();
     editor.markError(null);
     goTo('check');
     const code = editor.getCode();
+    if (stoppedByMissingImport(code)) {
+      mount(checkList, el('p', { class: 'muted', text: 'Fix the line marked in the editor, then press Check it again.' }));
+      return;
+    }
     setBusy(true);
     mount(checkList, el('p', { class: 'muted', text: 'Running the checks.' }));
 

@@ -125,9 +125,13 @@ place of the existing 1 px press.
 - Lighthouse after this pass: accessibility, best practices and SEO all 100 on home, chart and
   a lesson page.
 
-## Open decisions for you
+## Decisions
 
-1. **The runtime is a TypeScript Java interpreter, not CheerpJ.** This is the big one, and
+Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for
+imports, Explorer does not** (decision 2, now built; see `docs/ARCHITECTURE.md`). The site
+targets Macs and home computers, not Chromebooks.
+
+1. **The runtime is a TypeScript Java interpreter, not CheerpJ.** Kept. This is the big one, and
    it is written up in full at the top of `docs/ARCHITECTURE.md`. CheerpJ 5.0 can genuinely
    compile and run Java in the browser; I did not use it because it cannot run the
    42-solution test suite in Node, a kid's infinite `while` loop would cost them their
@@ -138,7 +142,8 @@ place of the existing 1 px press.
 2. **The browser does not require imports; real javac does.** The interpreter resolves SDK
    types by simple name. Lesson files are protected by the javac gate and by an import
    check in `tests/content.test.ts` — this already caught a missing `ElapsedTime` import —
-   but a kid writing their own code can omit one and only find out in Android Studio.
+   but a kid writing their own code could omit one and only find out in Android Studio.
+   **Now:** Builder mode checks imports before Run and Check; Explorer stays lenient.
 3. **The tank robot is not mirror-mounted; the mecanum robot is.** Deliberate: Tiers 0–2
    keep drivetrain wiring as locked boilerplate, so a reversal a nine-year-old is told to
    ignore would buy nothing. Documented in `docs/ARCHITECTURE.md`.
