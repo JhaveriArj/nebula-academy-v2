@@ -28,6 +28,25 @@
   --on-star:      #15123F;
   --badge:        #A62961;  /* chest badge magenta: celebration, "you are here" */
   --go:           #0F6B5C;  /* a test passed */
+  --electric:     #3F3DD6;  /* secondary accent: the helmet's electric indigo, text-safe */
+  --electric-glow:#5452F8;  /* the helmet itself, for light and glow only */
+  --shine:        #FFFFFF;  /* the travelling highlight on the start button */
+
+  /* One color per tier, for its tile on the home page. Never text, never the only cue:
+     every tier also has its own badge silhouette. */
+  --tier-0: #FEBC02;
+  --tier-1: #5452F8;
+  --tier-2: #2BB59F;
+  --tier-3: #E0457B;
+  --tier-4: #8262C4;
+  --tier-5: #38A3D9;
+
+  /* Depth on the page: how strongly the nebula glows, the star dots, the faint grid. */
+  --nebula-a: 16%;
+  --nebula-b: 12%;
+  --nebula-c: 8%;
+  --grid-line: color-mix(in srgb, var(--primary) 7%, transparent);
+  --star-dot:  color-mix(in srgb, var(--primary) 22%, transparent);
   --alert:        #B3261E;  /* the robot got confused */
 
   /* --- Space: the dark working screens. Same in both modes. -------------- */
@@ -77,6 +96,14 @@
   --shadow-sm: 0 1px 2px rgb(21 18 63 / 0.08);
   --shadow: 0 1px 2px rgb(21 18 63 / 0.06), 0 8px 24px -10px rgb(75 53 144 / 0.28);
   --shadow-lift: 0 2px 4px rgb(21 18 63 / 0.08), 0 14px 32px -12px rgb(75 53 144 / 0.38);
+  --glow-star: 0 0 0 1px color-mix(in srgb, var(--star) 70%, transparent),
+    0 10px 30px -8px color-mix(in srgb, var(--star) 65%, transparent),
+    0 0 56px -10px color-mix(in srgb, var(--star) 55%, transparent);
+  --glow-star-strong: 0 0 0 1px var(--star),
+    0 14px 36px -8px color-mix(in srgb, var(--star) 80%, transparent),
+    0 0 80px -8px color-mix(in srgb, var(--star) 70%, transparent);
+  --glow-electric: 0 0 0 1px color-mix(in srgb, var(--electric-glow) 40%, transparent),
+    0 16px 44px -18px color-mix(in srgb, var(--electric-glow) 70%, transparent);
 
   --seam-w: 1px;
   --tap: 44px;
@@ -115,6 +142,13 @@
     --badge:        #EE8DB8;
     --go:           #5FD4BE;
     --alert:        #FF8A80;
+    --electric:     #A8A6FF;
+    --electric-glow:#7472FF;
+    --nebula-a: 42%;
+    --nebula-b: 30%;
+    --nebula-c: 16%;
+    --grid-line: color-mix(in srgb, var(--space-ink) 5%, transparent);
+    --star-dot:  color-mix(in srgb, var(--space-ink) 75%, transparent);
     --space:        #07062A;
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);
@@ -138,6 +172,13 @@
   --badge:        #EE8DB8;
   --go:           #5FD4BE;
   --alert:        #FF8A80;
+  --electric:   #A8A6FF;
+  --electric-glow:#7472FF;
+  --nebula-a: 42%;
+  --nebula-b: 30%;
+  --nebula-c: 16%;
+  --grid-line: color-mix(in srgb, var(--space-ink) 5%, transparent);
+  --star-dot:  color-mix(in srgb, var(--space-ink) 75%, transparent);
   --space:        #07062A;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.6);
@@ -253,10 +294,10 @@ button:disabled { color: var(--ink-mid); border-color: var(--line); background: 
   border-radius: var(--radius-sm); box-shadow: var(--shadow);
 }
 
+/* Reduced motion is handled rule by rule, next to each animation, rather than with a global
+   0.001ms override: modern-web-guidance's motion guide warns the global trick can make some
+   animations more jarring. Every animation in app.css is opted in under
+   (prefers-reduced-motion: no-preference); only short color and press transitions remain. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
+  html { scroll-behavior: auto; }
 }

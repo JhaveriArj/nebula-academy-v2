@@ -43,6 +43,8 @@ const PAGE = [
   ['on-primary', 'primary', 4.5, 'text on a main button'],
   ['link', 'bg', 4.5, 'a link on the page'],
   ['link', 'surface', 4.5, 'a link on a panel'],
+  ['electric', 'bg', 4.5, 'secondary accent text on the page'],
+  ['electric', 'surface', 4.5, 'secondary accent text on a card'],
   ['go', 'surface', 4.5, 'a test passed'],
   ['alert', 'surface', 4.5, 'the robot got confused'],
   ['badge', 'surface', 4.5, 'the one-second celebration'],

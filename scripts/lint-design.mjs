@@ -32,7 +32,7 @@ for (const file of files) {
       if (!isTheme && /#[0-9a-fA-F]{3,8}\b|\b(rgba?|hsla?|oklch)\(/.test(line))
         problems.push(`${at}  color literal. Add a token to src/ui/theme.css and use var(--token).`);
       const r = line.match(/border-radius\s*:\s*([^;]+)/);
-      if (r && !isTheme && !/^(var\(--radius[a-z-]*\)|50%|0)$/.test(r[1].trim()))
+      if (r && !isTheme && !/^(var\(--radius[a-z-]*\)|50%|0|inherit)$/.test(r[1].trim()))
         problems.push(`${at}  border-radius ${r[1].trim()}. Use a --radius-* token from theme.css.`);
       const sh = line.match(/box-shadow\s*:\s*([^;]+)/);
       if (sh && !isTheme && !/none|var\(--/.test(sh[1]))

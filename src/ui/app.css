@@ -15,8 +15,11 @@
   align-items: center;
   gap: var(--s4);
   padding: var(--s2) var(--s4);
-  min-height: 64px;
-  background: var(--surface);
+  min-height: 68px;
+  /* Content scrolls under the sticky header, so it frosts what passes beneath it: the one
+     place on the site where a blur helps reading rather than decorating. */
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
   border-bottom: var(--seam-w) solid var(--line);
   box-shadow: var(--shadow-sm);
   position: sticky;
@@ -37,29 +40,45 @@
   color: var(--ink);
 }
 .wordmark img { display: block; height: 44px; width: auto; }
-.wordmark-name { font-family: var(--face-display); font-weight: 600; font-size: 20px; line-height: 1; white-space: nowrap; }
+/* Hierarchy in the header: the brand is the loudest thing, then the mode switch, then the
+   quiet text links, then Display. */
+.wordmark-name { font-family: var(--face-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; }
 
 .site-nav { display: flex; gap: var(--s1); margin-inline-start: auto; flex-wrap: wrap; }
 
 .nav-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--s2);
   min-height: var(--tap);
-  padding: 0 var(--s4);
+  padding: 0 var(--s3);
   border-radius: var(--radius-pill);
   text-decoration: none;
   font-family: var(--face-display);
   font-weight: 500;
   font-size: var(--size-label);
-  color: var(--ink);
-  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  color: var(--ink-mid);
+  transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out);
 }
 
-.nav-link[aria-current='page'] { background: var(--surface-soft); color: var(--primary); font-weight: 600; }
+/* The current page: full ink and a small electric light under the word. */
+.nav-link[aria-current='page'] { color: var(--ink); font-weight: 600; }
+.nav-link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--electric-glow);
+  box-shadow: var(--glow-electric);
+}
 
 @media (hover: hover) {
-  .nav-link:hover { background: var(--surface-soft); }
+  .nav-link:hover { color: var(--ink); background: var(--surface-soft); }
 }
 
 .header-controls { display: flex; align-items: center; gap: var(--s2); }
@@ -108,7 +127,10 @@
 
 /* Display: one button, one panel. The panel is a native popover in the top layer, pinned
    under the header's right edge. */
-.display-button { gap: var(--s2); }
+.display-button { gap: var(--s2); border-color: transparent; background: var(--surface-soft); color: var(--ink-mid); }
+@media (hover: hover) {
+  .display-button:hover { color: var(--ink); border-color: var(--line); }
+}
 .display-button-label { display: none; }
 @media (min-width: 1281px) {
   .display-button { padding: 0 var(--s4) 0 var(--s3); border-radius: var(--radius-pill); font-weight: 600; }
@@ -193,7 +215,7 @@
   text-decoration: none;
 }
 
-.btn-next, .btn-start, .btn-check {
+.btn-next, .btn-check {
   background: var(--primary);
   color: var(--on-primary);
   border-color: var(--primary);
@@ -243,111 +265,301 @@
 
 /* ------------------------------------------------------------------- home */
 
-.home { padding: var(--s5) var(--s4) var(--s8); display: flex; flex-direction: column; gap: var(--s6); }
-
-/* The one bold thing on this page: a window into space, with the real robot driving
-   in it and the mascot floating at the edge. */
-.hero {
+/* The landing page has real depth: a page layer (nebula glow, two star layers, a faint grid),
+   section layers, raised cards, and the live screen on top. Every color is a token or a mix
+   of one. The width grows with the window instead of leaving wide screens empty. */
+.home {
+  --home-max: min(1320px, calc(100% - 2 * var(--s5)));
   position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s8);
+  padding: var(--s7) 0 var(--s8);
+  overflow: clip;
+}
+.home > * { width: var(--home-max); margin-inline: auto; }
+
+.home::before,
+.home::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+/* Nebula glow: three soft clouds pulled from the mascot (suit violet, helmet indigo, badge
+   magenta), over the page color. */
+.home::before {
+  background:
+    radial-gradient(60rem 36rem at 12% -6%, color-mix(in srgb, var(--primary) var(--nebula-a), transparent), transparent 70%),
+    radial-gradient(48rem 32rem at 92% 8%, color-mix(in srgb, var(--electric-glow) var(--nebula-b), transparent), transparent 70%),
+    radial-gradient(44rem 30rem at 70% 78%, color-mix(in srgb, var(--badge) var(--nebula-c), transparent), transparent 70%),
+    var(--bg);
+}
+/* Stars (two scales, so the field has depth) and a faint grid that fades out downwards. */
+.home::after {
+  background:
+    radial-gradient(circle at 20% 30%, var(--star-dot) 0 1px, transparent 1.6px) 0 0 / 140px 140px,
+    radial-gradient(circle at 70% 80%, var(--star-dot) 0 0.8px, transparent 1.3px) 40px 60px / 90px 90px,
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+/* --- Hero: the copy on the left, the stage on the right. --- */
+.hero {
   display: grid;
-  grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   gap: var(--s7);
   align-items: center;
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: var(--s6);
-  background: var(--space);
-  color: var(--space-ink);
-  border: var(--seam-w) solid var(--space-line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lift);
+}
+.hero-copy { display: flex; flex-direction: column; gap: var(--s5); align-items: flex-start; }
+.hero-title {
+  margin: 0;
+  font-size: clamp(2.25rem, 1.2rem + 3vw, 4rem);
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.hero-sub { margin: 0; max-width: 34ch; color: var(--ink-mid); font-size: calc(var(--size-prose) + 2px); }
+.hero-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0;
+  padding: var(--s1) var(--s3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  font-family: var(--face-display);
+  font-weight: 600;
+  color: var(--go);
+}
+.hero-progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--go); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--s3); }
+
+/* A soft nebula breathing behind the start button, ported from 21st.dev's "Nebula CTA Glow"
+   (a blurred circle pulsing between scale 1 and 1.2, opacity 0.35 and 0.65, over 4 s), in the
+   antenna's yellow instead of cyan, and in CSS instead of framer-motion. */
+.hero-actions,
+.start-choice-buttons { position: relative; isolation: isolate; }
+.hero-actions::before,
+.start-choice-buttons::before {
+  content: '';
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  margin-top: -80px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--star) 30%, transparent);
+  filter: blur(40px);
+  opacity: 0.45;
+  z-index: -1;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-actions::before,
+  .start-choice-buttons::before { animation: nebula-breathe 4s ease-in-out infinite; }
+}
+@keyframes nebula-breathe {
+  0%, 100% { scale: 1; opacity: 0.35; }
+  50% { scale: 1.2; opacity: 0.65; }
+}
+
+/* The start button: the antenna light. A yellow pill that glows, lifts toward the pointer
+   and presses in. Its travelling shine is ported from Magic UI's Shimmer Button. */
+.btn-start {
+  position: relative;
   overflow: hidden;
   isolation: isolate;
+  min-height: 56px;
+  padding: var(--s3) var(--s6);
+  border-color: var(--star);
+  background: var(--star);
+  color: var(--on-star);
+  font-size: calc(var(--size-label) + 3px);
+  box-shadow: var(--glow-star);
 }
+.btn-start::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--shine) 55%, transparent) 50%, transparent 65%);
+  translate: -120% 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn-start::after { animation: shine 4.2s var(--ease-out) 1.2s infinite; }
+  .btn-start { transition: translate 160ms var(--ease-out), box-shadow 200ms var(--ease-out), scale 120ms var(--ease-out); }
+  .btn-start:active { scale: 0.98; }
+}
+@keyframes shine {
+  0% { translate: -120% 0; }
+  45%, 100% { translate: 120% 0; }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn-start:hover { translate: 0 -2px; box-shadow: var(--glow-star-strong); }
+}
+.btn-start:focus-visible { outline-color: var(--electric); outline-offset: 3px; }
+
+/* The second accent: electric indigo, for the secondary action. */
+.btn-electric {
+  min-height: 56px;
+  padding: var(--s3) var(--s5);
+  border-color: color-mix(in srgb, var(--electric) 55%, transparent);
+  background: color-mix(in srgb, var(--electric-glow) 8%, var(--surface));
+  color: var(--electric);
+  font-size: calc(var(--size-label) + 1px);
+}
+@media (hover: hover) {
+  .btn-electric:hover { border-color: var(--electric); box-shadow: var(--glow-electric); }
+}
+
+.start-choice { display: flex; flex-direction: column; gap: var(--s3); }
+.start-choice-label { margin: 0; font-family: var(--face-display); font-weight: 600; font-size: calc(var(--size-label) + 3px); color: var(--ink); }
+.start-choice-buttons { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.start-choice-note { margin: 0; color: var(--ink-mid); font-size: var(--size-label); }
+
+/* The stage: a live screen with the mascot standing in front of it. */
+.hero-stage { position: relative; padding: var(--s4) 0 var(--s4) clamp(64px, 9vw, 150px); }
+.hero-screen {
+  position: relative;
+  padding: var(--s3);
+  border-radius: var(--radius-lg);
+  background: var(--space);
+  border: var(--seam-w) solid var(--space-line);
+  box-shadow: var(--glow-electric), var(--shadow-lift);
+}
+/* A beam of light travelling round the screen's edge, ported from Magic UI's Border Beam
+   (a rotating conic gradient, masked to the border, instead of motion's offset-path). */
+@property --beam {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.hero-screen::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--beam), transparent 0 70%, var(--electric-glow) 82%, var(--star) 90%, transparent 100%);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-screen::before { animation: beam 7s linear infinite; }
+}
+@keyframes beam { to { --beam: 360deg; } }
+
+.hero-screen-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0 0 var(--s3);
+  padding-inline: var(--s1);
+  font-family: var(--face-display);
+  font-weight: 600;
+  font-size: var(--size-label);
+  color: var(--space-mute);
+}
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--space-go);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--space-go) 22%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .live-dot { animation: live 2.4s ease-in-out infinite; }
+}
+@keyframes live { 50% { opacity: 0.45; } }
 
 .hero-field {
   aspect-ratio: 1;
-  max-height: 420px;
   display: grid;
   place-items: center;
-  background: var(--space);
-  border: var(--seam-w) solid var(--space-line);
   border-radius: var(--radius);
   overflow: hidden;
+  background: var(--space);
 }
-
 .field-canvas { display: block; }
 
-.hero-aside { position: relative; display: flex; flex-direction: column; gap: var(--s4); align-items: flex-start; padding-inline-end: 150px; }
-.hero-title {
-  margin: 0;
-  font-size: clamp(30px, 3.4vw, 46px);
-  line-height: 1.1;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--space-ink);
-}
-.hero-sub { margin: 0; color: var(--space-mute); font-size: calc(var(--size-prose) + 1px); }
-.hero-progress { margin: 0; color: var(--star); font-family: var(--face-display); font-weight: 500; }
-
-.btn-start {
-  margin-top: var(--s2);
-  background: var(--star);
-  color: var(--on-star);
-  border-color: var(--star);
-  font-size: calc(var(--size-label) + 3px);
-  padding: var(--s3) var(--s6);
-  min-height: 56px;
-}
-@media (hover: hover) {
-  .btn-start:hover { box-shadow: 0 0 0 6px color-mix(in srgb, var(--star) 22%, transparent); }
-}
-.btn-start:focus-visible { outline-color: var(--space-ink); }
-
-.start-choice { display: flex; flex-direction: column; gap: var(--s3); margin-top: var(--s2); }
-.start-choice-label { margin: 0; font-family: var(--face-display); font-weight: 600; font-size: calc(var(--size-label) + 3px); color: var(--space-ink); }
-.start-choice-buttons { display: flex; flex-wrap: wrap; gap: var(--s3); }
-.start-choice .btn-start { margin-top: 0; }
-.start-choice-note { margin: 0; color: var(--space-mute); font-size: var(--size-label); }
-
+/* The mascot, large, standing in front of the bottom-left corner of the screen, with a
+   soft glow behind it so it lifts off the page. */
 .hero-mascot {
   position: absolute;
-  right: 0;
-  bottom: calc(var(--s6) * -1);
-  width: 132px;
+  left: 0;
+  bottom: -2%;
+  width: clamp(150px, 15vw, 230px);
   height: auto;
-  transform: rotate(8deg);
+  filter: drop-shadow(0 18px 30px color-mix(in srgb, var(--primary) 45%, transparent));
   pointer-events: none;
-  z-index: -1;
+  z-index: 2;
 }
-
 @media (prefers-reduced-motion: no-preference) {
-  .hero-mascot { animation: drift 7s var(--ease-out) infinite alternate; }
+  .hero-mascot { animation: drift 6s ease-in-out infinite alternate; }
 }
 @keyframes drift {
-  from { transform: translateY(0) rotate(8deg); }
-  to { transform: translateY(-10px) rotate(4deg); }
+  from { translate: 0 0; rotate: -3deg; }
+  to { translate: 0 -14px; rotate: 2deg; }
 }
 
-.home-panels {
+/* --- Features: three raised cards, each with an icon, a short title and a link. --- */
+.home-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  background: var(--surface);
-  border: var(--seam-w) solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--s5);
 }
-
-.home-panel { padding: var(--s5); border-inline-start: var(--seam-w) solid var(--line); }
-.home-panel:first-child { border-inline-start: 0; }
-/* The title needs a clear step above 18 px body text, not 19 px over 18. */
-.home-panel h2 { margin-top: 0; margin-bottom: var(--s2); font-size: calc(var(--size-h3) + 3px); }
-.home-panel p { color: var(--ink-mid); }
+.feature-card {
+  --mx: -400px;
+  --my: -400px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s6) var(--s5) var(--s5);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: var(--seam-w) solid var(--line);
+  box-shadow: var(--shadow);
+}
+/* The pointer spotlight on the border, after Magic UI's Magic Card. */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(260px circle at var(--mx) var(--my), var(--electric-glow), transparent 70%);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .feature-card:hover::before { opacity: 1; }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .feature-card { transition: translate 200ms var(--ease-out), box-shadow 200ms var(--ease-out); }
+  .feature-card:hover { translate: 0 -4px; box-shadow: var(--shadow-lift); }
+}
+.feature-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
+  color: var(--electric);
+  background: color-mix(in srgb, var(--electric-glow) 14%, var(--surface));
+  border: var(--seam-w) solid color-mix(in srgb, var(--electric-glow) 30%, transparent);
+}
+.feature-title { margin: var(--s2) 0 0; font-size: calc(var(--size-h3) + 5px); line-height: 1.15; }
+.feature-body { margin: 0; color: var(--ink-mid); }
+.feature-card .panel-link { margin-top: auto; }
 
 .panel-link {
   display: inline-flex;
@@ -357,45 +569,96 @@
   font-family: var(--face-display);
   font-weight: 600;
   font-size: var(--size-label);
+  color: var(--electric);
 }
 
-.home-tiers { width: 100%; max-width: 1180px; margin: 0 auto; }
-.home-tiers h2 { margin-top: 0; }
+/* --- Tiers: one row per tier, each with its own color, badge and metadata chips. --- */
+.home-tiers-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s2) var(--s5); margin-bottom: var(--s4); }
+.home-tiers-head h2 { margin: 0; font-size: calc(var(--size-h2) + 6px); }
+.home-tiers-head p { margin: 0; color: var(--ink-mid); }
 .tier-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  background: var(--surface);
-  border: var(--seam-w) solid var(--line);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  display: grid;
+  gap: var(--s3);
 }
-
-.tier-list li { max-width: none; border-bottom: var(--seam-w) solid var(--line); }
-.tier-list li:last-child { border-bottom: 0; }
+.tier-list li { max-width: none; }
 .tier-row {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto auto 20px;
+  grid-template-columns: 64px minmax(0, 1fr) auto 24px;
   gap: var(--s4);
   align-items: center;
-  min-height: var(--tap);
-  padding: var(--s3) var(--s5);
+  min-height: 84px;
+  padding: var(--s3) var(--s5) var(--s3) var(--s3);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: var(--seam-w) solid var(--line);
   color: var(--ink);
   text-decoration: none;
-  transition: background-color 160ms var(--ease-out);
+  box-shadow: var(--shadow-sm);
 }
-.tier-row .icon { color: var(--ink-mid); }
-.tier-row:focus-visible { outline-offset: -3px; }
 @media (hover: hover) {
-  .tier-row:hover { background: var(--surface-soft); }
+  .tier-row:hover { border-color: color-mix(in srgb, var(--tier) 60%, var(--line)); box-shadow: var(--shadow); }
 }
-
-.tier-row-badge { display: block; width: 44px; height: 44px; }
-.tier-row-robot {
-  font-size: calc(var(--size-label) - 1px);
-  padding: 2px var(--s3);
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tier-row { transition: translate 200ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 200ms var(--ease-out); }
+  .tier-row:hover { translate: 4px 0; }
+}
+.tier-row:focus-visible { outline-offset: 2px; }
+.tier-row-tile {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--tier) 18%, var(--surface));
+  border: var(--seam-w) solid color-mix(in srgb, var(--tier) 50%, transparent);
+  box-shadow: 0 10px 24px -14px var(--tier);
+}
+.tier-row-badge { display: block; width: 40px; height: 40px; }
+.tier-row-text { display: grid; gap: 2px; min-width: 0; }
+.tier-row-kicker { font-family: var(--face-display); font-weight: 600; font-size: var(--size-label); color: var(--ink-mid); }
+.tier-row-name { font-family: var(--face-display); font-weight: 700; font-size: calc(var(--size-h3) + 2px); line-height: 1.15; }
+.tier-row-sub { color: var(--ink-mid); font-size: var(--size-label); }
+.tier-row-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s2); }
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: var(--s1) var(--s3);
   border-radius: var(--radius-pill);
   background: var(--surface-soft);
+  border: var(--seam-w) solid var(--line);
+  font-size: var(--size-label);
+  color: var(--ink-mid);
+  white-space: nowrap;
+}
+.meta-chip .icon { color: var(--electric); }
+.tier-row-go { display: grid; place-items: center; color: var(--ink-mid); }
+
+/* --- Scroll reveal, ported from Magic UI's Blur Fade but driven by a CSS scroll timeline
+   (modern-web-guidance: "Use Scroll-Driven Animations ... instead of JS listeners").
+   Content is visible by default; the reveal only runs where the browser supports it and
+   the person has not asked for less motion. --- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 6%) entry calc(60% + var(--i, 0) * 6%);
+    }
+  }
+}
+/* It starts part-way visible, never at zero: a page rendered without scrolling (print, a
+   preview, a screen reader's virtual cursor) still shows every section (impeccable: "Reveal
+   animations must enhance an already-visible default"). */
+@keyframes reveal {
+  from { opacity: 0.35; translate: 0 24px; filter: blur(4px); }
+  to { opacity: 1; translate: 0 0; filter: blur(0); }
+}
+@media print {
+  .reveal { animation: none !important; }
 }
 
 /* ------------------------------------------------------------------ chart */
@@ -457,9 +720,11 @@
 }
 
 /* The only animation that is not a state change: the route reaching the next waypoint. */
-.chart-route.is-extending {
-  stroke-dasharray: 220;
-  animation: route-extend 900ms var(--ease-out) 1;
+@media (prefers-reduced-motion: no-preference) {
+  .chart-route.is-extending {
+    stroke-dasharray: 220;
+    animation: route-extend 900ms var(--ease-out) 1;
+  }
 }
 
 @keyframes route-extend {
@@ -931,10 +1196,8 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   :root { --console-side: 320px; }
   /* Two 136 px button clusters need 352 px once the column's scrollbar is counted. */
   .lesson-shell:has(.gamepad) { --console-side: 352px; }
-  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
-  .hero-field { max-height: 360px; width: min(100%, 360px); }
-  .hero-aside { padding-inline-end: 120px; }
-  .hero-mascot { width: 110px; }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: var(--s6); }
+  .hero-stage { width: min(100%, 620px); justify-self: center; }
 }
 
 /* Narrower still: the rail narrows before the work gives up its width. */
@@ -974,10 +1237,13 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .mode-button { padding: 0 var(--s3); }
 
   .home { padding: var(--s3) var(--s3) var(--s7); gap: var(--s5); }
-  .hero { padding: var(--s4); border-radius: var(--radius); }
-  .hero-aside { padding-inline-end: 0; }
-  .hero-mascot { display: none; }
-  .btn-start, .start-choice-buttons { width: 100%; }
+  .home { gap: var(--s7); padding-top: var(--s5); }
+  .hero-stage { padding-left: 0; }
+  .hero-mascot { width: 110px; left: -8px; bottom: -6%; }
+  .hero-actions, .start-choice-buttons, .btn-start, .btn-electric { width: 100%; }
+  .tier-row { grid-template-columns: 52px minmax(0, 1fr) 20px; padding: var(--s3); }
+  .tier-row-tile { width: 52px; height: 52px; }
+  .tier-row-meta { display: none; }
 
   .lesson-shell,
   .lesson-shell[data-state='console'] {
@@ -991,10 +1257,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .lesson-shell[data-state='console'] .step-button { flex-direction: row; justify-content: flex-start; gap: var(--s3); min-height: var(--tap); padding: 0 var(--s3); border-radius: var(--radius-pill); flex: none; }
   .lesson-side { flex-direction: column; max-height: none; }
   .field-box { width: 100%; height: auto; aspect-ratio: 1; }
-  .lesson-reading, .home-panel, .chart-page { padding: var(--s4); }
-  .tier-row { padding: var(--s3) var(--s4); }
+  .lesson-reading, .chart-page { padding: var(--s4); }
   .prose-page { padding: var(--s4) var(--s4) var(--s7); }
-  .tier-row { grid-template-columns: 40px minmax(0, 1fr) 20px; }
-  .tier-row-count, .tier-row-robot { display: none; }
   .editor { min-height: 260px; }
 }

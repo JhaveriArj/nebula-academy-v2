@@ -125,6 +125,19 @@ place of the existing 1 px press.
 - Lighthouse after this pass: accessibility, best practices and SEO all 100 on home, chart and
   a lesson page.
 
+## Landing page overhaul (2026-11-08)
+
+From a design audit: depth instead of flat navy (nebula glows from the mascot's colors, two
+star layers, a fading grid, raised cards); the mascot large in front of a glowing live screen
+(robot and route glow, elements pulse, a border beam); a glowing yellow start button with a
+travelling shine and a breathing nebula behind it; electric indigo as the second accent;
+feature cards with icons, tighter copy and hover lift; tier rows with a color per tier and
+metadata chips; a clear header hierarchy; scroll reveals on CSS scroll timelines. Ported from
+Magic UI (Border Beam, Shimmer Button, Magic Card, Blur Fade) and 21st.dev (Nebula CTA Glow) to
+plain CSS and TypeScript, since the app is not React. Reduced motion is now handled per rule;
+the global 0.001 ms override is gone. Lighthouse 100/100/100 (desktop and mobile); home LCP
+1.6 s on Fast 3G with a 4× slower CPU, after preloading the hero mascot.
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for

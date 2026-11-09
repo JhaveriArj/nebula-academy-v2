@@ -242,9 +242,11 @@ Every number on screen is read from the robot or the test runner. No decorative 
 sparkline that isn't data, no progress ring that isn't progress. If we cannot name the variable
 behind a number, it comes off the screen.
 
-**2. Space is loud; the ship is calm.**
-The hero window and the star chart are the bold surfaces: deep navy, yellow light, the mascot.
-Everything on the light page is white panels, one hairline, violet, and type.
+**2. The landing page has depth; the work pages stay calm.**
+The home page is built in layers: the page (nebula glows from the mascot's colors, two star
+layers, a faint grid that fades out), sections, raised cards, and the live screen on top.
+Lesson, chart, mentor and progress pages keep plain panels, one hairline, violet and type,
+because a kid is working there, not looking around.
 
 **3. Thumb-first, 18px floor.**
 If it needs a mouse, a hover, or a squint, it is broken. 44×44 px minimum on everything
@@ -261,10 +263,14 @@ something being wrong; the design lint rejects them in `src/ui/`.
 
 ## Motion, icons, and the hero
 
-**Motion.** The route extending on the Level Map, the robot moving in the sim (that is the
-product, not an effect), the mascot drifting slowly at the edge of the hero, and 120–160 ms
-color transitions on buttons. No entrance animations. No scroll-triggered anything. Every one of
-them is disabled or made instant under `prefers-reduced-motion: reduce`.
+**Motion.** The robot moving in the sim (the product, not an effect); the route extending on the
+Level Map; on the home page only: the mascot drifting, a beam of light circling the live
+screen, a shine crossing the start button, the live dot breathing, and sections easing in as
+they scroll into view. Hover lifts cards and rows by a few pixels; presses scale to 0.98.
+Every animation is opted in under `prefers-reduced-motion: no-preference`, rule by rule (no
+global 0.001 ms override, which modern-web-guidance warns can make motion more jarring). Scroll
+reveals use a CSS scroll timeline and start part-way visible, so nothing is ever hidden from a
+page that is not scrolled.
 
 **Icons.** Drawn by hand as SVG in `src/ui/icons.ts`, 24×24, 1.75px stroke, no fill, inheriting
 `currentColor`. No emoji anywhere in the UI or lesson prose.
@@ -272,11 +278,16 @@ them is disabled or made instant under `prefers-reduced-motion: reduce`.
 **Focus.** 3px ring with a 2px offset. `--link` on the page, `--star` in space. Never removed,
 never only a color change.
 
-**The hero is a window into space.** The home page opens with a deep-navy panel: the virtual
-robot driving a short loop on the real sim, the page's one `<h1>` beside it ("Write real Java. A
-real robot drives. Then put your code on your team's bot."), one yellow button, and the mascot
-floating at the edge. Under reduced motion the robot is parked with its route drawn behind it
-and the mascot holds still.
+**The hero is the mascot in front of a live screen.** The page's one `<h1>` and the actions sit
+on the left; on the right, the real simulator runs on a glowing screen (robot and route glow,
+game elements pulse, a beam circles the frame) and the mascot stands in front of its corner.
+The start button is the antenna light: yellow, glowing, with electric indigo (from the helmet)
+as the second accent on the secondary action. Under reduced motion the robot is parked with its
+route drawn behind it and nothing else moves.
+
+**Tier colors.** Each tier has its own color (`--tier-0` to `--tier-5`) for its tile on the home
+page. It is never text and never the only cue: every tier also has its badge silhouette and its
+name.
 
 **First visit.** Until a kid has picked a mode, the one start button is two: "I am 9 to 12"
 (Explorer) and "I am 13 to 18" (Builder). One tap sets the mode and starts lesson 1, so the
