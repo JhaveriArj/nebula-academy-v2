@@ -167,6 +167,13 @@
 .display-toggle[aria-checked='true'] .display-switch { background: var(--primary); }
 .display-toggle[aria-checked='true'] .display-switch::after { transform: translateX(20px); }
 
+/* The lesson page is fixed to the screen: its panels scroll, the page does not, so Run,
+   the results and the field never leave a 768 px screen. Short or narrow screens (phones,
+   200% zoom) fall back to one scrolling column further down. */
+@media (min-width: 761px) and (min-height: 561px) {
+  #app:has(.lesson) { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+}
+
 /* The outlet is the leftover height, so the lesson can size itself against it rather
    than against a hardcoded header height that would drift the moment the bar wraps. */
 .outlet { flex: 1; min-height: 0; display: flex; flex-direction: column; }
