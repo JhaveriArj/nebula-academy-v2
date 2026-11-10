@@ -1777,12 +1777,54 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 
 /* ------------------------------------------------------------------ about */
 
-/* The mascot stands beside the first paragraphs: the one picture on a page of text. */
-.about-mascot { float: inline-end; width: 160px; margin: 0 0 var(--s4) var(--s5); }
-.about-mascot img { display: block; width: 100%; height: auto; }
-.about-start { margin-top: var(--s6); clear: both; }
-@media (max-width: 760px) {
-  .about-mascot { width: 104px; margin-inline-start: var(--s3); }
+/* Text on the left at reading width, numbered in the order it is read; the mascot and a
+   small live field in a sticky column on the right. */
+.about-page { display: grid; grid-template-columns: minmax(0, 620px) 260px; justify-content: center; gap: var(--s8); width: 100%; padding: var(--s6) var(--s4) var(--s8); }
+.about-text h1 { margin: 0 0 var(--s3); }
+.about-lede { font-size: 1.1875rem; color: var(--ink); }
+.about-section { padding-top: var(--s6); }
+.about-h { display: flex; align-items: baseline; gap: var(--s3); margin: 0 0 var(--s3); padding-top: var(--s3); border-top: var(--seam-w) solid var(--line); font-size: 1.375rem; }
+.about-num { font-family: var(--face-code); font-size: 14px; font-weight: 400; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+.about-start { margin-top: var(--s7); }
+
+.about-side { position: sticky; top: 104px; align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--s5); }
+.about-field { position: relative; margin: 0; }
+.about-field .kit-thumb { display: block; }
+.about-field-note { display: flex; align-items: center; max-width: 220px; text-wrap: balance; gap: var(--s2); margin-top: var(--s2); font-family: var(--face-display); font-size: 15px; color: var(--ink-mid); }
+.about-field-note .kit-arrow { flex: none; rotate: 200deg; color: var(--ink-mid); }
+
+/* The two editors, small. Same colours as the lesson editor. */
+.about-mocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); margin: var(--s4) 0; }
+.about-mock { margin: 0; }
+.about-mock-bar { display: flex; gap: 2px; padding: 6px 6px 0; border-start-start-radius: var(--radius); border-start-end-radius: var(--radius); background: var(--space-raised); }
+.about-mock-tab { padding: 4px 10px; border-start-start-radius: var(--radius-xs); border-start-end-radius: var(--radius-xs); font-size: 14px; color: var(--space-mute); }
+.about-mock-tab.is-on { background: var(--space); color: var(--space-ink); }
+.about-mock-code { padding: var(--s2) 0; border-end-start-radius: var(--radius); border-end-end-radius: var(--radius); background: var(--space); font-family: var(--face-code); }
+.about-mock-line { display: grid; grid-template-columns: 28px 16px minmax(0, 1fr); align-items: center; min-height: 22px; padding-inline-end: var(--s2); }
+.about-mock-line code { font-size: 14px; color: var(--space-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: none; padding: 0; }
+.is-explorer .about-mock-line code { font-size: 15px; }
+.about-mock-n { text-align: end; padding-inline-end: 6px; font-size: 14px; color: var(--space-dim); }
+.about-mock-gutter { display: flex; justify-content: center; color: var(--space-mute); }
+.about-lock path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.about-mock-line.is-locked code { color: var(--space-mute); }
+.about-mock-line.is-open { background: color-mix(in srgb, var(--star) 10%, transparent); }
+.about-mock-line.is-open .about-mock-gutter::before { content: ''; width: 4px; height: 18px; border-radius: var(--radius-pill); background: var(--star); }
+.about-mock figcaption { margin-top: var(--s2); font-size: var(--size-label); color: var(--ink-mid); }
+.about-mock figcaption strong { color: var(--ink); }
+
+.about-credits .kit-paper { padding: 24px 28px; }
+.about-credits p { margin: 0 0 var(--s3); color: var(--paper-ink); font-size: var(--size-label); }
+.about-credits p:last-child { margin-bottom: 0; color: var(--paper-ink-2); }
+
+@media (max-width: 960px) {
+  .about-page { grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
+  .about-side { position: static; order: -1; flex-direction: row; justify-content: center; }
+  .about-side .kit-mascot { --h: 150px !important; }
+  .about-field .kit-thumb { width: 150px; height: 150px; }
+}
+@media (max-width: 560px) {
+  .about-mocks { grid-template-columns: minmax(0, 1fr); }
+  .about-field-note { font-size: 14px; }
 }
 
 /* ----------------------------------------------------------------- mentor */

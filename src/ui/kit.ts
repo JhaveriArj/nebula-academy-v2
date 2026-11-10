@@ -176,7 +176,10 @@ export function fieldThumb(route: Route, options: { size?: number; label: string
 function turnArc(route: Route, X: (x: number) => string, Y: (y: number) => string): SVGElement | null {
   const { min, max, final } = route.turn;
   const span = max - min;
-  const drove = Math.hypot(route.end.x - route.start.x, route.end.y - route.start.y);
+  // Distance driven along the way, not start to end: a square comes back to where it began.
+  let drove = 0;
+  const path = [route.start, ...route.points, route.end];
+  for (let i = 1; i < path.length; i++) drove += Math.hypot(path[i]!.x - path[i - 1]!.x, path[i]!.y - path[i - 1]!.y);
   if (span < 20 || drove > 40) return null;
   const cx = Number(X(route.end.x));
   const cy = Number(Y(route.end.y));
