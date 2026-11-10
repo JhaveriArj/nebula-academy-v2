@@ -710,6 +710,15 @@ html { scrollbar-gutter: stable; }
 .nb-same-tick { position: absolute; right: 14px; top: 3px; display: inline-flex; color: var(--space-go); text-indent: 0; transition: opacity 200ms var(--ease-out); }
 .nb-same-verdict { display: flex; align-items: center; gap: 8px; margin: 20px 0 0; font-family: var(--face-code); font-size: 0.875rem; color: var(--space-go); }
 
+/* Short windows (a MacBook's 760px): the merge tightens so its pin still fits and pins. */
+@media (max-height: 860px) {
+  .nb-same .nb-section-head { margin-bottom: 20px; }
+  .nb-same-code { padding: 8px 0; line-height: 1.4; }
+  .nb-same-verdict { margin-top: 12px; }
+  /* Start at waitForStart(): the two long hardwareMap lines wrap and cost the most height. */
+  .nb-same-line:nth-child(-n + 3) { display: none; }
+}
+
 /* --- Footer: the brand, the same four links as the header, and the trademark note. */
 .nb-footer { padding: 48px var(--edge) 56px; border-top: var(--seam-w) solid var(--nb-line); }
 .nb-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
@@ -734,9 +743,10 @@ html { scrollbar-gutter: stable; }
 .nb-run-slot { position: relative; }
 .nb-run-cm { display: none; }
 
-/* The pinned scroll is about 80vh: long enough to read each step, short enough not to trap. */
-.nb-motion .nb-how { height: calc(100vh - 100px + 80vh); min-height: 0; padding-top: 0; padding-bottom: 0; margin: 64px 0 120px; }
-.nb-motion .nb-how-pin { position: sticky; top: 100px; }
+/* homeMotion.ts sizes each pinned scene from its measured pin (pin height plus 80vh of scroll
+   for the band, 70vh for the merge) and only pins one that fits the window. */
+.nb-motion .nb-how { padding-top: 0; padding-bottom: 0; margin: 64px 0 120px; }
+.nb-motion .nb-how.is-pinned-scene .nb-how-pin { position: sticky; }
 .nb-motion .nb-step { transition: background-color 240ms var(--ease-out); }
 .nb-motion .nb-step.is-active { background: var(--nb-raised-2); }
 .nb-motion .nb-step-bar {
@@ -768,8 +778,8 @@ html { scrollbar-gutter: stable; }
 .nb-motion .nb-run-cm.is-shown { opacity: 1; }
 .nb-motion .nb-run { padding-bottom: 36px; }
 
-.nb-motion .nb-same { height: calc(100vh - 100px + 70vh); padding-bottom: 0; margin-bottom: 144px; }
-.nb-motion .nb-same-pin { position: sticky; top: 100px; }
+.nb-motion .nb-same { padding-bottom: 0; margin-bottom: 144px; }
+.nb-motion .nb-same.is-pinned-scene .nb-same-pin { position: sticky; }
 .nb-motion .nb-same-stage { grid-template-columns: minmax(0, 1fr); justify-items: center; }
 .nb-motion .nb-same-panel { grid-area: 1 / 1; width: min(36rem, 46%); will-change: transform; }
 .nb-motion .nb-same-panel.is-theirs { z-index: 1; }
@@ -985,6 +995,123 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   .nb-rubric { rotate: 0deg; }
   .nb-mentors { padding-bottom: 96px; }
 }
+
+/* ------------------------------------------------------------------- kit */
+
+/* The graphic kit (src/ui/kit.ts). Same hand, same stroke, two materials. */
+.kit-defs { position: absolute; width: 0; height: 0; }
+:root { --kit-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); }
+
+/* Hand marks */
+.kit-circled { position: relative; display: inline-grid; place-items: center; width: var(--size); height: var(--size); }
+.kit-circled-n { font-family: var(--face-display); font-weight: 500; font-size: calc(var(--size) * 0.62); line-height: 1; font-variant-numeric: tabular-nums; }
+.kit-circle { position: absolute; inset: -14%; width: 128%; height: 128%; overflow: visible; }
+.kit-circle path { fill: none; stroke: var(--star); stroke-width: 4; stroke-linecap: round; }
+.kit-swash path { fill: none; stroke: var(--star); stroke-width: 3.5; stroke-linecap: round; }
+.kit-check path,
+.kit-arrow path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.kit-arrow path { stroke-width: 2.2; }
+
+/* Mascot */
+.kit-mascot { position: relative; display: inline-block; height: var(--h); line-height: 0; }
+.kit-mascot img { position: relative; z-index: 1; display: block; height: 100%; width: auto; }
+.kit-mascot.has-shadow::after {
+  content: '';
+  position: absolute;
+  left: 2%;
+  right: -12%;
+  bottom: -7px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--nb-shadow) 30%, transparent);
+}
+.kit-on-paper .kit-mascot.has-shadow::after { background: radial-gradient(closest-side, color-mix(in srgb, var(--paper-ink) 45%, transparent) 20%, transparent); }
+
+/* Field thumbnails, on the night material */
+.kit-thumb { display: block; overflow: visible; }
+.kit-thumb-floor { fill: var(--nb-deep); stroke: var(--nb-line); }
+.kit-thumb-grid { stroke: color-mix(in srgb, var(--nb-text) 10%, transparent); stroke-width: 0.6; }
+.kit-thumb-route { fill: none; stroke: var(--star); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.kit-thumb.is-wrong .kit-thumb-route { stroke: var(--space-alert); }
+.kit-thumb-start { fill: none; stroke: var(--nb-text-3); stroke-width: 1; stroke-dasharray: 2 2; }
+.kit-thumb-robot { fill: var(--nb-raised-2); stroke: var(--nb-text); stroke-width: 1.4; }
+
+/* Tier emblems */
+.kit-emblem { display: block; overflow: visible; }
+.kit-emblem path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Paper: cream, one shadow, a faint grain, no tilt */
+.kit-paper {
+  position: relative;
+  isolation: isolate;
+  padding: 32px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--paper-shadow);
+}
+.kit-paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--kit-grain);
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.kit-paper.is-torn {
+  padding-bottom: 44px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='12' viewBox='0 0 48 12'%3E%3Cpath d='M0 0 H48 V6 L44 9 L39 5 L33 10 L28 6 L22 11 L17 6 L12 9 L7 5 L3 8 L0 6 Z'/%3E%3C/svg%3E") bottom / 48px 12px repeat-x, linear-gradient(black, black) top / 100% calc(100% - 11px) no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='12' viewBox='0 0 48 12'%3E%3Cpath d='M0 0 H48 V6 L44 9 L39 5 L33 10 L28 6 L22 11 L17 6 L12 9 L7 5 L3 8 L0 6 Z'/%3E%3C/svg%3E") bottom / 48px 12px repeat-x, linear-gradient(black, black) top / 100% calc(100% - 11px) no-repeat;
+  box-shadow: none;
+  filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--nb-shadow) 70%, transparent));
+}
+.kit-paper.is-pinned { padding-top: 40px; }
+.kit-pin { position: absolute; top: -12px; left: 50%; translate: -50% 0; overflow: visible; }
+.kit-pin-needle { stroke: var(--paper-ink-2); stroke-width: 2; stroke-linecap: round; }
+.kit-pin-head { fill: var(--mascot-badge); stroke: var(--paper-ink); stroke-width: 1.5; }
+.kit-pin-shine { fill: var(--paper); opacity: 0.7; }
+
+/* Code chips */
+.kit-chip { padding: 1px 6px; border-radius: var(--radius-xs); font-family: var(--face-code); font-size: 0.875em; white-space: nowrap; }
+.kit-chip.is-dark { background: var(--nb-raised-2); color: var(--nb-text); }
+.kit-chip.is-paper { background: color-mix(in srgb, var(--paper-ink) 7%, var(--paper)); color: var(--paper-ink); box-shadow: inset 0 0 0 1px var(--paper-line); }
+
+/* The nebula: two soft lights and a grain; density 0 is plain navy */
+.kit-nebula {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 20% 16%, color-mix(in srgb, var(--mascot-eye) calc(var(--density) * 26%), transparent), transparent 72%),
+    radial-gradient(48% 44% at 84% 78%, color-mix(in srgb, var(--electric-glow) calc(var(--density) * 18%), transparent), transparent 72%),
+    var(--nb-page);
+}
+.kit-nebula::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--kit-grain);
+  opacity: calc(var(--density) * 0.08);
+  mix-blend-mode: overlay;
+}
+
+/* The contact sheet (development only, #/kit) */
+.kit-sheet { position: relative; padding: 48px var(--edge, 32px) 96px; background: var(--nb-page); color: var(--nb-text); font-family: var(--face-ui); }
+.kit-sheet > * { position: relative; }
+.kit-sheet h1 { margin: 0 0 8px; font-family: var(--face-ui); font-weight: 500; font-size: 2rem; }
+.kit-sheet-lede { margin: 0 0 40px; color: var(--nb-text-2); max-width: 70ch; }
+.kit-row { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 32px 0; border-top: var(--seam-w) solid var(--nb-line); }
+.kit-row h2 { margin: 0; font-family: var(--face-code); font-weight: 400; font-size: 0.875rem; color: var(--nb-text-2); }
+.kit-row h2 span { display: block; margin-top: 6px; color: var(--nb-text-3); }
+.kit-specimens { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 32px 40px; }
+.kit-specimen { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 0; }
+.kit-specimen figcaption { font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
+.kit-peek-edge { position: relative; height: 150px; width: 170px; overflow: hidden; border-bottom: 2px solid var(--nb-text-3); }
+.kit-peek-edge .kit-mascot { position: absolute; bottom: -56px; left: 24px; }
+.kit-nebula-box { position: relative; width: 260px; height: 160px; border-radius: var(--radius); overflow: hidden; border: var(--seam-w) solid var(--nb-line); }
 
 /* ------------------------------------------------------------------ chart */
 

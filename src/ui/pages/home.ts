@@ -556,11 +556,12 @@ function runMock(): HTMLElement {
 // ------------------------------------------------------------------ the same file
 
 /** Square.java twice: as the lesson editor shows it and as Android Studio does, from the
-    @Override line down. They are the same text, because Builder asks for the same imports
+    hardwareMap lines down. They are the same text, because Builder asks for the same imports
     javac does (docs/ARCHITECTURE.md). On wide screens the two slide into one. */
 function sameFile(): HTMLElement {
   const fileLines = HERO_JAVA.replace(/\n$/, '').split('\n');
-  const from = 10;
+  // From the hardware lines down, so the pinned merge fits a laptop screen.
+  const from = 12;
   const panel = (side: 'ours' | 'theirs', app: string, path: string) =>
     el('figure', { class: `nb-same-panel is-${side}`, 'aria-hidden': side === 'theirs' ? 'true' : null },
       el('figcaption', { class: 'nb-same-bar' },

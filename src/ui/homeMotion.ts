@@ -44,17 +44,47 @@ export function startHomeMotion(page: HTMLElement, demo: Demo): () => void {
     page.classList.toggle('nb-motion', wide.matches && !reduced);
     if (wide.matches && !reduced) scenes = startScenes(page, demo);
   };
-  // Wait a frame so the hero has its final layout before anything is measured.
+  // Wait a frame so the hero has its final layout before anything is measured. Scenes are
+  // measured once, so a resize rebuilds them (after the resizing stops).
   const raf = requestAnimationFrame(apply);
   wide.addEventListener('change', apply);
+  let resizeTimer = 0;
+  const onResize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(apply, 180);
+  };
+  addEventListener('resize', onResize);
   cleanups.push(() => {
     cancelAnimationFrame(raf);
+    clearTimeout(resizeTimer);
+    removeEventListener('resize', onResize);
     wide.removeEventListener('change', apply);
     scenes?.();
     page.classList.remove('nb-motion');
   });
 
   return () => cleanups.forEach((c) => c());
+}
+
+type Offsets = NonNullable<NonNullable<Parameters<typeof scroll>[1]>['offset']>;
+
+/** Below the sticky header (68px) with a little air. */
+const PIN_TOP = 84;
+
+/** Sizes a pinned scene from what is actually on screen: the pin sits at PIN_TOP, the section
+    is as tall as the pin plus `travel` of the window, and progress runs from the moment the pin
+    sticks to the moment it lets go, so a scene always finishes while it is still pinned. A pin
+    taller than the window cannot stick; then the scene is left in its final state. */
+function pinScene(section: HTMLElement, pin: HTMLElement, travel: number): { start: Offsets[number]; end: Offsets[number] } | null {
+  section.style.height = '';
+  pin.style.top = '';
+  const pinH = pin.offsetHeight;
+  const fits = pinH + PIN_TOP + 8 <= innerHeight;
+  section.classList.toggle('is-pinned-scene', fits);
+  if (!fits) return null;
+  section.style.height = `${Math.round(pinH + travel * innerHeight)}px`;
+  pin.style.top = `${PIN_TOP}px`;
+  return { start: `start ${PIN_TOP}px` as Offsets[number], end: `end ${PIN_TOP + pinH}px` as Offsets[number] };
 }
 
 function startScenes(page: HTMLElement, demo: Demo): () => void {
@@ -71,6 +101,7 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
   const lessonFrames = playWatch(LESSON_ONE_RUN);
 
   // --- 1 and 2: the field's journey and the pinned steps. -------------------------------
+  const howRange = pinScene(how, page.querySelector<HTMLElement>('.nb-how-pin')!, 0.8);
   // The pane's resting place, in page coordinates, measured without any transform on it.
   let home = { left: 0, top: 0, width: 1 };
   const measure = () => {
@@ -126,22 +157,29 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
     runCm.classList.toggle('is-shown', band >= 0.94);
   };
 
-  off.push(scroll((p: number) => { travel = p; render(); }, { target: how, offset: ['start end', 'start 100px'] }));
-  off.push(scroll((p: number) => { band = p; render(); }, { target: how, offset: ['start 100px', 'end end'] }));
-
-  const onResize = () => {
-    measure();
+  if (howRange) {
+    off.push(scroll((p: number) => { travel = p; render(); }, { target: how, offset: ['start end', howRange.start] as Offsets }));
+    off.push(scroll((p: number) => { band = p; render(); }, { target: how, offset: [howRange.start, howRange.end] as Offsets }));
     render();
-  };
-  render();
-  addEventListener('resize', onResize);
-  off.push(() => removeEventListener('resize', onResize));
+  } else {
+    // Too short a window to pin: the field stays in the hero and the band shows its end state.
+    band = 1;
+    render();
+    demo.hold(false);
+    pane.style.transform = '';
+    for (const st of steps) st.classList.remove('is-active');
+  }
+  off.push(() => {
+    how.style.height = '';
+    how.classList.remove('is-pinned-scene');
+  });
 
   // --- 3: the same file, merging. --------------------------------------------------------
   // Apart, side by side; both slide to the middle until Android Studio's copy lies exactly
   // over ours; its header crossfades into ours (the code under it is the same text, so nothing
   // else changes); then every line is ticked, top to bottom.
   const same = page.querySelector<HTMLElement>('.nb-same')!;
+  const sameRange = pinScene(same, same.querySelector<HTMLElement>('.nb-same-pin')!, 0.7);
   const ours = same.querySelector<HTMLElement>('.nb-same-panel.is-ours')!;
   const theirs = same.querySelector<HTMLElement>('.nb-same-panel.is-theirs')!;
   const theirsBar = theirs.querySelector<HTMLElement>('.nb-same-bar')!;
@@ -149,7 +187,7 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
   const oursLabels = [...ours.querySelector<HTMLElement>('.nb-same-bar')!.children] as HTMLElement[];
   const ticks = [...same.querySelectorAll<HTMLElement>('.is-ours .nb-same-tick')];
   const verdict = same.querySelector<HTMLElement>('.nb-same-verdict')!;
-  off.push(scroll((m: number) => {
+  const merge = (m: number) => {
     const slide = ease(local(m, 0.04, 0.58));
     const apart = (ours.offsetWidth + 32) / 2;
     ours.style.transform = `translate3d(${-apart * (1 - slide)}px, 0, 0)`;
@@ -162,7 +200,13 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
     const tick = local(m, 0.74, 0.94);
     ticks.forEach((t, i) => t.classList.toggle('is-shown', tick * ticks.length > i));
     verdict.style.opacity = String(local(m, 0.9, 1));
-  }, { target: same, offset: ['start 100px', 'end end'] }));
+  };
+  if (sameRange) off.push(scroll(merge, { target: same, offset: [sameRange.start, sameRange.end] as Offsets }));
+  else merge(1);
+  off.push(() => {
+    same.style.height = '';
+    same.classList.remove('is-pinned-scene');
+  });
 
   return () => {
     off.forEach((f) => f());
