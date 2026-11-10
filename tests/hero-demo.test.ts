@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HERO_JAVA, HERO_SPEC, HERO_CHECKS, HERO_LINES, FIRST_LINE, LESSON_ONE_CHECKS, demoStateAt, RUN_MS } from '../src/ui/heroDemo';
+import { HERO_JAVA, HERO_SPEC, HERO_CHECKS, HERO_LINES, FIRST_LINE, LESSON_ONE_CHECKS, LESSON_ONE_RUN, TIER_LINES, demoStateAt, RUN_MS } from '../src/ui/heroDemo';
 import { playWatch } from '../src/sim/watch';
 import { runLessonTests } from '../src/runtime/testRunner';
 import { runProgram } from '../src/runtime/engine';
@@ -43,5 +43,20 @@ describe('the home page demo', () => {
     expect(demoStateAt(1600 / FRAME_MS)).toMatchObject({ side: 1, lines: [4, 5, 6] });
     expect(demoStateAt(2400 / FRAME_MS)).toMatchObject({ side: 2, lines: [1, 2, 3] });
     expect(demoStateAt(RUN_MS / FRAME_MS)).toMatchObject({ lines: [], done: true });
+  });
+
+  it('runs lesson 1 in step 03 the way lesson 1\'s solution really drives', () => {
+    const lesson = loadAllLessons().find((l) => l.dir.endsWith('01-hello-robot'))!;
+    const real = runProgram(lesson.solution, lesson.tests).snapshot.pose;
+    const scripted = playWatch(LESSON_ONE_RUN).at(-1)!.snapshot.pose;
+    expect(Math.hypot(real.x - scripted.x, real.y - scripted.y)).toBeLessThan(5);
+  });
+
+  it('types a line on each tier that really is in that tier\'s lessons', () => {
+    const lessons = loadAllLessons();
+    TIER_LINES.forEach((line, tier) => {
+      const files = lessons.filter((l) => l.frontmatter.tier === tier).flatMap((l) => [l.solution, l.starter]);
+      expect(files.some((f) => f.split('\n').some((l) => l.trim() === line)), `tier ${tier}: ${line}`).toBe(true);
+    });
   });
 });

@@ -178,6 +178,17 @@ is a mono label with a dot. A short-screen layout keeps the whole stage above th
 1366x768. Unused: mascot-112.png, mascot-264.png, mascot-560.webp (kept until the owner says
 to delete them).
 
+## Motion pass (2026-11-09)
+
+Researched first (Motion, GSAP and native scroll timelines; Magic UI), then built with Motion's
+`scroll()` only (3.9 KB gzip) plus the Web Animations API. The full list of animations, their
+triggers and their fallbacks is in docs/DESIGN.md under Motion. The signature is the hero's field
+travelling into step 03 and becoming lesson 1's run as you scroll. New section: "The same file
+runs on your team's robot". Cut on purpose: number tickers, word-by-word blur headings, hero
+parallax, the mascot's idle breathe (decorative, or a loop with no meaning). Fonts now have
+metric-matched fallbacks, which took Lighthouse CLS from 0.052 to 0.0003. Tests check that the
+step 03 run matches lesson 1's solution and each tier's typed line exists in that tier.
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for

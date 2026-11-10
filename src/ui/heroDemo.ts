@@ -117,3 +117,28 @@ export function demoStateAt(frame: number): DemoState {
     done: false,
   };
 }
+
+/* Lesson 1's run, for step 03 of "How a lesson works": the solution's sleep(2000) at half
+   power, which the test checks against lesson 1's own solution.java in the interpreter. */
+export const LESSON_ONE_START = { x: 182.88, y: 30.48, headingDeg: 0 };
+export const LESSON_ONE_RUN: WatchSpec = {
+  robot: 'tank',
+  start: LESSON_ONE_START,
+  withElements: false,
+  durationMs: 2200,
+  steps: [
+    { atMs: 0, motors: { leftDrive: 0.5, rightDrive: 0.5 } },
+    { atMs: 2000, motors: { leftDrive: 0, rightDrive: 0 } },
+  ],
+};
+
+/** One real line of Java per tier, typed out on the home page's tier list. The test checks
+    each one appears in that tier's own lesson files. */
+export const TIER_LINES: readonly string[] = [
+  'leftDrive.setPower(0.5);',
+  'if (distanceToWall > 100) {',
+  'private void driveForward(double seconds) {',
+  'double drive = -gamepad1.left_stick_y;',
+  'frontLeft.setTargetPosition(target);',
+  'double error = 90 - robot.yaw();',
+];

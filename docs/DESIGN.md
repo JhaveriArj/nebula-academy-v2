@@ -267,13 +267,27 @@ something being wrong; the design lint rejects them in `src/ui/`.
 
 ## Motion, icons, and the hero
 
-**Motion.** The robot moving in the sim (the product, not an effect); the route extending on the
-Level Map; on the home page, one thing: the hero demo. The robot drives a square while the
-running lines of Java light up, the route draws in yellow ink behind it, the checks pass one
-after another, and after a pause it runs again. It has a Pause button (WCAG 2.2.2), stops when
-it is off screen or the tab is hidden, and under `prefers-reduced-motion: reduce` it starts
-finished with Play to run it once. Nothing else loops, scrolls in or pulses. Hover changes color
-or underline only. Motion is handled rule by rule (no global 0.001 ms override).
+**Motion.** Every animation shows something about the product or leads the eye to it; nothing is
+there to decorate. All of it is transform and opacity (plus one clip-path for typing), eases
+out with `cubic-bezier(0.16, 1, 0.3, 1)` or the page's `--ease-out`, and is listed here:
+
+| What | Trigger | How |
+|---|---|---|
+| Hero demo: robot drives the square, running lines highlight, ink route draws, short pause at each corner and slower turns (the readout keeps the run's real clock) | Time, loops; pauses off screen, hidden tab, or Pause | requestAnimationFrame |
+| Checks pass one by one after the robot stops (300 ms apart) | Each hero loop | timers + CSS |
+| Antenna tips blink once per passed check; one nod on the last | Each hero loop | Web Animations API, CSS keyframes |
+| Header hairline fades in over the first 80px | Scroll position | CSS `animation-timeline: scroll()` |
+| The field travels from the hero into step 03 and becomes lesson 1's run | Scroll position (scrubbed) | Motion `scroll()` |
+| "How a lesson works" pins; steps light up in order; 1000 becomes 2000 and the ink circle draws; the robot drives 100 cm; the checks pass | Scroll position (scrubbed) | Motion `scroll()` |
+| "The same file": two copies of Square.java slide into one, every line gets a tick | Scroll position (scrubbed) | Motion `scroll()` |
+| Tier rows rise in; each tier's line of Java types out | Once per row, as it reaches the screen | Web Animations API |
+
+Pinning and scrubbing run only at 1181px and wider (where the band is three columns). Below
+that, and under `prefers-reduced-motion: reduce`, every scene is in its final state: the
+number is 2000, the checks have passed, the two files are one. The hero simulator still runs
+under reduced motion, without the blink, nod or one-by-one checks. Rows are never hidden ahead
+of time; a reveal only plays on a row that is about to come into view. Frame timing measured
+in Chrome while scrolling every scene: no frame over 20 ms at 1x or 4x CPU throttling.
 
 **Icons.** Drawn by hand as SVG in `src/ui/icons.ts`, 24×24, 1.75px stroke, no fill, inheriting
 `currentColor`. No emoji anywhere in the UI or lesson prose.
@@ -303,7 +317,7 @@ weight (500), 1.25x their size. The head is never drawn under 24px.
 **The home page, top to bottom.** Hero; "How a lesson works", one band in three numbered steps
 (the numbers are a real sequence) with lesson 1's reading pane, its code with the number changed
 and circled, and its run with its three checks; the six tiers on a ruled notebook page with a
-hand-inked circle on the tier you are in; the mentor guide beside its rubric on paper. The
+hand-inked circle on the tier you are in and a line of that tier's Java; the mentor guide beside its rubric on paper. Between the band and the tiers, "The same file runs on your team's robot": Square.java as the editor shows it and as Android Studio does. The
 content column is up to 1520px wide; the demo window runs to the window's edge.
 
 **Hand-inked marks.** Anything the mascot or a person "draws" (the circle round the number, the

@@ -1,0 +1,210 @@
+import { scroll } from 'motion';
+import { prefersReducedMotion } from './dom';
+import { playWatch } from '../sim/watch';
+import { LESSON_ONE_RUN } from './heroDemo';
+import type { Demo } from './pages/home';
+
+/* The home page's scroll motion. Every piece here is scrubbed by scroll position (it runs
+   forward and back with the reader), uses transform and opacity only, and exists to show
+   something about the product:
+
+   1. The field travels: the hero's simulator shrinks and moves into step 03 of "How a
+      lesson works", then drives lesson 1's run as you scroll through that step.
+   2. The steps light up in order while the band is pinned: read, change the number, run.
+   3. The same file: two copies of Square.java slide together into one, and every line gets
+      a tick, because the file you write here is the file Android Studio builds.
+   4. The tier rows rise in once each, and each tier's line of Java types out.
+
+   Motion's scroll() (3.9 KB gzipped) supplies the progress values; it uses the browser's
+   ScrollTimeline where it can. Below 1181px wide, and under reduced motion, nothing pins
+   or scrubs: the page shows every scene in its final state. See docs/DESIGN.md. */
+
+const WIDE = '(min-width: 1181px)';
+const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
+const local = (t: number, from: number, to: number) => clamp01((t - from) / (to - from));
+
+export function startHomeMotion(page: HTMLElement, demo: Demo): () => void {
+  const cleanups: (() => void)[] = [];
+  const reduced = prefersReducedMotion();
+
+  // The rows are measured, so this waits until the page is in the document.
+  let stopTiers = () => {};
+  const tiersRaf = requestAnimationFrame(() => { stopTiers = revealTiers(page, reduced); });
+  cleanups.push(() => {
+    cancelAnimationFrame(tiersRaf);
+    stopTiers();
+  });
+
+  const wide = matchMedia(WIDE);
+  let scenes: (() => void) | null = null;
+  const apply = () => {
+    scenes?.();
+    scenes = null;
+    page.classList.toggle('nb-motion', wide.matches && !reduced);
+    if (wide.matches && !reduced) scenes = startScenes(page, demo);
+  };
+  // Wait a frame so the hero has its final layout before anything is measured.
+  const raf = requestAnimationFrame(apply);
+  wide.addEventListener('change', apply);
+  cleanups.push(() => {
+    cancelAnimationFrame(raf);
+    wide.removeEventListener('change', apply);
+    scenes?.();
+    page.classList.remove('nb-motion');
+  });
+
+  return () => cleanups.forEach((c) => c());
+}
+
+function startScenes(page: HTMLElement, demo: Demo): () => void {
+  const off: (() => void)[] = [];
+  const how = page.querySelector<HTMLElement>('.nb-how')!;
+  const slot = page.querySelector<HTMLElement>('.nb-run-slot')!;
+  const steps = [...page.querySelectorAll<HTMLElement>('.nb-step')];
+  const bars = steps.map((s) => s.querySelector<HTMLElement>('.nb-step-bar')!);
+  const editNum = page.querySelector<HTMLElement>('.nb-edit-num')!;
+  const circle = page.querySelector<SVGPathElement>('.nb-code-circle path')!;
+  const runChecks = [...page.querySelectorAll<HTMLElement>('.nb-run-checks .nb-check')];
+  const runCm = page.querySelector<HTMLElement>('.nb-run-cm')!;
+  const pane = demo.fieldPane;
+  const lessonFrames = playWatch(LESSON_ONE_RUN);
+
+  // --- 1 and 2: the field's journey and the pinned steps. -------------------------------
+  // The pane's resting place, in page coordinates, measured without any transform on it.
+  let home = { left: 0, top: 0, width: 1 };
+  const measure = () => {
+    pane.style.transform = '';
+    const r = pane.getBoundingClientRect();
+    home = { left: r.left + scrollX, top: r.top + scrollY, width: r.width };
+  };
+  measure();
+
+  let travel = 0;
+  let band = 0;
+  let lessonShown = -1;
+  const render = () => {
+    // Travel: from the hero to the landing pad in step 03. The pad is read live because the
+    // band it sits in is sticky.
+    const t = ease(travel);
+    const pad = slot.getBoundingClientRect();
+    const fromLeft = home.left - scrollX;
+    const fromTop = home.top - scrollY;
+    const scale = 1 + (pad.width / home.width - 1) * t;
+    const x = (pad.left - fromLeft) * t;
+    const y = (pad.top - fromTop) * t;
+    pane.style.transform = travel > 0 ? `translate3d(${x}px, ${y}px, 0) scale(${scale})` : '';
+    pane.classList.toggle('is-travelling', travel > 0 && travel < 1);
+    pane.classList.toggle('is-landed', travel >= 1);
+
+    // Past halfway the field stops being the hero's square and becomes lesson 1's run.
+    const lesson = travel >= 0.5;
+    demo.hold(lesson);
+    if (lesson) {
+      const run = local(band, 0.68, 0.94);
+      const index = Math.round(run * (lessonFrames.length - 1));
+      if (index !== lessonShown) {
+        lessonShown = index;
+        demo.field.draw(lessonFrames[index]!.snapshot);
+      }
+    } else {
+      lessonShown = -1;
+    }
+
+    // The steps: a third of the pinned scroll each, a bar filling across the active one.
+    steps.forEach((s, i) => {
+      const p = local(band, i / 3, (i + 1) / 3);
+      bars[i]!.style.transform = `scaleX(${p})`;
+      s.classList.toggle('is-active', band >= i / 3 && (band < (i + 1) / 3 || i === 2));
+    });
+    // Step 02: the number changes from 1000 to 2000 and the ink circle draws round it.
+    const edit = local(band, 1 / 3, 2 / 3);
+    editNum.textContent = edit > 0.35 ? '2000' : '1000';
+    circle.style.strokeDashoffset = String(1 - local(edit, 0.4, 0.9));
+    // Step 03: the checks pass one by one once the robot has stopped.
+    runChecks.forEach((c, i) => c.classList.toggle('is-passed', band >= 0.94 + i * 0.02));
+    runCm.classList.toggle('is-shown', band >= 0.94);
+  };
+
+  off.push(scroll((p: number) => { travel = p; render(); }, { target: how, offset: ['start end', 'start 100px'] }));
+  off.push(scroll((p: number) => { band = p; render(); }, { target: how, offset: ['start 100px', 'end end'] }));
+
+  const onResize = () => {
+    measure();
+    render();
+  };
+  render();
+  addEventListener('resize', onResize);
+  off.push(() => removeEventListener('resize', onResize));
+
+  // --- 3: the same file, merging. --------------------------------------------------------
+  const same = page.querySelector<HTMLElement>('.nb-same')!;
+  const ours = same.querySelector<HTMLElement>('.nb-same-panel.is-ours')!;
+  const theirs = same.querySelector<HTMLElement>('.nb-same-panel.is-theirs')!;
+  const ticks = [...same.querySelectorAll<HTMLElement>('.is-ours .nb-same-tick')];
+  const verdict = same.querySelector<HTMLElement>('.nb-same-verdict')!;
+  off.push(scroll((m: number) => {
+    // Apart, side by side; then Android Studio's copy slides over ours until every line sits
+    // on its twin; then each line is ticked, top to bottom.
+    const slide = ease(local(m, 0.08, 0.6));
+    const apart = (ours.offsetWidth + 32) / 2;
+    ours.style.transform = `translate3d(${-apart * (1 - slide)}px, 0, 0)`;
+    theirs.style.transform = `translate3d(${apart * (1 - slide)}px, 0, 0)`;
+    theirs.style.opacity = String(1 - local(m, 0.62, 0.7));
+    const tick = local(m, 0.7, 0.95);
+    ticks.forEach((t, i) => t.classList.toggle('is-shown', tick * ticks.length > i));
+    verdict.style.opacity = String(local(m, 0.92, 1));
+  }, { target: same, offset: ['start 100px', 'end end'] }));
+
+  return () => {
+    off.forEach((f) => f());
+    demo.hold(false);
+    pane.style.transform = '';
+    pane.classList.remove('is-travelling', 'is-landed');
+    for (const el of [ours, theirs, verdict]) {
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
+    for (const b of bars) b.style.transform = '';
+    editNum.textContent = '2000';
+    circle.style.strokeDashoffset = '';
+    for (const c of runChecks) c.classList.add('is-passed');
+    for (const t of ticks) t.classList.add('is-shown');
+    for (const s of steps) s.classList.remove('is-active');
+  };
+}
+
+// --- 4: the tier rows. -----------------------------------------------------------------------
+/** Each row rises in once as it reaches the screen, and its line of Java types out after it.
+    Nothing is hidden ahead of time: the rows are visible by default, and the animation starts
+    just before a row scrolls into view (its own first keyframe hides it for the moment it
+    plays). A row already on screen when the page opens is left as it is. */
+function revealTiers(page: HTMLElement, reduced: boolean): () => void {
+  const rows = [...page.querySelectorAll<HTMLElement>('.nb-tier')];
+  if (reduced || !('IntersectionObserver' in window)) return () => {};
+  const typing = matchMedia('(min-width: 768px)').matches;
+  const pending = rows.filter((r) => r.getBoundingClientRect().top > innerHeight);
+  const io = new IntersectionObserver((entries) => {
+    let order = 0;
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const row = e.target as HTMLElement;
+      io.unobserve(row);
+      const delay = order++ * 90;
+      row.animate(
+        [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 560, delay, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' },
+      );
+      const line = row.querySelector<HTMLElement>('.nb-tier-code');
+      if (line && typing) {
+        const chars = line.textContent?.length ?? 20;
+        line.animate(
+          [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
+          { duration: Math.min(700, chars * 22), delay: delay + 240, easing: `steps(${chars}, end)`, fill: 'backwards' },
+        );
+      }
+    }
+  }, { rootMargin: '0px 0px 8% 0px' });
+  for (const r of pending) io.observe(r);
+  return () => io.disconnect();
+}

@@ -538,14 +538,26 @@
   background: radial-gradient(closest-side, var(--nb-shadow) 30%, transparent);
 }
 /* When the checks pass: one small nod toward the screen, then still. */
-.nb-operator.is-nodding img { animation: nb-nod 720ms var(--ease-out) 1; transform-origin: 50% 100%; }
+.nb-operator.is-nodding { animation: nb-nod 720ms var(--ease-out) 1; }
+/* The antenna tips, over the art's own: a lighter yellow that flashes once per passed check.
+   Placed in percent of the art (art-source/mascot-4x.png), so they track it at any size. */
+.nb-tip {
+  position: absolute;
+  z-index: 2;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--star) 45%, var(--nb-text));
+  opacity: 0;
+  pointer-events: none;
+}
+.nb-tip-left { left: 3.2%; top: 4%; width: 7.2%; aspect-ratio: 1; }
+.nb-tip-right { left: 80.1%; top: 1.6%; width: 8.4%; aspect-ratio: 1; }
 @keyframes nb-nod {
   0%, 100% { rotate: 0deg; }
   35% { rotate: 2.5deg; }
   70% { rotate: -0.5deg; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nb-operator.is-nodding img { animation: none; }
+  .nb-operator.is-nodding { animation: none; }
 }
 
 /* Short screens (1366x768 is the baseline): the whole stage, mascot's feet included, has to
@@ -573,7 +585,9 @@
   text-wrap: balance;
 }
 .nb-section-head p { margin: 0; max-width: 32rem; font-size: 1.0625rem; line-height: 1.6; color: var(--nb-text-2); }
+/* overflow: clip keeps the active step's surface inside the band's corners. */
 .nb-steps {
+  overflow: clip;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
@@ -621,6 +635,93 @@
   background: var(--nb-deep);
   border: var(--seam-w) solid var(--nb-line);
 }
+
+/* --- The same file, twice. Side by side here; on wide screens they slide into one. */
+.nb-same { padding: 0 var(--edge) 144px; }
+.nb-same-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.nb-same-panel {
+  margin: 0;
+  min-width: 0;
+  border-radius: var(--radius);
+  border: var(--seam-w) solid var(--nb-line);
+  background: var(--nb-deep);
+  overflow: clip;
+}
+.nb-same-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-bottom: var(--seam-w) solid var(--nb-line);
+  background: var(--nb-raised);
+}
+.nb-same-app { font-weight: 500; font-size: 0.9375rem; color: var(--nb-text); }
+.nb-same-path { font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
+.nb-same-code { padding: 12px 0; font-size: 0.875rem; line-height: 1.55; }
+.nb-same-line {
+  position: relative;
+  display: block;
+  padding: 0 40px 0 44px;
+  text-indent: -44px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.nb-same-line .nb-code-n { width: 44px; padding-right: 16px; text-indent: 0; }
+.nb-same-tick { position: absolute; right: 14px; top: 3px; display: inline-flex; color: var(--space-go); text-indent: 0; transition: opacity 200ms var(--ease-out); }
+.nb-same-verdict { display: flex; align-items: center; gap: 8px; margin: 20px 0 0; font-family: var(--face-code); font-size: 0.875rem; color: var(--space-go); }
+
+/* --- Scroll scenes (homeMotion.ts adds .nb-motion on wide screens without reduced motion).
+   Everything above is the final state; these rules only set up where each scene starts. */
+.nb-window-field { transform-origin: 0 0; }
+.nb-window-field.is-travelling,
+.nb-window-field.is-landed { position: relative; z-index: 5; will-change: transform; }
+.nb-route-layer.is-hidden { opacity: 0; }
+.nb-step { position: relative; }
+.nb-step-bar { display: none; }
+.nb-run-slot { position: relative; }
+.nb-run-cm { display: none; }
+
+.nb-motion .nb-how { height: 250vh; padding-top: 0; padding-bottom: 0; margin: 64px 0 120px; }
+.nb-motion .nb-how-pin { position: sticky; top: 100px; }
+.nb-motion .nb-step { transition: background-color 240ms var(--ease-out); }
+.nb-motion .nb-step.is-active { background: var(--nb-raised-2); }
+.nb-motion .nb-step-bar {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--nb-text-2);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.nb-motion .nb-code-circle path { stroke-dasharray: 1 1; }
+/* The landing pad: the drawing hides, and a square with a hairline waits for the field. */
+.nb-motion .nb-run-slot { width: 11rem; aspect-ratio: 1; border-radius: var(--radius-xs); border: var(--seam-w) dashed var(--nb-line); }
+.nb-motion .nb-run-slot .nb-mini-field { position: absolute; inset: 0; visibility: hidden; }
+.nb-motion .nb-run-cm {
+  display: block;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  font-family: var(--face-code);
+  font-size: 0.875rem;
+  color: var(--nb-text-2);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+}
+.nb-motion .nb-run-cm.is-shown { opacity: 1; }
+.nb-motion .nb-run { padding-bottom: 36px; }
+
+.nb-motion .nb-same { height: 230vh; padding-bottom: 0; margin-bottom: 144px; }
+.nb-motion .nb-same-pin { position: sticky; top: 100px; }
+.nb-motion .nb-same-stage { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+.nb-motion .nb-same-panel { grid-area: 1 / 1; width: min(36rem, 46%); will-change: transform; }
+.nb-motion .nb-same-panel.is-theirs { z-index: 1; }
+.nb-motion .nb-same-tick:not(.is-shown) { opacity: 0; }
+.nb-motion .nb-same-verdict { justify-content: center; max-width: none; opacity: 0; }
 
 /* --- Mentors: the guide's words beside its rubric on paper. */
 .nb-mentors {
@@ -754,12 +855,37 @@
 .nb-here path { stroke: var(--star); stroke-width: 4; }
 .nb-tier-name { align-self: end; padding-bottom: 4px; font-weight: 500; font-size: 1.5rem; letter-spacing: -0.01em; }
 .nb-tier-sub { grid-column: 2; grid-row: 2; align-self: start; padding-top: 4px; font-size: 1rem; color: var(--paper-ink-2); }
-.nb-tier-meta { grid-column: 3; grid-row: 1; align-self: end; padding-bottom: 8px; font-family: var(--face-code); font-size: 0.875rem; color: var(--paper-ink-2); }
+.nb-tier-meta { grid-column: 3; grid-row: 1; align-self: end; justify-self: end; padding-bottom: 8px; font-family: var(--face-code); font-size: 0.875rem; color: var(--paper-ink-2); }
+.nb-tier-code { grid-column: 3; grid-row: 2; align-self: start; justify-self: end; padding-top: 4px; font-family: var(--face-code); font-size: 0.875rem; color: var(--paper-ink); white-space: pre; }
 
 /* The header on the home page wears the cover's navy, so the page reads as one object. */
 body[data-route='home'] .site-header {
   background: color-mix(in srgb, var(--nb-page) 88%, transparent);
   border-bottom-color: var(--nb-line);
+}
+/* At the very top the header and the hero are one surface; the hairline fades in over the
+   first 80px of scroll, scrubbed by the scroll position itself. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body[data-route='home'] .site-header {
+      border-bottom-color: transparent;
+    }
+    body[data-route='home'] .site-header::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      background: var(--nb-line);
+      animation: nb-hairline linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80px;
+    }
+  }
+}
+@keyframes nb-hairline { from { opacity: 0; } to { opacity: 1; } }
+body[data-route='home'] .site-header {
   box-shadow: none;
   color: var(--nb-text);
 }
@@ -810,7 +936,9 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   .nb-paper { padding: 40px 20px 16px; }
   .nb-tier { grid-template-columns: 64px minmax(0, 1fr); }
   .nb-tier-num { font-size: 3.5rem; }
-  .nb-tier-meta { display: none; }
+  .nb-tier-meta, .nb-tier-code { display: none; }
+  .nb-same-stage { grid-template-columns: minmax(0, 1fr); }
+  .nb-same-panel.is-theirs { display: none; }
   .nb-rubric { rotate: 0deg; }
   .nb-mentors { padding-bottom: 96px; }
 }

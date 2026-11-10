@@ -9,6 +9,28 @@
      - "space" (the star chart, the code editor, the field, the console) is always a dark
        screen, in both modes. Only there does --star glow as a light. */
 
+/* Metric-matched fallbacks for the two web fonts. Arial scaled and with its ascent and
+   descent set to Fredoka's and Lexend's (measured in the browser), so text takes the same
+   space before and after the web font arrives and nothing on the page moves when it swaps.
+   Without these, the hero's headline wrapped to three lines on Arial and moved the whole
+   stage down 63px when Fredoka loaded. */
+@font-face {
+  font-family: 'Fredoka Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 100.73%;
+  ascent-override: 96.3%;
+  descent-override: 23.8%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Lexend Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 108.65%;
+  ascent-override: 92%;
+  descent-override: 23%;
+  line-gap-override: 0%;
+}
+
 :root {
   /* --- The page, light. --------------------------------------------------- */
   --bg:           #F5F3FC;  /* lavender-white, tinted toward the suit */
@@ -47,7 +69,7 @@
   --paper-line:  #E1D5BE;
   --paper-ink:   #201C3D;
   --paper-ink-2: #5B5470;
-  --face-ui: 'Lexend', system-ui, -apple-system, sans-serif;
+  --face-ui: 'Lexend', 'Lexend Fallback', system-ui, -apple-system, sans-serif;
 
   /* The mascot's own colours, sampled from art-source/mascot-4x.png. They are the character,
      so they do not change between light and dark. The antenna yellow is --star itself. */
@@ -85,7 +107,7 @@
 
   /* --- Type. Fredoka is round like the helmet; Atkinson Hyperlegible Next is
          drawn for low vision and carries every word a kid has to read. ------ */
-  --face-display: 'Fredoka', 'Nunito', 'Trebuchet MS', sans-serif;
+  --face-display: 'Fredoka', 'Fredoka Fallback', 'Nunito', 'Trebuchet MS', sans-serif;
   --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif;
   --face-code: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 

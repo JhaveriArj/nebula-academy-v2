@@ -7,8 +7,8 @@ import { applyMode } from '../header';
 import { pathway } from '../../content/loader';
 import { FIELD_CM } from '../../sim/field';
 import { lessonHref } from '../router';
-import { frameIndex } from '../frames';
-import { FIRST_LINE, HERO_CHECKS, HERO_JAVA, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, demoStateAt } from '../heroDemo';
+import { FIRST_LINE, HERO_CHECKS, HERO_JAVA, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, TIER_LINES, demoStateAt } from '../heroDemo';
+import { startHomeMotion } from '../homeMotion';
 
 /* The home page: an FTC team's engineering notebook, read at night.
 
@@ -53,14 +53,24 @@ export function homePage(): HTMLElement {
       height: '1233',
       fetchpriority: 'high',
     }),
+    // The antenna tips, laid over the art's own, so they can blink.
+    el('span', { class: 'nb-tip nb-tip-left' }),
+    el('span', { class: 'nb-tip nb-tip-right' }),
   );
-  const nod = () => {
+  const tips = [...operator.querySelectorAll<HTMLElement>('.nb-tip')];
+  // Each check that passes blinks the antenna tips once; the last one also gets a nod.
+  const onCheck = (_index: number, isLast: boolean) => {
     if (prefersReducedMotion()) return;
-    operator.classList.remove('is-nodding');
-    void operator.offsetWidth;
-    operator.classList.add('is-nodding');
+    for (const tip of tips) {
+      tip.animate([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }], { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    }
+    if (isLast) {
+      operator.classList.remove('is-nodding');
+      void operator.offsetWidth;
+      operator.classList.add('is-nodding');
+    }
   };
-  const demo = heroDemo(nod);
+  const demo = heroDemo(onCheck);
 
   const page = el('div', { class: 'nb' },
     inkDefs(),
@@ -107,6 +117,7 @@ export function homePage(): HTMLElement {
 
     // ------------------------------------------------- how a lesson works
     el('section', { class: 'nb-how', 'aria-labelledby': 'how-title' },
+      el('div', { class: 'nb-how-pin' },
       el('div', { class: 'nb-section-head' },
         el('h2', { id: 'how-title', text: 'How a lesson works' }),
         el('p', { text: 'Every lesson is the same three steps on one screen, and takes 10 to 40 minutes. These are from lesson 1.' }),
@@ -119,7 +130,11 @@ export function homePage(): HTMLElement {
         step('03', 'Run it and watch the checks', runMock(),
           'The robot drives your code, and each check turns green when it passes.'),
       ),
+      ),
     ),
+
+    // ------------------------------------------------------------- the same file
+    sameFile(),
 
     // ------------------------------------------------------- the notebook page
     el('section', { class: 'nb-tiers', 'aria-labelledby': 'tiers-title' },
@@ -141,6 +156,7 @@ export function homePage(): HTMLElement {
                 ),
                 el('span', { class: 'nb-tier-sub', text: t.subtitle }),
                 el('span', { class: 'nb-tier-meta', text: `${t.lessons.length} lessons, ${t.robot === 'tank' ? 'tank drive' : 'mecanum drive'}` }),
+                el('code', { class: 'nb-tier-code', text: TIER_LINES[t.tier] ?? '' }),
               ),
             ),
           ),
@@ -159,30 +175,70 @@ export function homePage(): HTMLElement {
     ),
   );
 
-  page.addEventListener('nebula:leave', () => demo.destroy());
+  const stopMotion = startHomeMotion(page, demo);
+  page.addEventListener('nebula:leave', () => {
+    stopMotion();
+    demo.destroy();
+  });
   requestAnimationFrame(() => demo.resize());
   return page;
 }
 
 // ------------------------------------------------------------------ the hero demo
 
-interface Demo {
+export interface Demo {
   element: HTMLElement;
+  /** The field pane (canvas and ink route), which the scroll scene can move and take over. */
+  fieldPane: HTMLElement;
+  field: ReturnType<typeof createFieldView>;
+  /** While held, the loop stops drawing so another scene can drive the field. */
+  hold(held: boolean): void;
   resize(): void;
   destroy(): void;
 }
 
+/** The pause at each corner, and how much slower the turns play than the straights. Only the
+    playback slows; the readout always shows the run's own clock. */
+const CORNER_PAUSE_MS = 280;
+const TURN_PLAYBACK = 1.6;
+/** Checks pass one after another, this far apart, once the robot stops. */
+const CHECK_STEP_MS = 300;
+
 /** A copy of the lesson screen running HERO_LINES: code, field, checks and a readout. */
-function heroDemo(onPass: () => void): Demo {
+function heroDemo(onCheck: (index: number, last: boolean) => void): Demo {
   const field = createFieldView({ label: 'The simulator: a tank robot driving a square, one side and one corner at a time', instrument: true });
   const frames = playWatch(HERO_SPEC);
   const last = frames.length - 1;
+
+  // When each frame shows, in playback milliseconds: a short pause as the robot reaches each
+  // corner, the turns a little slower so the eye can follow the highlight.
+  const at: number[] = [];
+  let clock = 0;
+  for (let i = 0; i < frames.length; i++) {
+    const s = demoStateAt(i);
+    const before = i > 0 ? demoStateAt(i - 1) : null;
+    if (before && !s.done && before.lines[0] !== s.lines[0]) clock += CORNER_PAUSE_MS;
+    at.push(clock);
+    clock += s.lines[0] === 4 ? 20 * TURN_PLAYBACK : 20;
+  }
+  const runMs = clock;
+  const cycleMs = runMs + HERO_CHECKS.checks.length * CHECK_STEP_MS + HOLD_MS;
+  const frameAtMs = (ms: number) => {
+    let lo = 0;
+    let hi = last;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (at[mid]! <= ms) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo;
+  };
 
   const route = svg('path', { class: 'nb-route', d: routePath(frames), pathLength: '1', filter: 'url(#nb-wobble)' });
   const routeLayer = svg('svg', { class: 'nb-route-layer', viewBox: `0 0 ${FIELD_CM} ${FIELD_CM}`, 'aria-hidden': 'true' }, route);
 
   // The whole of Square.java, with the eight running lines at full strength and the rest
-  // dimmed; the panel opens scrolled so the loop sits in view with a little context above.
+  // muted; the panel opens scrolled so the loop sits in view with a little context above.
   const fileLines = HERO_JAVA.replace(/\n$/, '').split('\n');
   const lastLoopLine = FIRST_LINE + HERO_LINES.length - 1;
   const allLines = fileLines.map((text, i) =>
@@ -191,7 +247,7 @@ function heroDemo(onPass: () => void): Demo {
   const lines = allLines.slice(FIRST_LINE - 1, lastLoopLine);
   const code = el('pre', { class: 'nb-code nb-demo-code', tabindex: '0', 'aria-label': 'Square.java, the Java the robot is running' }, el('code', {}, ...allLines));
   const scrollToLoop = () => {
-    // Show up to three dimmed lines above the loop, but never at the cost of the loop itself.
+    // Show up to three muted lines above the loop, but never at the cost of the loop itself.
     const first = allLines[FIRST_LINE - 1];
     const end = allLines[lastLoopLine - 1];
     if (!first || !end) return;
@@ -225,6 +281,7 @@ function heroDemo(onPass: () => void): Demo {
     toggle.setAttribute('aria-label', playing ? 'Pause the demo' : 'Play the demo');
   };
 
+  const fieldPane = el('div', { class: 'nb-window-field' }, field.canvas, routeLayer);
   const element = el('figure', { class: 'nb-demo' },
     el('div', { class: 'nb-window' },
       el('div', { class: 'nb-window-bar' },
@@ -243,7 +300,7 @@ function heroDemo(onPass: () => void): Demo {
             checksDone,
           ),
         ),
-        el('div', { class: 'nb-window-field' }, field.canvas, routeLayer),
+        fieldPane,
       ),
       el('dl', { class: 'nb-readout' },
         el('div', {}, el('dt', { text: 'side' }), el('dd', {}, readout.side)),
@@ -255,9 +312,38 @@ function heroDemo(onPass: () => void): Demo {
     el('figcaption', { class: 'nb-caption', text: 'Eight lines from the Tier 0 checkpoint, running in the same simulator every lesson uses' }),
   );
 
+  const reduced = prefersReducedMotion();
   const power = (p: number) => (p < 0 ? '−' : '') + Math.abs(p).toFixed(2);
+  let held = false;
   let shownDone: boolean | null = null;
+  let passTimers: number[] = [];
+
+  // The checks pass one at a time after the robot stops, as the lesson page shows them.
+  const setPassed = (n: number) => checks.forEach((c, i) => c.classList.toggle('is-passed', i < n));
+  const passChecks = (instant: boolean) => {
+    passTimers.forEach(clearTimeout);
+    passTimers = [];
+    if (instant) {
+      setPassed(checks.length);
+      statusText.textContent = `${checks.length} of ${checks.length} passed`;
+      element.classList.add('is-done');
+      return;
+    }
+    checks.forEach((_, i) => {
+      passTimers.push(window.setTimeout(() => {
+        setPassed(i + 1);
+        const isLast = i === checks.length - 1;
+        if (isLast) {
+          statusText.textContent = `${checks.length} of ${checks.length} passed`;
+          element.classList.add('is-done');
+        }
+        onCheck(i, isLast);
+      }, i * CHECK_STEP_MS));
+    });
+  };
+
   const show = (index: number) => {
+    if (held) return;
     field.draw(frames[index]!.snapshot);
     route.style.strokeDashoffset = String(1 - index / Math.max(1, last));
     const s = demoStateAt(index);
@@ -268,53 +354,49 @@ function heroDemo(onPass: () => void): Demo {
     readout.time.textContent = `${s.seconds.toFixed(1)} s`;
     if (s.done !== shownDone) {
       shownDone = s.done;
-      element.classList.toggle('is-done', s.done);
-      statusText.textContent = s.done ? `${checks.length} of ${checks.length} passed` : 'running';
-      if (s.done && !reduced) onPass();
+      if (s.done) passChecks(reduced);
+      else {
+        passTimers.forEach(clearTimeout);
+        passTimers = [];
+        setPassed(0);
+        element.classList.remove('is-done');
+        statusText.textContent = 'running';
+      }
       // Announced once per run, not on every frame.
       checksDone.textContent = s.done ? `All ${checks.length} checks passed.` : '';
     }
   };
 
-  // The loop: run, hold the finished square, run again. It pauses when it is off screen or
-  // the tab is hidden, and the Pause button stops it for good (WCAG 2.2.2). Under reduced
-  // motion it starts finished and Play runs it once.
-  const reduced = prefersReducedMotion();
-  const cycle = frames.length + Math.round(HOLD_MS / 20);
+  // The loop: run, pass the checks, hold the finished square, run again. It pauses when it is
+  // off screen or the tab is hidden, and the Pause button stops it for good (WCAG 2.2.2).
+  // The simulator is the product, so it runs under reduced motion too; only the flourishes
+  // around it (the checks' one-by-one pass, the antenna blink, the nod) are dropped.
   let raf = 0;
   let playing = false;
-  let userPaused = reduced;
+  let userPaused = false;
   let visible = true;
-  let frameAt = reduced ? last : 0;
+  let elapsed = 0;
   let origin = 0;
 
   const tick = (now: number) => {
-    const raw = frameIndex(now, origin, reduced ? frames.length : cycle, !reduced);
-    frameAt = raw;
-    show(Math.min(raw, last));
-    if (reduced && raw >= last) {
-      stop();
-      userPaused = true;
-      setToggle(false);
-      return;
-    }
+    elapsed = Math.max(0, now - origin) % cycleMs;
+    show(frameAtMs(elapsed));
     raf = requestAnimationFrame(tick);
   };
   const start = () => {
     if (playing) return;
     playing = true;
-    origin = performance.now() - frameAt * 20;
+    origin = performance.now() - elapsed;
     raf = requestAnimationFrame(tick);
   };
   const stop = () => {
     playing = false;
     cancelAnimationFrame(raf);
   };
-  const sync = () => (!userPaused && visible && !document.hidden ? start() : stop());
+  const sync = () => (!held && !userPaused && visible && !document.hidden ? start() : stop());
 
   toggle.addEventListener('click', () => {
     userPaused = !userPaused;
-    if (!userPaused && frameAt >= last && reduced) frameAt = 0;
     setToggle(!userPaused);
     sync();
   });
@@ -326,17 +408,27 @@ function heroDemo(onPass: () => void): Demo {
   document.addEventListener('visibilitychange', sync);
 
   setToggle(!userPaused);
-  show(frameAt);
+  show(frameAtMs(elapsed));
   sync();
 
   return {
     element,
+    fieldPane,
+    field,
+    hold: (h) => {
+      if (h === held) return;
+      held = h;
+      routeLayer.classList.toggle('is-hidden', h);
+      if (!h) show(frameAtMs(elapsed));
+      sync();
+    },
     resize: () => {
       field.resize();
       scrollToLoop();
     },
     destroy: () => {
       stop();
+      passTimers.forEach(clearTimeout);
       seen.disconnect();
       document.removeEventListener('visibilitychange', sync);
       field.destroy();
@@ -372,6 +464,7 @@ function routePath(frames: ReturnType<typeof playWatch>): string {
 
 function step(n: string, title: string, view: HTMLElement, note: string): HTMLElement {
   return el('li', { class: 'nb-step' },
+    el('span', { class: 'nb-step-bar', 'aria-hidden': 'true' }),
     el('div', { class: 'nb-step-head' },
       el('span', { class: 'nb-step-n', 'aria-hidden': 'true', text: n }),
       el('h3', { text: title }),
@@ -407,7 +500,7 @@ function editorMock(): HTMLElement {
         line(18, '    rightDrive.', fn('setPower'), '(', num('0.5'), ');'),
         line(19, ''),
         line(20, '    ', com('// TODO: make this number bigger')),
-        line(21, '    ', fn('sleep'), '(', el('span', { class: 'nb-code-target' }, num('2000'), inkCircle('nb-code-circle')), ');'),
+        line(21, '    ', fn('sleep'), '(', el('span', { class: 'nb-code-target' }, el('span', { class: 'syn-num nb-edit-num', text: '2000' }), inkCircle('nb-code-circle')), ');'),
         line(22, ''),
         line(23, '    leftDrive.', fn('setPower'), '(', num('0'), ');'),
         line(24, '    rightDrive.', fn('setPower'), '(', num('0'), ');'),
@@ -421,7 +514,10 @@ function runMock(): HTMLElement {
   const before = 50;
   const after = 100;
   const y = (cm: number) => 128 - cm;
+  // The slot is also where the hero's field lands on wide screens (see homeMotion.ts); the
+  // drawing below is what everyone else sees.
   return el('div', { class: 'nb-run' },
+    el('div', { class: 'nb-run-slot' },
     svg('svg', { class: 'nb-mini-field', viewBox: '0 0 120 140', role: 'img', 'aria-label': `With sleep(2000) the robot drives ${after} centimetres, twice as far as before` },
       ...[20, 40, 60, 80, 100].map((x) => svg('line', { x1: String(x), y1: '0', x2: String(x), y2: '140', class: 'nb-mini-grid' })),
       ...[20, 40, 60, 80, 100, 120].map((v) => svg('line', { x1: '0', y1: String(v), x2: '120', y2: String(v), class: 'nb-mini-grid' })),
@@ -431,9 +527,51 @@ function runMock(): HTMLElement {
       svg('path', { d: `M60 ${y(after)} h6 V128 h-6`, class: 'nb-mini-measure', filter: 'url(#nb-wobble)' }),
       svg('text', { x: '72', y: String((y(after) + 128) / 2 + 3), 'font-size': '10', class: 'nb-mini-cm', text: `${after} cm` }),
     ),
+    el('span', { class: 'nb-run-cm', 'aria-hidden': 'true', text: `${after} cm in 2 s` }),
+    ),
     el('ul', { class: 'nb-run-checks' },
       ...LESSON_ONE_CHECKS.map((label) =>
         el('li', { class: 'nb-check is-passed' }, el('span', { class: 'nb-check-mark', 'aria-hidden': 'true' }, icon('passed', 16)), el('span', { text: label }))),
+    ),
+  );
+}
+
+// ------------------------------------------------------------------ the same file
+
+/** Square.java twice: as the lesson editor shows it and as Android Studio does, from the
+    @Override line down. They are the same text, because Builder asks for the same imports
+    javac does (docs/ARCHITECTURE.md). On wide screens the two slide into one. */
+function sameFile(): HTMLElement {
+  const fileLines = HERO_JAVA.replace(/\n$/, '').split('\n');
+  const from = 10;
+  const panel = (side: 'ours' | 'theirs', app: string, path: string) =>
+    el('figure', { class: `nb-same-panel is-${side}`, 'aria-hidden': side === 'theirs' ? 'true' : null },
+      el('figcaption', { class: 'nb-same-bar' },
+        el('span', { class: 'nb-same-app', text: app }),
+        el('span', { class: 'nb-same-path', text: path }),
+      ),
+      el('pre', { class: 'nb-code nb-same-code' },
+        el('code', {},
+          ...fileLines.slice(from - 1).map((text, i) =>
+            el('span', { class: 'nb-same-line' },
+              el('span', { class: 'nb-code-n', text: String(from + i) }),
+              ...highlight(text),
+              side === 'ours' ? el('span', { class: 'nb-same-tick', 'aria-hidden': 'true' }, icon('passed', 14)) : null,
+            )),
+        ),
+      ),
+    );
+  return el('section', { class: 'nb-same', 'aria-labelledby': 'same-title' },
+    el('div', { class: 'nb-same-pin' },
+      el('div', { class: 'nb-section-head' },
+        el('h2', { id: 'same-title', text: 'The same file runs on your team’s robot' }),
+        el('p', { text: 'In Builder mode the robot asks for the same imports Android Studio does, so a file from here goes into TeamCode as it is and builds for a real Control Hub.' }),
+      ),
+      el('div', { class: 'nb-same-stage' },
+        panel('ours', 'Nebula Academy', 'Square.java'),
+        panel('theirs', 'Android Studio', 'TeamCode / Square.java'),
+      ),
+      el('p', { class: 'nb-same-verdict' }, icon('passed', 16), el('span', { text: 'Identical, line for line' })),
     ),
   );
 }
@@ -453,7 +591,7 @@ function inkDefs(): SVGElement {
 /** A loose ink circle, open at the top like one drawn in a hurry. */
 function inkCircle(cls: string): SVGElement {
   return svg('svg', { class: cls, viewBox: '0 0 100 100', 'aria-hidden': 'true' },
-    svg('path', { d: 'M58 9 C 24 4, 6 30, 9 55 C 12 82, 42 95, 66 88 C 90 80, 97 52, 88 30 C 82 16, 68 9, 47 12', filter: 'url(#nb-wobble)' }),
+    svg('path', { d: 'M58 9 C 24 4, 6 30, 9 55 C 12 82, 42 95, 66 88 C 90 80, 97 52, 88 30 C 82 16, 68 9, 47 12', pathLength: '1', filter: 'url(#nb-wobble)' }),
   );
 }
 
