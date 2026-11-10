@@ -1246,6 +1246,64 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
 .chart-index-status.is-locked { font-family: var(--face-code); font-size: 14px; color: var(--ink-mid); }
 .chart-index-list li.is-locked .chart-index-title { color: var(--ink-mid); }
 
+/* ---------------------------------------------------------------- classes */
+
+/* The kid's "Join a class" panel on Progress, and the mentor's "Your classes" on the mentor
+   guides' sheet (.is-paper, in the paper inks). */
+.class-panel { margin-top: var(--s7); padding-top: var(--s5); border-top: var(--seam-w) solid var(--line); }
+.class-panel h2 { margin: 0 0 var(--s2); }
+.class-panel.is-paper { margin-top: var(--s6); border-top-color: var(--paper-line); color: var(--paper-ink); }
+.class-panel.is-paper h2, .class-panel.is-paper p, .class-panel.is-paper label, .class-panel.is-paper summary { color: var(--paper-ink); }
+.class-form { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s3) var(--s4); margin-top: var(--s4); }
+.class-form > .button-row { flex-basis: 100%; }
+.class-field { display: flex; flex-direction: column; gap: 6px; min-width: 14rem; flex: 1 1 14rem; max-width: 22rem; }
+.class-field label { font-weight: 600; }
+.class-input {
+  min-height: var(--tap);
+  padding: 0 var(--s3);
+  border: var(--seam-w) solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.class-input.is-code { font-family: var(--face-code); letter-spacing: 0.12em; text-transform: uppercase; max-width: 12rem; }
+.class-panel.is-paper .btn { color: var(--paper-ink); border-color: var(--paper-ink-2); }
+.class-panel.is-paper .btn:focus-visible { outline-color: var(--paper-ink); }
+.class-panel.is-paper .class-input { background: var(--print-paper); color: var(--paper-ink); border-color: var(--paper-line); }
+.class-hint { margin: 0; font-size: var(--size-label); color: var(--ink-mid); }
+.class-panel.is-paper .class-hint { color: var(--paper-ink-2); }
+.class-status { margin: var(--s3) 0 0; color: var(--ink-mid); }
+.class-status:empty { display: none; }
+.class-panel.is-paper .class-status { color: var(--paper-ink-2); }
+.class-code-big { font-family: var(--face-code); letter-spacing: 0.12em; }
+.class-made { margin: var(--s4) 0; padding: var(--s4); border: var(--seam-w) solid var(--paper-line); border-radius: var(--radius); }
+.class-made p { margin: 0 0 var(--s3); }
+.class-made code { word-break: break-all; }
+.class-list { list-style: none; margin: var(--s4) 0 0; padding: 0; border-top: var(--seam-w) solid var(--paper-line); }
+.class-list li { max-width: none; border-bottom: var(--seam-w) solid var(--paper-line); }
+.class-link { display: flex; justify-content: space-between; align-items: center; min-height: var(--tap); color: var(--paper-ink); text-decoration: none; }
+.class-list-name { font-family: var(--face-display); font-weight: 600; }
+.class-list-code { font-family: var(--face-code); font-size: 14px; color: var(--paper-ink-2); letter-spacing: 0.12em; }
+@media (hover: hover) {
+  .class-link:hover .class-list-name { text-decoration: underline; text-underline-offset: 4px; }
+}
+.class-elsewhere { margin-top: var(--s4); }
+.class-elsewhere summary { display: flex; align-items: center; min-height: var(--tap); cursor: pointer; font-weight: 600; }
+
+/* One class, for its mentor: a hairline row per kid. */
+.class-page { max-width: 1180px; }
+.class-back { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--tap); }
+.class-body { margin-top: var(--s5); overflow-x: auto; }
+.class-table { list-style: none; margin: 0; padding: 0; min-width: 900px; }
+.class-row { display: grid; grid-template-columns: 10rem 5rem repeat(6, minmax(0, 1fr)) 7rem 6.5rem; align-items: center; gap: var(--s3); max-width: none; min-height: 56px; border-bottom: var(--seam-w) solid var(--line); }
+.class-row.is-head { min-height: 40px; border-bottom-color: var(--line-strong); font-family: var(--face-code); font-size: 14px; color: var(--ink-mid); }
+.class-tier-head { display: inline-flex; align-items: center; gap: 6px; }
+.class-nick { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.class-count, .class-when { font-family: var(--face-code); font-size: 14px; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+.class-remove { justify-self: end; }
+.class-empty { color: var(--ink-mid); }
+
 /* ----------------------------------------------------------------- lesson */
 
 /* Bounded rather than minimum, so the grid inside gives its panels a scrollbar instead

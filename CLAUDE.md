@@ -7,7 +7,7 @@ A static site teaching kids (9–18) FTC robot programming in Java. Two modes: E
 - Java only. Never add Python, Blocks, or any other language to lessons.
 - Content (content/) and code (src/) never mix. A lesson is Markdown + Java + JSON only.
 - The FTC mock uses real package names and real method signatures. Never invent a method that doesn't exist in the real FTC SDK (ftc-docs.firstinspires.org, github.com/FIRST-Tech-Challenge/FtcRobotController). Check docs/FTC_MOCK_COVERAGE.md; if a lesson needs an unmocked method, mock it first and update the coverage doc.
-- No backend, no accounts, no analytics. Progress lives in localStorage with file export/import.
+- No accounts, no analytics. Progress lives in localStorage with file export/import. The one exception is optional mentor class codes (docs/CLASSES.md): a Supabase project that stores a class name, kids' nicknames and which lessons they passed, nothing else. The site must work fully with it switched off; never add emails, real names, code uploads or tracking to it.
 - Macs and home computers (trackpad, mouse, sometimes touch); 1366×768 is the baseline. No hover-only UI: hover may add polish, never the only way to find or do something. Tap targets at least 44×44 px.
 - `npm run check` (lint + test + build) must pass before every commit. Never commit a lesson whose solution.java fails its own tests.json.
 

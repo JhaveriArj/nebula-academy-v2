@@ -183,6 +183,7 @@ src/
   sim/              field, physics at fixed 50 Hz, robot models (tank, mecanum), sensors
   ui/               router, components, pages, theme
   progress/         localStorage + export/import
+  classes/          optional mentor class codes over Supabase REST (docs/CLASSES.md)
 ftc-stubs/          generated real .java stubs, for the CI javac gate only
 public/art/         all SVG art + README
 docs/               PATHWAY, DESIGN, ARCHITECTURE, FTC_MOCK_COVERAGE, ADDING_A_LESSON
@@ -233,3 +234,13 @@ CLAUDE.md requires a note here for anything over 100 KB. Current list:
 
 Everything else (`vite`, `typescript`, `vitest`, `eslint`) is dev-only and ships nothing. The
 runtime bundle is first-party apart from Motion's `scroll`: interpreter, sim and UI. No framework, no CheerpJ CDN, no polyfills.
+
+## Mentor class codes (optional backend)
+
+The one network feature. Classes, nicknames and passes live in a Supabase Postgres project
+(`supabase/migrations/0001_classes.sql`); the browser reaches it with plain `fetch` to the
+REST endpoint for database functions, so there is no Supabase SDK and no new dependency. The
+tables are closed to the public key and every function checks a mentor key or a kid token.
+Unset `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` and the feature does not render. Passes
+are queued locally and sent after a lesson passes, after a progress import, and once the
+browser is idle on start-up. Details, data list and setup: docs/CLASSES.md.

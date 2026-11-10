@@ -3,6 +3,7 @@ import { icon } from '../icons';
 import { counts, exportJson, importJson, isPassed, load, reset, tierCounts } from '../../progress/store';
 import { pathway } from '../../content/loader';
 import { circledNumber, mascot, paper, tierEmblem } from '../kit';
+import { kidClassPanel } from '../classViews';
 
 /* Progress export and import. No account and no server, per CLAUDE.md, so a file is how a
    kid moves their work between a school Chromebook and home. */
@@ -60,6 +61,7 @@ export function progressPage(onChange: () => void): HTMLElement {
     ),
     summary,
     tiersTable,
+    kidClassPanel(),
     el('section', { class: 'progress-safe', 'aria-labelledby': 'progress-safe-title' },
       el('div', { class: 'progress-safe-text' },
         el('h2', { id: 'progress-safe-title', class: 'display', text: 'Move it somewhere safe' }),

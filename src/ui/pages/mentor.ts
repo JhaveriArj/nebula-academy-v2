@@ -2,6 +2,7 @@ import { el, mount, prefersReducedMotion } from '../dom';
 import { icon } from '../icons';
 import { pathway, loadContentFile, hasContentFile } from '../../content/loader';
 import { renderMarkdown } from '../markdown';
+import { mentorClassPanel } from '../classViews';
 import { circledNumber, fieldThumb, mascot, paper, routeOf, tierEmblem } from '../kit';
 import type { WatchSpec } from '../../sim/watch';
 
@@ -61,6 +62,7 @@ export function mentorPage(tierParam: string | null): HTMLElement {
         ),
       ),
       el('p', { class: 'mentor-note', text: 'Every guide is written to be read in five minutes before a session, or printed and kept in the pit.' }),
+      mentorClassPanel(),
     );
     return page;
   }

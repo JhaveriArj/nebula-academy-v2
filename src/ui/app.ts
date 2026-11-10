@@ -1,6 +1,8 @@
 import { el, mount } from './dom';
 import { applyMode, createHeader } from './header';
 import { siteFooter } from './footer';
+import { classPage } from './pages/classPage';
+import { refreshMembership, syncPasses } from '../classes/membership';
 import { prefersReducedMotion } from './dom';
 import { parseHash, startRouter, type Route } from './router';
 import { homePage } from './pages/home';
@@ -80,6 +82,7 @@ export function startApp(root: HTMLElement): void {
           mount(outlet, lessonPage(route.param ?? '', {
             onPassed: (lessonId) => {
               celebrateOn = lessonId;
+              void syncPasses();
               header.refresh();
             },
           }));
@@ -94,7 +97,10 @@ export function startApp(root: HTMLElement): void {
         mount(outlet, aboutPage());
         break;
       case 'progress':
-        mount(outlet, progressPage(() => header.refresh()));
+        mount(outlet, progressPage(() => { header.refresh(); void syncPasses(); }));
+        break;
+      case 'class':
+        mount(outlet, classPage(route.param ?? ''));
         break;
       default:
         mount(outlet, homePage());
@@ -120,6 +126,8 @@ export function startApp(root: HTMLElement): void {
   const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback
     ?? ((cb: () => void) => setTimeout(cb, 1500));
   idle(() => void loadLesson());
+  // A kid in a class: send any passes made while offline, and notice if they were removed.
+  idle(() => { void refreshMembership().then(() => syncPasses()).catch(() => undefined); });
 }
 
 function titleFor(route: Route): string {
@@ -133,6 +141,7 @@ function titleFor(route: Route): string {
     case 'mentor': return `Mentor guides · ${base}`;
     case 'about': return `About · ${base}`;
     case 'progress': return `Your progress · ${base}`;
+    case 'class': return `Class ${route.param ?? ''} · ${base}`;
     default: return `${base} — program a competition robot in real Java`;
   }
 }

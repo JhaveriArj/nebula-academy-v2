@@ -2,7 +2,7 @@
    thing that reliably deep-links. See docs/ARCHITECTURE.md. */
 
 export interface Route {
-  name: 'home' | 'chart' | 'lesson' | 'mentor' | 'about' | 'progress';
+  name: 'home' | 'chart' | 'lesson' | 'mentor' | 'about' | 'progress' | 'class';
   /** Lesson id, or tier number for the mentor page. */
   param: string | null;
 }
@@ -22,6 +22,8 @@ export function parseHash(hash: string): Route {
       return { name: 'about', param: null };
     case 'progress':
       return { name: 'progress', param: null };
+    case 'class':
+      return tail ? { name: 'class', param: tail.toUpperCase() } : { name: 'mentor', param: null };
     default:
       return { name: 'home', param: null };
   }
@@ -35,6 +37,7 @@ export const hrefFor = (route: Route): string => {
     case 'mentor': return route.param ? `#/mentor/${route.param}` : '#/mentor';
     case 'about': return '#/about';
     case 'progress': return '#/progress';
+    case 'class': return `#/class/${route.param ?? ''}`;
   }
 };
 

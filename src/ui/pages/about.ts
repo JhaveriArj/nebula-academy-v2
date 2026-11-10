@@ -28,7 +28,8 @@ export function aboutPage(): HTMLElement {
 
       section(1, 'What it is',
         el('p', { text: 'Six tiers and 42 lessons. Every lesson runs real Java against a mocked FTC SDK and a virtual robot on a 12 ft field. The package names and method signatures are the real ones, so the code you write here pastes into Android Studio unchanged.' }),
-        el('p', { text: 'There is no account and no server. Your progress and your code live in this browser, and you can export them to a file and bring them back on another computer.' }),
+        el('p', { text: 'There is no account. Your progress and your code live in this browser, and you can export them to a file and bring them back on another computer.' }),
+        el('p', { text: 'If your mentor runs a class, you can join it from the Progress page with a class code and a nickname. The class then sees which lessons you passed and when. Your code, your real name and anything else stay in this browser, and leaving the class deletes what it had.' }),
       ),
 
       section(2, 'The two modes',
