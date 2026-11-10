@@ -189,6 +189,26 @@ parallax, the mascot's idle breathe (decorative, or a loop with no meaning). Fon
 metric-matched fallbacks, which took Lighthouse CLS from 0.052 to 0.0003. Tests check that the
 step 03 run matches lesson 1's solution and each tier's typed line exists in that tier.
 
+## Audit fixes (2026-11-09)
+
+From a 22-item live walkthrough, audited with addyosmani/web-quality-skills (installed in
+~/.claude/skills). Landing: pins halved (720px and 630px of scroll), the file merge now slides
+both panels and swaps the header in two beats, the tier rows reveal together within 600ms, one
+paper shadow, a footer (brand, links, "Built by an FTC team", FIRST trademark note), no wrapped
+hero code at 1400px and up. Lesson: checks scroll with Next lesson and Chart pinned below them,
+the side column grows with the window so the field fills it, the demo caption reads "Demo:
+Stop" instead of looking like a button, the empty console folds to 32px, Mission is centred,
+and at 900px and below the lesson stacks (field, then editor; telemetry folds behind Show).
+Mentor: a print stylesheet and Print this guide button, previous and next tier links, rubric
+row headers. Chart: no margin ticks or "N 0 — 12 ft"; below 1040px it scrolls sideways so its
+targets stay 49px. Progress: "Last saved 3 minutes ago". About: the mascot and Start lesson 1.
+Global: mode tooltips on hover and focus, a favicon from the mascot head, the hero's title.
+Found on the way: a wide table could widen a phone's page (prose pages now have a definite
+width), the hero preload ran on every route (now home only), and Atkinson's swap rewrapped
+mentor guides (it now loads with font-display: optional over a metric-matched fallback).
+Lighthouse 100 in every category with no failed audits on home, a lesson and a mentor guide,
+desktop and mobile.
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for

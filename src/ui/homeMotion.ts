@@ -138,22 +138,30 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
   off.push(() => removeEventListener('resize', onResize));
 
   // --- 3: the same file, merging. --------------------------------------------------------
+  // Apart, side by side; both slide to the middle until Android Studio's copy lies exactly
+  // over ours; its header crossfades into ours (the code under it is the same text, so nothing
+  // else changes); then every line is ticked, top to bottom.
   const same = page.querySelector<HTMLElement>('.nb-same')!;
   const ours = same.querySelector<HTMLElement>('.nb-same-panel.is-ours')!;
   const theirs = same.querySelector<HTMLElement>('.nb-same-panel.is-theirs')!;
+  const theirsBar = theirs.querySelector<HTMLElement>('.nb-same-bar')!;
+  const theirsLabels = [...theirsBar.children] as HTMLElement[];
+  const oursLabels = [...ours.querySelector<HTMLElement>('.nb-same-bar')!.children] as HTMLElement[];
   const ticks = [...same.querySelectorAll<HTMLElement>('.is-ours .nb-same-tick')];
   const verdict = same.querySelector<HTMLElement>('.nb-same-verdict')!;
   off.push(scroll((m: number) => {
-    // Apart, side by side; then Android Studio's copy slides over ours until every line sits
-    // on its twin; then each line is ticked, top to bottom.
-    const slide = ease(local(m, 0.08, 0.6));
+    const slide = ease(local(m, 0.04, 0.58));
     const apart = (ours.offsetWidth + 32) / 2;
     ours.style.transform = `translate3d(${-apart * (1 - slide)}px, 0, 0)`;
     theirs.style.transform = `translate3d(${apart * (1 - slide)}px, 0, 0)`;
-    theirs.style.opacity = String(1 - local(m, 0.62, 0.7));
-    const tick = local(m, 0.7, 0.95);
+    // The header swap is in two beats so the two names never overlap: Android Studio's fades
+    // out over its own header, then the panel above goes and Nebula's name fades in.
+    for (const l of theirsLabels) l.style.opacity = String(1 - local(m, 0.6, 0.66));
+    theirs.style.visibility = m >= 0.66 ? 'hidden' : '';
+    for (const l of oursLabels) l.style.opacity = m < 0.58 ? '' : String(local(m, 0.66, 0.72));
+    const tick = local(m, 0.74, 0.94);
     ticks.forEach((t, i) => t.classList.toggle('is-shown', tick * ticks.length > i));
-    verdict.style.opacity = String(local(m, 0.92, 1));
+    verdict.style.opacity = String(local(m, 0.9, 1));
   }, { target: same, offset: ['start 100px', 'end end'] }));
 
   return () => {
@@ -161,10 +169,11 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
     demo.hold(false);
     pane.style.transform = '';
     pane.classList.remove('is-travelling', 'is-landed');
-    for (const el of [ours, theirs, verdict]) {
+    for (const el of [ours, theirs, theirsBar, verdict, ...theirsLabels, ...oursLabels]) {
       el.style.transform = '';
       el.style.opacity = '';
     }
+    theirs.style.visibility = '';
     for (const b of bars) b.style.transform = '';
     editNum.textContent = '2000';
     circle.style.strokeDashoffset = '';
@@ -175,36 +184,36 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
 }
 
 // --- 4: the tier rows. -----------------------------------------------------------------------
-/** Each row rises in once as it reaches the screen, and its line of Java types out after it.
-    Nothing is hidden ahead of time: the rows are visible by default, and the animation starts
-    just before a row scrolls into view (its own first keyframe hides it for the moment it
-    plays). A row already on screen when the page opens is left as it is. */
+/** When the notebook page comes into view, all six rows rise in and their lines of Java type
+    out, the whole sequence done within 600 ms so the page is never an empty sheet. Nothing is
+    hidden ahead of time: each row's own first keyframe hides it only while it plays. A page
+    already on screen when the home page opens is left as it is. */
 function revealTiers(page: HTMLElement, reduced: boolean): () => void {
+  const paper = page.querySelector<HTMLElement>('.nb-paper');
   const rows = [...page.querySelectorAll<HTMLElement>('.nb-tier')];
-  if (reduced || !('IntersectionObserver' in window)) return () => {};
+  if (!paper || reduced || !('IntersectionObserver' in window)) return () => {};
+  if (paper.getBoundingClientRect().top < innerHeight) return () => {};
   const typing = matchMedia('(min-width: 768px)').matches;
-  const pending = rows.filter((r) => r.getBoundingClientRect().top > innerHeight);
-  const io = new IntersectionObserver((entries) => {
-    let order = 0;
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      const row = e.target as HTMLElement;
-      io.unobserve(row);
-      const delay = order++ * 90;
+  const easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry?.isIntersecting) return;
+    io.disconnect();
+    rows.forEach((row, i) => {
+      const delay = i * 48;
       row.animate(
-        [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
-        { duration: 560, delay, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' },
+        [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 360, delay, easing, fill: 'backwards' },
       );
       const line = row.querySelector<HTMLElement>('.nb-tier-code');
       if (line && typing) {
         const chars = line.textContent?.length ?? 20;
         line.animate(
           [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
-          { duration: Math.min(700, chars * 22), delay: delay + 240, easing: `steps(${chars}, end)`, fill: 'backwards' },
+          { duration: 300, delay: delay + 60, easing: `steps(${chars}, end)`, fill: 'backwards' },
         );
       }
-    }
-  }, { rootMargin: '0px 0px 8% 0px' });
-  for (const r of pending) io.observe(r);
+    });
+  }, { threshold: 0.08 });
+  io.observe(paper);
   return () => io.disconnect();
 }

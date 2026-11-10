@@ -23,6 +23,7 @@ export function chartPage(): ChartPage {
       el('p', { class: 'muted', text: `${passed} of ${total} waypoints logged. A station opens when the one before it is finished.` }),
     ),
     el('div', { class: 'chart-frame' }, chart.element),
+    el('p', { class: 'chart-swipe-note muted', text: 'Swipe sideways to see the whole chart, or use the list below.' }),
 
     el('section', { class: 'chart-index' },
       el('h2', { text: 'Every lesson' }),

@@ -282,7 +282,7 @@ out with `cubic-bezier(0.16, 1, 0.3, 1)` or the page's `--ease-out`, and is list
 | "The same file": two copies of Square.java slide into one, every line gets a tick | Scroll position (scrubbed) | Motion `scroll()` |
 | Tier rows rise in; each tier's line of Java types out | Once per row, as it reaches the screen | Web Animations API |
 
-Pinning and scrubbing run only at 1181px and wider (where the band is three columns). Below
+Pinning and scrubbing run only at 1181px and wider (where the band is three columns); the lesson band pins for about 80vh of scroll and the file merge for 70vh, so neither traps the reader. Below
 that, and under `prefers-reduced-motion: reduce`, every scene is in its final state: the
 number is 2000, the checks have passed, the two files are one. The hero simulator still runs
 under reduced motion, without the blink, nod or one-by-one checks. Rows are never hidden ahead

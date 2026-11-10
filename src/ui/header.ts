@@ -19,12 +19,15 @@ export interface Header {
 export function createHeader(onModeChange: () => void): Header {
   const modeButtons = new Map<Mode, HTMLButtonElement>();
 
+  // Each mode button explains itself in a small tooltip that shows on hover and on keyboard
+  // focus alike (never hover only), and is read out as the button's description.
   const makeModeButton = (mode: Mode, label: string, hint: string) => {
+    const tipId = `mode-tip-${mode}`;
     const button = el('button', {
       type: 'button',
       class: 'mode-button',
       'aria-pressed': String(getMode() === mode),
-      title: hint,
+      'aria-describedby': tipId,
       onclick: () => {
         if (getMode() === mode) return;
         setMode(mode);
@@ -32,7 +35,7 @@ export function createHeader(onModeChange: () => void): Header {
         refresh();
         onModeChange();
       },
-    }, label);
+    }, label, el('span', { class: 'mode-tip', id: tipId, 'aria-hidden': 'true', text: hint }));
     modeButtons.set(mode, button);
     return button;
   };
@@ -100,8 +103,8 @@ export function createHeader(onModeChange: () => void): Header {
     ),
     el('div', { class: 'header-controls' },
       el('div', { class: 'mode-toggle', role: 'group', 'aria-label': 'Reading mode' },
-        makeModeButton('explorer', 'Explorer', 'Ages 9 to 12: larger text, more code filled in'),
-        makeModeButton('builder', 'Builder', 'Ages 13 to 18: full editing and the Why panels'),
+        makeModeButton('explorer', 'Explorer', 'Explorer: ages 9 to 12, more help'),
+        makeModeButton('builder', 'Builder', 'Builder: ages 13 to 18, full editor'),
       ),
       displayButton,
     ),

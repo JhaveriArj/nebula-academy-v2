@@ -113,6 +113,6 @@ function titleFor(route: Route): string {
     case 'mentor': return `Mentor guides · ${base}`;
     case 'about': return `About · ${base}`;
     case 'progress': return `Your progress · ${base}`;
-    default: return `${base} — learn FTC robot programming in Java`;
+    default: return `${base} — program a competition robot in real Java`;
   }
 }

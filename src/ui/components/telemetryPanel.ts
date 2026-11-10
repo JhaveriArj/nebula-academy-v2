@@ -15,14 +15,27 @@ export function createTelemetryPanel(): TelemetryPanel {
   // A <dl> may only hold dt/dd groups, so the empty message sits beside it, not in it.
   const empty = el('p', { class: 'telemetry-empty', text: 'Nothing sent yet. Telemetry appears when your code calls update().' });
   const robot = el('div', { class: 'telemetry-robot' });
-  const element = el('div', { class: 'telemetry on-dark' },
+  const body = el('div', { class: 'telemetry-body', id: 'telemetry-body' }, empty, list, el('div', { class: 'telemetry-divider' }), robot);
+  // On a stacked lesson page (900px and narrower) the panel starts folded so the field and the
+  // editor sit next to each other; the button only shows there, where CSS can fold it.
+  const toggle = el('button', {
+    type: 'button',
+    class: 'link-button telemetry-toggle',
+    'aria-expanded': 'false',
+    'aria-controls': 'telemetry-body',
+    onclick: () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.textContent = open ? 'Hide' : 'Show';
+      element.dataset.collapsed = String(!open);
+    },
+  }, 'Show');
+  const element = el('div', { class: 'telemetry on-dark', 'data-collapsed': 'true' },
     el('div', { class: 'telemetry-head' },
       el('span', { class: 'telemetry-title display', text: 'Telemetry' }),
+      toggle,
     ),
-    empty,
-    list,
-    el('div', { class: 'telemetry-divider' }),
-    robot,
+    body,
   );
 
   return {

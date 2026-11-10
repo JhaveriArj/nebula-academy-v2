@@ -30,25 +30,36 @@ export function createConsolePanel(options: { onGoToLine?: (line: number) => voi
     output,
   );
 
+  // With nothing to say, the console folds to a 32px bar so the editor gets the room; it
+  // opens again as soon as there is output, a status or a problem.
+  const refresh = () => {
+    const empty = !output.textContent && !status.textContent && !problem.childElementCount;
+    element.classList.toggle('is-empty', empty);
+  };
   const clear = () => {
     mount(problem);
     output.textContent = '';
     mount(status);
+    refresh();
   };
+  refresh();
 
   return {
     element,
     clear,
     setStatus: (text) => {
       mount(status, text ?? '');
+      refresh();
     },
     setOutput: (text) => {
       output.textContent = text;
       output.scrollTop = output.scrollHeight;
+      refresh();
     },
     showError: (error) => {
       if (!error) {
         mount(problem);
+        refresh();
         return;
       }
       const raw = el('pre', { class: 'console-raw', hidden: true, text: error.raw });
@@ -85,6 +96,7 @@ export function createConsolePanel(options: { onGoToLine?: (line: number) => voi
           raw,
         ),
       );
+      refresh();
     },
   };
 }

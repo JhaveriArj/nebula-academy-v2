@@ -58,9 +58,13 @@ export function renderMarkdown(markdown: string, options: { headingOffset?: numb
       i += 2;
       const rows: string[][] = [];
       while (i < lines.length && /^\s*\|/.test(lines[i]!)) rows.push(cells(lines[i++]!));
+      const rowHeaders = (header[0] ?? '').trim() === '';
       const table = el('table', { class: 'md-table' },
-        el('thead', {}, el('tr', {}, ...header.map((c) => el('th', { html: inline(c) })))),
-        el('tbody', {}, ...rows.map((row) => el('tr', {}, ...row.map((c) => el('td', { html: inline(c) }))))),
+        el('thead', {}, el('tr', {}, ...header.map((c) => el('th', { scope: 'col', html: inline(c) })))),
+        // A table whose top-left cell is empty (the rubrics) labels its rows in the first
+        // column, so those cells are row headers and every data cell has both of its headers.
+        el('tbody', {}, ...rows.map((row) => el('tr', {}, ...row.map((c, i) =>
+          i === 0 && rowHeaders ? el('th', { scope: 'row', html: inline(c) }) : el('td', { html: inline(c) }))))),
       );
       fragment.appendChild(el('div', { class: 'md-table-wrap' }, table));
       continue;

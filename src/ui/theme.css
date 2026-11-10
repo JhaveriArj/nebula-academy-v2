@@ -12,7 +12,7 @@
 /* Metric-matched fallbacks for the two web fonts. Arial scaled and with its ascent and
    descent set to Fredoka's and Lexend's (measured in the browser), so text takes the same
    space before and after the web font arrives and nothing on the page moves when it swaps.
-   Without these, the hero's headline wrapped to three lines on Arial and moved the whole
+   (Atkinson's does the same for every lesson and mentor guide.) Without these, the hero's headline wrapped to three lines on Arial and moved the whole
    stage down 63px when Fredoka loaded. */
 @font-face {
   font-family: 'Fredoka Fallback';
@@ -20,6 +20,14 @@
   size-adjust: 100.73%;
   ascent-override: 96.3%;
   descent-override: 23.8%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Atkinson Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 98.5%;
+  ascent-override: 99.5%;
+  descent-override: 32.5%;
   line-gap-override: 0%;
 }
 @font-face {
@@ -73,6 +81,11 @@
 
   /* The mascot's own colours, sampled from art-source/mascot-4x.png. They are the character,
      so they do not change between light and dark. The antenna yellow is --star itself. */
+  /* Print: black on white, whatever the screen theme. */
+  --print-paper:    #FFFFFF;
+  --print-ink:      #000000;
+  --print-rule:     #555555;
+
   --mascot-line:    #06063D;
   --mascot-helmet:  #5351F9;
   --mascot-visor:   #A08DC9;
@@ -108,7 +121,7 @@
   /* --- Type. Fredoka is round like the helmet; Atkinson Hyperlegible Next is
          drawn for low vision and carries every word a kid has to read. ------ */
   --face-display: 'Fredoka', 'Fredoka Fallback', 'Nunito', 'Trebuchet MS', sans-serif;
-  --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', Verdana, sans-serif;
+  --face-text: 'Atkinson Hyperlegible Next', 'Atkinson Fallback', 'Atkinson Hyperlegible', Verdana, sans-serif;
   --face-code: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   /* Builder sizes, in rem so a kid's browser font-size setting still applies (18px = 1.125rem
@@ -130,7 +143,7 @@
   --shadow-sm: 0 1px 2px rgb(21 18 63 / 0.08);
   --shadow: 0 1px 2px rgb(21 18 63 / 0.06), 0 8px 24px -10px rgb(75 53 144 / 0.28);
   --shadow-lift: 0 2px 4px rgb(21 18 63 / 0.08), 0 14px 32px -12px rgb(75 53 144 / 0.38);
-  --paper-shadow: 0 1px 0 var(--paper-line), 0 24px 48px -24px var(--nb-shadow);
+  --paper-shadow: 0 24px 48px -24px var(--nb-shadow);
   --screen-glow: drop-shadow(0 0 6px color-mix(in srgb, var(--star) 70%, transparent));
 
   --seam-w: 1px;

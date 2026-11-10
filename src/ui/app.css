@@ -122,6 +122,35 @@
 }
 
 .mode-button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); box-shadow: var(--shadow-sm); }
+.mode-button { position: relative; }
+.mode-tip {
+  /* Out of layout until shown, so an invisible tip can never widen a phone's page. */
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: var(--z-sticky);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 140ms var(--ease-out), translate 140ms var(--ease-out);
+}
+/* The second button's tip hangs from its right edge, so neither runs past the window. */
+.mode-button + .mode-button .mode-tip { left: auto; right: 0; }
+.mode-button:focus-visible .mode-tip { display: block; }
+@media (hover: hover) {
+  .mode-button:hover .mode-tip { display: block; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mode-button:is(:hover, :focus-visible) .mode-tip {
+    @starting-style { opacity: 0; translate: 0 -4px; }
+  }
+}
 
 @media (hover: hover) {
   .mode-button:hover:not([aria-pressed='true']) { color: var(--ink); }
@@ -210,18 +239,23 @@
 /* The lesson page is fixed to the screen: its panels scroll, the page does not, so Run,
    the results and the field never leave a 768 px screen. Short or narrow screens (phones,
    200% zoom) fall back to one scrolling column further down. */
-@media (min-width: 761px) and (min-height: 561px) {
+@media (min-width: 901px) and (min-height: 561px) {
   #app:has(.lesson) { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
 }
 
 /* The outlet is the leftover height, so the lesson can size itself against it rather
    than against a hardcoded header height that would drift the moment the bar wraps. */
 .outlet { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* A page whose content arrives after first paint (a mentor guide) would otherwise gain a
+   scrollbar and shift everything sideways by its width. */
+html { scrollbar-gutter: stable; }
 .outlet:focus { outline: none; }
 
 /* ----------------------------------------------------------- common parts */
 
-.prose-page { max-width: 68ch; margin: 0 auto; padding: var(--s6) var(--s4) var(--s8); }
+/* width: 100% matters: centred in the flex outlet with auto margins, the page would shrink to
+   its content, and a wide table could then push a phone's page wider than the screen. */
+.prose-page { width: 100%; min-width: 0; max-width: 68ch; margin: 0 auto; padding: var(--s6) var(--s4) var(--s8); }
 .prose-page p, .prose-page li { max-width: var(--reading-max); }
 .lede { font-size: calc(var(--size-prose) + 2px); color: var(--ink-mid); }
 
@@ -304,7 +338,7 @@
 .nb-hero {
   /* At least 400px, so the eight running lines and the checks both fit beside the field. */
   --field: clamp(400px, calc(100vh - 460px), 880px);
-  /* Wide enough for line 16 at the file's real indentation. */
+  /* Wide enough for line 16 at the file's real indentation; from 1400px, for every line. */
   --code-w: 31rem;
   display: flex;
   flex-direction: column;
@@ -560,6 +594,11 @@
   .nb-operator.is-nodding { animation: none; }
 }
 
+/* From 1400px there is room for Square.java's longest line (72 characters), so nothing wraps. */
+@media (min-width: 1400px) {
+  .nb-hero { --code-w: 47.5rem; }
+}
+
 /* Short screens (1366x768 is the baseline): the whole stage, mascot's feet included, has to
    fit above the fold, so the field gives up 60px and the code panel gets denser. */
 @media (min-width: 1181px) and (max-height: 820px) {
@@ -671,6 +710,19 @@
 .nb-same-tick { position: absolute; right: 14px; top: 3px; display: inline-flex; color: var(--space-go); text-indent: 0; transition: opacity 200ms var(--ease-out); }
 .nb-same-verdict { display: flex; align-items: center; gap: 8px; margin: 20px 0 0; font-family: var(--face-code); font-size: 0.875rem; color: var(--space-go); }
 
+/* --- Footer: the brand, the same four links as the header, and the trademark note. */
+.nb-footer { padding: 48px var(--edge) 56px; border-top: var(--seam-w) solid var(--nb-line); }
+.nb-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
+.nb-footer-brand { display: inline-flex; align-items: baseline; gap: 10px; min-height: var(--tap); padding-block: 8px; color: var(--nb-text); text-decoration: none; font-family: var(--face-display); font-weight: 500; font-size: 1.25rem; }
+.nb-footer-brand .mascot-head { translate: 0 1px; }
+.nb-footer-nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.nb-footer-link { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 12px; border-radius: var(--radius-sm); color: var(--nb-text-2); text-decoration: none; font-weight: 500; transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out); }
+@media (hover: hover) {
+  .nb-footer-link:hover { color: var(--nb-text); background: var(--nb-raised); }
+}
+.nb-footer-made { margin: 24px 0 0; color: var(--nb-text-2); font-size: 1rem; }
+.nb-footer-legal { margin: 8px 0 0; max-width: 72ch; color: var(--nb-text-3); font-size: 0.875rem; line-height: 1.5; }
+
 /* --- Scroll scenes (homeMotion.ts adds .nb-motion on wide screens without reduced motion).
    Everything above is the final state; these rules only set up where each scene starts. */
 .nb-window-field { transform-origin: 0 0; }
@@ -682,7 +734,8 @@
 .nb-run-slot { position: relative; }
 .nb-run-cm { display: none; }
 
-.nb-motion .nb-how { height: 250vh; padding-top: 0; padding-bottom: 0; margin: 64px 0 120px; }
+/* The pinned scroll is about 80vh: long enough to read each step, short enough not to trap. */
+.nb-motion .nb-how { height: calc(100vh - 100px + 80vh); min-height: 0; padding-top: 0; padding-bottom: 0; margin: 64px 0 120px; }
 .nb-motion .nb-how-pin { position: sticky; top: 100px; }
 .nb-motion .nb-step { transition: background-color 240ms var(--ease-out); }
 .nb-motion .nb-step.is-active { background: var(--nb-raised-2); }
@@ -715,7 +768,7 @@
 .nb-motion .nb-run-cm.is-shown { opacity: 1; }
 .nb-motion .nb-run { padding-bottom: 36px; }
 
-.nb-motion .nb-same { height: 230vh; padding-bottom: 0; margin-bottom: 144px; }
+.nb-motion .nb-same { height: calc(100vh - 100px + 70vh); padding-bottom: 0; margin-bottom: 144px; }
 .nb-motion .nb-same-pin { position: sticky; top: 100px; }
 .nb-motion .nb-same-stage { grid-template-columns: minmax(0, 1fr); justify-items: center; }
 .nb-motion .nb-same-panel { grid-area: 1 / 1; width: min(36rem, 46%); will-change: transform; }
@@ -788,7 +841,7 @@
   background: var(--paper);
   color: var(--paper-ink);
   box-shadow: var(--paper-shadow);
-  rotate: -1.5deg;
+  rotate: -1deg;
 }
 .nb-rubric-title { margin: 0 0 16px; font-weight: 600; font-size: 1.125rem; }
 .nb-rubric table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
@@ -810,16 +863,6 @@
   background-position: 0 40px;
   color: var(--paper-ink);
   box-shadow: var(--paper-shadow);
-}
-/* A second sheet underneath, a little crooked, so it reads as a notebook and not a card. */
-.nb-paper::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--paper-line);
-  rotate: 1deg;
-  translate: 6px 6px;
 }
 .nb-tiers { position: relative; isolation: isolate; }
 .nb-paper-title { margin: 0 0 24px; font-family: var(--face-ui); font-weight: 500; font-size: 2rem; letter-spacing: -0.02em; line-height: 1.2; }
@@ -960,9 +1003,17 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 }
 
 .chart { display: block; width: 100%; height: auto; }
+/* Below 1000px the chart keeps its 1000px size (where every waypoint is a 49px target) and
+   scrolls sideways in its frame, instead of shrinking its targets under 44px. The list below
+   it has every lesson too. */
+.chart-swipe-note { display: none; }
+@media (max-width: 1040px) {
+  .chart-frame { overflow-x: auto; overscroll-behavior-x: contain; }
+  .chart { min-width: 1000px; }
+  .chart-swipe-note { display: block; margin: var(--s2) 0 0; font-size: var(--size-label); }
+}
 
 .chart-star { fill: var(--space-dim); }
-.chart-ticks path { stroke: var(--space-line); stroke-width: 1; fill: none; }
 
 .chart-route, .chart-hop { fill: none; stroke-linecap: round; }
 .chart-route { stroke-width: 2.5; }
@@ -1184,15 +1235,29 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   flex: 0 1 auto;
   overflow: auto;
   padding: 0 var(--s4);
-  max-height: 34%;
+  max-height: 45%;
   border-bottom: var(--seam-w) solid var(--line);
   background: var(--surface);
 }
+/* The checks scroll; the Next lesson and Chart buttons stay pinned to the strip's bottom edge
+   so a long list can never push them out of reach. */
+.lesson-console > .results-slot .lesson-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: var(--s3) calc(-1 * var(--s4)) 0;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border-top: var(--seam-w) solid var(--line);
+}
+.lesson-console > .results-slot .lesson-actions:empty { display: none; }
 /* Nothing showing in the slot (no results, hints closed): give back its strip of height. */
 .lesson-console > .results-slot:not(:has(> :not([hidden]):not(:empty))) { display: none; }
 .lesson-console > .results-slot .check-results { margin-top: var(--s3); }
-.lesson-console > .results-slot .lesson-actions { margin: var(--s3) 0; }
 
+/* The side column is as wide as the window is tall allows (up to 520px), so the square field
+   fills the height; telemetry takes whatever is left instead of leaving a gap. */
+.lesson-shell { --console-side: clamp(352px, calc(100vh - 380px), 520px); }
 .lesson-side {
   grid-area: side;
   display: flex;
@@ -1218,10 +1283,11 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   overflow: hidden;
 }
 
-.field-caption { flex: none; margin: 0; font-size: var(--size-label); min-height: 1.5em; }
+.field-caption { flex: none; margin: 0; font-family: var(--face-code); font-weight: 400; font-size: var(--size-label); min-height: 1.5em; }
 /* The caption is a live region, so it stays in the tree; it only gives back its height while empty. */
 .field-caption:empty { min-height: 0; }
 
+.lesson-shell[data-step='mission'] .lesson-reading { display: flex; flex-direction: column; justify-content: center; }
 .mission { font-size: calc(var(--size-prose) + 5px); line-height: 1.35; }
 
 .why-panel {
@@ -1238,6 +1304,23 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 
 .lesson-actions { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s5); align-items: center; }
 
+/* ------------------------------------------------------------------ print */
+
+/* A mentor guide printed for the pit: white paper, dark ink, no chrome, and the rubric table
+   kept whole on one page. Any other page prints its main content the same way. */
+@media print {
+  @page { margin: 16mm; }
+  html, body, #app, main, .prose-page, .mentor-page { background: var(--print-paper) !important; color: var(--print-ink) !important; }
+  .site-header, .site-footer, .skip-link, .tier-tabs, .mentor-tools, .mentor-pager, .display-panel, .nb-footer { display: none !important; }
+  .prose-page { max-width: none; padding: 0; }
+  .mentor-page h1, .mentor-page h2, .mentor-page h3 { color: var(--print-ink); break-after: avoid; }
+  .mentor-page a { color: var(--print-ink); text-decoration: underline; }
+  .mentor-page table { width: 100%; border-collapse: collapse; font-size: 11pt; break-inside: avoid; }
+  .mentor-page th, .mentor-page td { border: 1px solid var(--print-rule); padding: 4pt 6pt; color: var(--print-ink); background: var(--print-paper); }
+  .mentor-page code { background: none; color: var(--print-ink); }
+  .mentor-page p, .mentor-page li { orphans: 3; widows: 3; }
+}
+
 /* ---------------------------------------------------------------- console */
 
 .console {
@@ -1245,12 +1328,16 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   flex-direction: column;
   flex: 0 0 auto;
   min-height: 120px;
+  transition: min-height 200ms var(--ease-out);
   max-height: 38%;
   padding: var(--s3) var(--s4);
   gap: var(--s2);
   overflow: auto;
 }
 
+.console.is-empty { min-height: 32px; height: 32px; padding-block: 0; justify-content: center; overflow: hidden; }
+.console.is-empty .console-output,
+.console.is-empty .console-problem { display: none; }
 .console-head { display: flex; align-items: baseline; gap: var(--s3); }
 .console-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
 .console-status { margin: 0; font-size: var(--size-label); color: var(--star); max-width: none; }
@@ -1276,8 +1363,9 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 
 /* -------------------------------------------------------------- telemetry */
 
-.telemetry { flex: 0 1 auto; min-height: 140px; overflow: auto; padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
+.telemetry { flex: 1 1 auto; min-height: 140px; overflow: auto; padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
 .telemetry-head { display: flex; justify-content: space-between; align-items: baseline; }
+.telemetry-toggle { display: none; }
 .telemetry-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
 .telemetry-sub { margin: var(--s3) 0 var(--s1); font-size: calc(var(--size-label) - 1px); letter-spacing: 0.02em; color: var(--space-mute); }
 .telemetry-list { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--s3); margin: var(--s2) 0 0; }
@@ -1425,6 +1513,7 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 .md-table th, .md-table td { border-bottom: var(--seam-w) solid var(--line); padding: var(--s2) var(--s3); text-align: start; vertical-align: top; }
 .md-table tr:last-child td { border-bottom: 0; }
 .md-table th { background: var(--surface-soft); font-family: var(--face-display); }
+.md-table tbody th { background: none; }
 
 .md-list { padding-inline-start: var(--s5); }
 .md-list li { margin-bottom: var(--s2); }
@@ -1432,9 +1521,38 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 blockquote { margin: var(--s4) 0; padding: var(--s3) var(--s4); background: var(--surface-soft); border-radius: var(--radius); color: var(--ink-mid); }
 hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0; }
 
+/* ------------------------------------------------------------------ about */
+
+/* The mascot stands beside the first paragraphs: the one picture on a page of text. */
+.about-mascot { float: inline-end; width: 160px; margin: 0 0 var(--s4) var(--s5); }
+.about-mascot img { display: block; width: 100%; height: auto; }
+.about-start { margin-top: var(--s6); clear: both; }
+@media (max-width: 760px) {
+  .about-mascot { width: 104px; margin-inline-start: var(--s3); }
+}
+
 /* ----------------------------------------------------------------- mentor */
 
 .mentor-page { max-width: 80ch; }
+.mentor-tools { display: flex; justify-content: flex-end; margin-top: var(--s4); }
+.mentor-pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); margin-top: var(--s7); padding-top: var(--s4); border-top: var(--seam-w) solid var(--line); }
+.mentor-pager-link {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: var(--tap);
+  padding: var(--s3);
+  border-radius: var(--radius);
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+}
+.mentor-pager-link.is-next { justify-content: flex-end; text-align: end; grid-column: 2; }
+.mentor-pager-link > span { display: flex; flex-direction: column; }
+.mentor-pager-dir { font-size: var(--size-label); color: var(--ink-mid); font-weight: 400; }
+@media (hover: hover) {
+  .mentor-pager-link:hover { background: var(--surface-soft); }
+}
 .mentor-body > h2:first-child { margin-top: var(--s6); }
 
 .raw-error summary { display: inline-flex; align-items: center; cursor: pointer; font-weight: 600; color: var(--link); }
@@ -1475,7 +1593,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 /* 1024 x 768: the side column narrows rather than dropping under the work, so the field
    stays beside the code while it runs, and the gamepad folds into two rows to fit. */
 @media (max-width: 1180px) {
-  :root { --console-side: 320px; }
+  :root, .lesson-shell { --console-side: 320px; }
   /* Two 136 px button clusters need 352 px once the column's scrollbar is counted. */
   .lesson-shell:has(.gamepad) { --console-side: 352px; }
 }
@@ -1493,6 +1611,34 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
     border-radius: var(--radius);
   }
   .lesson-shell .step-name { font-size: 14px; line-height: 1.1; }
+}
+
+/* -------------------------------------------- tablets: the lesson stacks */
+
+/* 900px and narrower: three columns leave the editor too narrow to read, so the lesson stacks
+   with the field on top, then the reading or the editor, and telemetry folds to its title
+   bar (the Show button opens it). The page scrolls instead of being held to the screen. */
+@media (max-width: 900px) {
+  .lesson { flex: none; }
+  .lesson-shell,
+  .lesson-shell[data-state='console'] {
+    overflow: visible;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'rail' 'side' 'reading';
+  }
+  .lesson-shell[data-state='console'] { grid-template-areas: 'rail' 'side' 'console'; }
+  .step-rail { flex-direction: row; overflow-x: auto; border-inline-end: 0; border-bottom: var(--seam-w) solid var(--line); }
+  .lesson-shell .step-name { font-size: inherit; }
+  .lesson-shell .step-button,
+  .lesson-shell[data-state='console'] .step-button { flex-direction: row; justify-content: flex-start; gap: var(--s3); min-height: var(--tap); padding: 0 var(--s3); border-radius: var(--radius-pill); flex: none; }
+  .lesson-side { border-inline-start: 0; border-bottom: var(--seam-w) solid var(--line); max-height: none; overflow: visible; align-items: center; }
+  .field-box { width: min(100%, 56vh); height: auto; aspect-ratio: 1; }
+  .lesson-side > :not(.field-box) { align-self: stretch; }
+  .editor { min-height: 360px; }
+  .lesson-console > .results-slot { max-height: none; }
+  .telemetry { flex: none; min-height: 0; }
+  .telemetry-toggle { display: inline-flex; align-items: center; min-height: var(--tap); }
+  .telemetry[data-collapsed='true'] .telemetry-body { display: none; }
 }
 
 /* ------------------------------------------------- phones and 200% zoom */

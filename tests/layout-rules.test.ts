@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../src/ui/app.css'), 'utf8');
 
 describe('app.css keeps the rules DESIGN.md depends on', () => {
-  it('holds the lesson page to the screen at desktop sizes', () => {
-    expect(css).toMatch(/@media \(min-width: 761px\) and \(min-height: 561px\)\s*\{\s*#app:has\(\.lesson\)\s*\{[^}]*height: 100dvh/);
+  it('holds the lesson page to the screen at desktop sizes (it stacks and scrolls at 900px and below)', () => {
+    expect(css).toMatch(/@media \(min-width: 901px\) and \(min-height: 561px\)\s*\{\s*#app:has\(\.lesson\)\s*\{[^}]*height: 100dvh/);
   });
 
   it('gives the chart page its full width inside the flex outlet', () => {

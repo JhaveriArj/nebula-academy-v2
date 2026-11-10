@@ -26,6 +26,9 @@ export function progressPage(onChange: () => void): HTMLElement {
     type: 'file',
     accept: '.json,application/json',
     class: 'visually-hidden',
+    // The visible "Load" button opens this; the input itself is not a second tab stop.
+    'aria-label': 'Progress file to load',
+    tabindex: '-1',
     onchange: () => {
       const chosen = file.files?.[0];
       if (!chosen) return;
@@ -114,10 +117,25 @@ export function progressPage(onChange: () => void): HTMLElement {
           );
         }),
       ),
-      el('p', { class: 'muted', text: `Last saved ${new Date(load().savedAt).toLocaleString()}.` }),
+      lastSaved(load().savedAt),
     );
   }
 
   render();
   return page;
+}
+
+/** "Last saved 3 minutes ago", with the exact date and time on the <time> element. */
+function lastSaved(savedAt: string | number): HTMLElement {
+  const when = new Date(savedAt);
+  const seconds = Math.round((when.getTime() - Date.now()) / 1000);
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  const steps: [Intl.RelativeTimeFormatUnit, number][] = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
+  const [unit, size] = steps.find(([, n]) => Math.abs(seconds) >= n) ?? ['second', 1];
+  const relative = Math.abs(seconds) < 30 ? 'just now' : rtf.format(Math.round(seconds / size), unit);
+  return el('p', { class: 'muted' },
+    'Last saved ',
+    el('time', { datetime: when.toISOString(), title: when.toLocaleString(), text: relative }),
+    '.',
+  );
 }

@@ -1,8 +1,21 @@
 import { el } from '../dom';
+import { icon } from '../icons';
+import { pathway } from '../../content/loader';
+import { lessonHref } from '../router';
 
 export function aboutPage(): HTMLElement {
-  return el('article', { class: 'prose-page' },
+  const first = pathway.tiers[0]?.lessons[0];
+  return el('article', { class: 'prose-page about-page' },
     el('h1', { text: 'About Nebula Academy' }),
+    el('figure', { class: 'about-mascot' },
+      el('img', {
+        src: `${import.meta.env.BASE_URL}art/mascot-hero-560.webp`,
+        alt: 'The Nebula Academy mascot: a small purple astronaut with a blue helmet, yellow antenna tips and a big round visor.',
+        width: '560',
+        height: '1233',
+        loading: 'lazy',
+      }),
+    ),
     el('p', { text: 'Nebula Academy teaches FTC robot programming in Java, from never having written a line of code to a working TeleOp and Autonomous you can put on your team\'s robot.' }),
 
     el('h2', { text: 'What it is' }),
@@ -18,7 +31,7 @@ export function aboutPage(): HTMLElement {
 
     el('h2', { text: 'Credits and licences' }),
     el('p', { text: 'Built by and for an FTC team. The FIRST Tech Challenge SDK documentation is at ftc-docs.firstinspires.org, and the SDK itself is at github.com/FIRST-Tech-Challenge/FtcRobotController. Nebula Academy is not affiliated with or endorsed by FIRST.' }),
-    el('p', { class: 'muted', text: 'Typefaces: Archivo and Atkinson Hyperlegible Next, both from Google Fonts. Atkinson Hyperlegible was designed by the Braille Institute to make letters easier to tell apart.' }),
+    el('p', { class: 'muted', text: 'Typefaces: Fredoka, Lexend and Atkinson Hyperlegible Next, all from Google Fonts. Atkinson Hyperlegible was designed by the Braille Institute to make letters easier to tell apart, which is why every lesson is set in it.' }),
 
     el('h2', { text: 'For mentors' }),
     el('p', {},
@@ -26,5 +39,11 @@ export function aboutPage(): HTMLElement {
       el('a', { href: '#/mentor', text: 'Open the mentor guides' }),
       '.',
     ),
+
+    first
+      ? el('p', { class: 'about-start' },
+          el('a', { href: lessonHref(first.id), class: 'btn btn-next' }, el('span', { text: 'Start lesson 1' }), icon('next', 20)),
+        )
+      : null,
   );
 }

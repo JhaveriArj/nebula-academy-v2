@@ -3,20 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nebula Academy — learn FTC robot programming in Java</title>
+    <title>Nebula Academy — program a competition robot in real Java</title>
     <meta name="description" content="Write real Java. A virtual robot drives. Then put your code on your team's bot. Six tiers, 42 lessons, ages 9 to 18." />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#F5F3FC" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#100E3E" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="./art/icons/favicon.svg" type="image/svg+xml" />
-    <!-- The home hero's mascot is the LCP element, but the app builds the page in JS, so the
-         browser cannot see the image until the script has run. Preloading lets it download
-         alongside the script. 60 KB at the usual size, so the cost on other routes is small. -->
-    <link rel="preload" as="image" href="./art/mascot-hero-560.webp" imagesrcset="./art/mascot-hero-560.webp 560w, ./art/mascot-hero-1108.webp 1108w" imagesizes="(min-width: 2000px) 440px, 260px" type="image/webp" fetchpriority="high" />
+    <link rel="icon" href="./art/icons/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./art/icons/apple-touch-icon.png" />
+    <!-- The home page's mascot is drawn by the app's script, so the browser cannot see it until
+         that has run. Preloading lets it download alongside the script, but only when the page
+         opens on the home route; anywhere else it would be fetched and never used. -->
+    <script>
+      if (location.hash === '' || location.hash === '#/' || location.hash === '#') {
+        var l = document.createElement('link');
+        l.rel = 'preload'; l.as = 'image'; l.type = 'image/webp'; l.fetchPriority = 'high';
+        l.href = './art/mascot-hero-560.webp';
+        l.imageSrcset = './art/mascot-hero-560.webp 560w, ./art/mascot-hero-1108.webp 1108w';
+        l.imageSizes = '(min-width: 2000px) 440px, 260px';
+        document.head.appendChild(l);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Two requests on purpose. The display faces swap in when they arrive (their fallbacks
+         in theme.css are metric-matched, so the headline does not move). The reading face is
+         "optional": long prose rewraps when a font swaps in, which moved whole mentor guides,
+         so Atkinson is used only when it is ready at once; otherwise the page keeps its
+         metric-matched fallback for that visit and has Atkinson from the cache next time. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Lexend:wght@400..600&family=Atkinson+Hyperlegible+Next:wght@400..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Lexend:wght@400..600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400..700&display=optional"
       rel="stylesheet"
     />
   </head>

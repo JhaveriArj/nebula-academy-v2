@@ -104,15 +104,8 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
   }
   root.appendChild(starLayer);
 
-  // Coordinate ticks down the margins, like a real chart.
-  const ticks = svg('g', { class: 'chart-ticks', 'aria-hidden': 'true' });
-  for (let i = 1; i < 12; i++) {
-    const x = (W / 12) * i;
-    ticks.appendChild(svg('path', { d: `M ${x} 8 V ${i % 3 === 0 ? 22 : 15}` }));
-    const y = (H / 8) * (i % 8);
-    if (i < 8) ticks.appendChild(svg('path', { d: `M 8 ${y} H ${i % 2 === 0 ? 22 : 15}` }));
-  }
-  root.appendChild(ticks);
+  // (The margin ticks and the "N 0 — 12 ft" scale were removed: a star chart has no scale a
+  // kid can use, so they read as noise. The field, which does, keeps its rulers.)
 
   const routeLayer = svg('g', { class: 'chart-routes' });
   const waypointLayer = svg('g', { class: 'chart-waypoints' });
@@ -268,9 +261,6 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
   const flown = tiers.reduce((n, t) => n + t.lessons.filter((l) => isPassed(l.id)).length, 0);
   root.appendChild(
     svg('text', { x: 24, y: H - 20, class: 'chart-note', text: `${flown} of ${total} waypoints logged` }),
-  );
-  root.appendChild(
-    svg('text', { x: W - 24, y: H - 20, class: 'chart-note', 'text-anchor': 'end', text: 'N  0 — 12 ft' }),
   );
 
   return {

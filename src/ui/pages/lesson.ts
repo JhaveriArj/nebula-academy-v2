@@ -636,7 +636,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       const frame = frames[index]!;
       field.draw(frame.snapshot);
       telemetry.update(frame.snapshot);
-      caption.textContent = frame.caption ?? '';
+      caption.textContent = frame.caption ? `Demo: ${frame.caption}` : '';
       if (index < frames.length - 1) watchTimer = requestAnimationFrame(show);
       else watchTimer = 0;
     };

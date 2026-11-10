@@ -1,4 +1,5 @@
 import { el, mount } from '../dom';
+import { icon } from '../icons';
 import { pathway, loadContentFile } from '../../content/loader';
 import { renderMarkdown } from '../markdown';
 
@@ -40,11 +41,31 @@ export function mentorPage(tierParam: string | null): HTMLElement {
     return page;
   }
 
+  const prev = pathway.tiers.find((t) => t.tier === tier - 1);
+  const next = pathway.tiers.find((t) => t.tier === tier + 1);
+  // Printing is the point of these guides (they go in the pit), so the button says so.
+  const printButton = el('button', { type: 'button', class: 'btn btn-quiet mentor-print', onclick: () => window.print() },
+    icon('mentor', 20), el('span', { text: 'Print this guide' }));
+  const pager = el('nav', { class: 'mentor-pager', 'aria-label': 'Other tiers' },
+    prev
+      ? el('a', { href: `#/mentor/${prev.tier}`, class: 'mentor-pager-link is-prev' },
+          icon('back', 20), el('span', {}, el('span', { class: 'mentor-pager-dir', text: 'Previous' }), `Tier ${prev.tier}, ${prev.name}`))
+      : el('span'),
+    next
+      ? el('a', { href: `#/mentor/${next.tier}`, class: 'mentor-pager-link is-next' },
+          el('span', {}, el('span', { class: 'mentor-pager-dir', text: 'Next' }), `Tier ${next.tier}, ${next.name}`), icon('next', 20))
+      : el('span'),
+  );
+
   mount(body, el('p', { class: 'muted', text: 'Loading the guide.' }));
   loadContentFile(`mentor/tier-${tier}.md`)
     .then((markdown) => {
       // The page already has its <h1>, so the guide's own # becomes an <h2>.
-      mount(body, renderMarkdown(markdown, { headingOffset: 1 }));
+      mount(body,
+        el('div', { class: 'mentor-tools' }, printButton),
+        renderMarkdown(markdown, { headingOffset: 1 }),
+        pager,
+      );
     })
     .catch(() => {
       mount(body, el('p', { class: 'fail', text: `The guide for tier ${tier} could not be loaded.` }));
