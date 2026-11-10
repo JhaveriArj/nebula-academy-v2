@@ -1924,10 +1924,74 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 
 /* --------------------------------------------------------------- progress */
 
-.progress-count { font-size: calc(var(--size-prose) + 4px); }
-.progress-tiers { list-style: none; padding: 0; }
-.progress-tiers li { display: flex; justify-content: space-between; gap: var(--s4); padding: var(--s2) 0; border-bottom: var(--seam-w) solid var(--line); max-width: var(--reading-max); }
-.progress-tier-name { font-family: var(--face-display); font-weight: 500; }
+.progress-page { width: 100%; max-width: 920px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s8); }
+.progress-head h1 { margin: 0 0 var(--s2); }
+.progress-lede { margin: 0; color: var(--ink-mid); font-size: 1.0625rem; }
+.progress-status { margin: var(--s3) 0 0; color: var(--ink-mid); }
+.progress-status:empty { display: none; }
+.progress-when { margin: var(--s2) 0 0; color: var(--ink-mid); font-size: var(--size-label); }
+
+/* The count: the passed number circled in ink, then "/ 42", then a yellow bar that grows to
+   its share. The bar is a transform, so it animates without layout. */
+.progress-summary { margin: var(--s6) 0 var(--s5); }
+.progress-count { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3); margin: 0; max-width: none; }
+.progress-count-num .kit-circled-n { font-size: 56px; color: var(--ink); }
+.progress-count-of { font-size: 56px; line-height: 1; color: var(--ink-mid); }
+.progress-count-label { margin-inline-start: var(--s2); color: var(--ink-mid); font-size: 1.125rem; }
+.progress-bar { position: relative; height: 10px; margin-top: var(--s4); border-radius: var(--radius-pill); background: var(--surface-soft); overflow: hidden; }
+.progress-bar-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--star); transform-origin: 0 50%; }
+
+/* By tier: hairline rows, the emblem, the name, one segment per lesson and the count. */
+.progress-tier-list { list-style: none; margin: 0; padding: 0; border-top: var(--seam-w) solid var(--line-strong); }
+.progress-tier { display: grid; grid-template-columns: 28px 12rem minmax(0, 1fr) 4.5rem; align-items: center; gap: var(--s4); max-width: none; min-height: 64px; border-bottom: var(--seam-w) solid var(--line); color: var(--ink-mid); }
+.progress-tier .kit-emblem { color: var(--ink); }
+.progress-tier-label { display: flex; flex-direction: column; line-height: 1.2; }
+.progress-tier-num, .progress-tier-count { font-family: var(--face-code); font-size: 14px; color: var(--ink-mid); }
+.progress-tier-count { text-align: end; font-variant-numeric: tabular-nums; }
+.progress-tier-name { color: var(--ink); font-weight: 600; }
+.progress-segments { display: flex; gap: 4px; }
+.progress-seg { flex: 1 1 0; height: 8px; border-radius: var(--radius-xs); background: var(--surface-soft); box-shadow: inset 0 0 0 1px var(--line); }
+.progress-seg.is-on { background: var(--star); box-shadow: none; }
+.progress-tier.is-done .progress-tier-count { color: var(--go); }
+
+/* Save and load, with the mascot and its one line of advice on a scrap of paper. */
+.progress-safe { display: grid; grid-template-columns: minmax(0, 1fr) 220px; align-items: end; gap: var(--s6); margin-top: var(--s7); }
+.progress-safe h2, .progress-danger h2 { margin: 0 0 var(--s2); }
+.progress-mascot { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s3); margin: 0; }
+.progress-bubble { position: relative; }
+.progress-bubble .kit-paper { padding: 14px 18px; font-family: var(--face-display); font-weight: 500; line-height: 1.3; rotate: -2deg; }
+.progress-bubble::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 18px; height: 18px; background: var(--paper); rotate: 45deg; translate: -50% 0; }
+
+/* The danger zone: an alert hairline round it, and the question in a dialog. */
+.progress-danger { margin-top: var(--s7); padding: var(--s5); border: var(--seam-w) solid color-mix(in srgb, var(--alert) 55%, transparent); border-radius: var(--radius-lg); }
+.progress-danger p { margin: 0 0 var(--s4); }
+.panel-dialog {
+  width: min(520px, calc(100vw - 2 * var(--s4)));
+  padding: var(--s5);
+  border: var(--seam-w) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-lift);
+}
+.panel-dialog::backdrop { background: color-mix(in srgb, var(--nb-shadow) 60%, transparent); }
+.panel-dialog h2 { margin: 0 0 var(--s2); }
+.panel-dialog p { margin: 0 0 var(--s5); }
+.panel-dialog .button-row { justify-content: flex-end; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel-dialog[open] { animation: dialog-in 250ms var(--ease-out); }
+}
+@keyframes dialog-in { from { opacity: 0; transform: translateY(8px); } }
+
+@media (max-width: 720px) {
+  .progress-tier { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px var(--s3); padding: var(--s2) 0; }
+  .progress-segments { grid-column: 2 / -1; grid-row: 2; }
+  .progress-safe { grid-template-columns: minmax(0, 1fr); }
+  .progress-mascot { flex-direction: row; justify-content: flex-start; }
+  .progress-mascot .kit-mascot { --h: 130px !important; }
+  .progress-bubble::after { left: auto; right: -10px; bottom: 50%; translate: 0 50%; }
+  .progress-count-num .kit-circled-n, .progress-count-of { font-size: 40px; }
+}
 
 /* ------------------------------------------------------------ 1024 x 768 */
 
