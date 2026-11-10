@@ -6,6 +6,7 @@ import { svg } from './dom';
 const PATHS: Record<string, string[]> = {
   run: ['M7 4.5 L19 12 L7 19.5 Z'],
   stop: ['M6.5 6.5 h11 v11 h-11 Z'],
+  pause: ['M8.5 5.5 v13', 'M15.5 5.5 v13'],
   reset: ['M5 12 a7 7 0 1 0 2.5 -5.4', 'M4.5 4 v3.2 h3.2'],
   locked: ['M6.5 11 h11 v8.5 h-11 Z', 'M9 11 V8 a3 3 0 0 1 6 0 v3'],
   passed: ['M5 13 l4.5 4.5 L19.5 7'],

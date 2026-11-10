@@ -1,38 +1,28 @@
 import { el, svg, prefersReducedMotion } from '../dom';
+import { icon } from '../icons';
 import { createFieldView } from '../components/field';
-import { playWatch, type WatchSpec } from '../../sim/watch';
+import { playWatch } from '../../sim/watch';
 import { counts, hasChosenMode, isPassed, setMode, type Mode } from '../../progress/store';
 import { applyMode } from '../header';
 import { pathway } from '../../content/loader';
 import { FIELD_CM } from '../../sim/field';
 import { lessonHref } from '../router';
 import { frameIndex } from '../frames';
+import { FIRST_LINE, HERO_CHECKS, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, demoStateAt } from '../heroDemo';
 
 /* The home page: an FTC team's engineering notebook, read at night.
 
-   Two materials on purpose. Everything that teaches (type, spacing, the simulator, the code)
-   is precise. Everything the mascot touches is drawn by hand: the paper, the ink marks, the
-   route the robot leaves behind. One moment carries the color: the route drawing itself in
-   yellow on load. Nothing else moves except hover. See docs/DESIGN.md. */
+   The hero is the product working. A copy of the lesson screen runs eight lines of Java:
+   the robot drives a square while the running lines light up, and when it stops, three
+   of the Tier 0 checkpoint's own checks pass. tests/hero-demo.test.ts runs the same Java
+   through the real interpreter, so the demo cannot drift from what the product does.
+   Below it, the three steps of every lesson, the six tiers on paper, and the mentor guide.
+   See docs/DESIGN.md. */
 
-const HERO: WatchSpec = {
-  robot: 'mecanum',
-  start: { x: 120, y: 120, headingDeg: 0 },
-  withElements: true,
-  durationMs: 6400,
-  steps: [
-    { atMs: 0, motors: { frontLeft: 0.55, frontRight: -0.55, backLeft: 0.55, backRight: -0.55 } },
-    { atMs: 1500, motors: { frontLeft: 0.55, frontRight: 0.55, backLeft: -0.55, backRight: -0.55 } },
-    { atMs: 3000, motors: { frontLeft: -0.55, frontRight: 0.55, backLeft: -0.55, backRight: 0.55 } },
-    { atMs: 3700, motors: { frontLeft: 0.55, frontRight: -0.55, backLeft: 0.55, backRight: -0.55 } },
-    { atMs: 5000, motors: { frontLeft: 0, frontRight: 0, backLeft: 0, backRight: 0 }, servos: { clawServo: 1 } },
-  ],
-};
+/** How long the finished square stays on screen before the demo runs again. */
+const HOLD_MS = 3200;
 
 export function homePage(): HTMLElement {
-  const field = createFieldView({ label: 'The simulator: a robot driving a short route on a 12 foot field', instrument: true });
-  const frames = playWatch(HERO);
-
   const everyLesson = pathway.tiers.flatMap((t) => t.lessons);
   // The first lesson they have not passed, or the very first one. Read from
   // content/pathway.json rather than named here, which the design lint enforces.
@@ -41,20 +31,19 @@ export function homePage(): HTMLElement {
   const { passed } = counts();
   const returning = passed > 0;
   const currentTier = pathway.tiers.find((t) => t.lessons.some((l) => l.id === startAt))?.tier ?? 0;
+  const lessonCount = everyLesson.length;
 
-  const ageButton = (mode: Mode, label: string) =>
+  const ageButton = (mode: Mode, label: string, primary: boolean) =>
     el('a', {
       href: lessonHref(startAt),
-      class: 'nb-button nb-button-light',
+      class: primary ? 'nb-button nb-button-primary' : 'nb-button nb-button-quiet',
       onclick: () => {
         setMode(mode);
         applyMode();
       },
     }, label);
 
-  // The route the robot leaves, drawn in ink over the canvas and revealed as it drives.
-  const route = svg('path', { class: 'nb-route', d: routePath(frames), pathLength: '1', filter: 'url(#nb-wobble)' });
-  const routeLayer = svg('svg', { class: 'nb-route-layer', viewBox: `0 0 ${FIELD_CM} ${FIELD_CM}`, 'aria-hidden': 'true' }, route);
+  const demo = heroDemo();
 
   const page = el('div', { class: 'nb' },
     inkDefs(),
@@ -63,63 +52,46 @@ export function homePage(): HTMLElement {
     el('section', { class: 'nb-hero', 'aria-labelledby': 'hero-title' },
       el('div', { class: 'nb-hero-copy' },
         el('h1', { class: 'nb-title', id: 'hero-title', text: 'Program a competition robot in real Java' }),
-        el('p', { class: 'nb-lede', text: '42 short lessons for ages 9 to 18. You write the code, a robot on the screen drives it, and by the last tier it runs on your FTC team’s robot. Nothing to install and no account.' }),
+        el('p', { class: 'nb-lede', text: 'You write the code, a robot on the screen drives it, and by the last tier the same code runs on your FTC team’s robot.' }),
         hasChosenMode()
           ? el('div', { class: 'nb-actions' },
               el('a', { href: lessonHref(startAt), class: 'nb-button nb-button-primary' },
                 returning && next ? `Carry on: ${next.title}` : 'Start lesson 1'),
-              el('a', { href: '#/chart', class: 'nb-link', text: 'See all 42 lessons' }),
+              el('a', { href: '#/chart', class: 'nb-button nb-button-quiet', text: `See all ${lessonCount} lessons` }),
             )
           // First visit: the age question is the start button, so it never blocks, and a
           // nine-year-old is not started in Builder by default.
           : el('div', { class: 'nb-start', role: 'group', 'aria-labelledby': 'nb-start-label' },
               el('p', { class: 'nb-start-label', id: 'nb-start-label', text: 'Start lesson 1. How old are you?' }),
               el('div', { class: 'nb-actions' },
-                ageButton('explorer', 'I am 9 to 12'),
-                ageButton('builder', 'I am 13 to 18'),
+                ageButton('explorer', 'I am 9 to 12', false),
+                ageButton('builder', 'I am 13 to 18', false),
               ),
             ),
-      ),
-
-      // The instrument: the real simulator, framed like something you would measure with.
-      el('figure', { class: 'nb-instrument' },
-        el('div', { class: 'nb-instrument-frame' },
-          el('ol', { class: 'nb-ruler nb-ruler-y', 'aria-hidden': 'true' }, ...['F', 'E', 'D', 'C', 'B', 'A'].map((r) => el('li', { text: r }))),
-          el('div', { class: 'nb-screen' }, field.canvas, routeLayer),
-          el('ol', { class: 'nb-ruler nb-ruler-x', 'aria-hidden': 'true' }, ...[0, 2, 4, 6, 8, 10, 12].map((ft) => el('li', { text: ft === 12 ? '12 ft' : String(ft) }))),
-          // The mascot leans on the frame's left edge and stands on the desk the frame sits
-          // on, with a shadow under its feet.
-          el('div', { class: 'nb-mascot', 'aria-hidden': 'true' },
-            el('img', { src: `${import.meta.env.BASE_URL}art/mascot-560.webp`, alt: '', width: '322', height: '560', fetchpriority: 'high' }),
-          ),
+        el('ul', { class: 'nb-proof', 'aria-label': 'At a glance' },
+          el('li', { text: `${lessonCount} lessons` }),
+          el('li', { text: `${pathway.tiers.length} tiers` }),
+          el('li', { text: 'Ages 9 to 18' }),
+          el('li', { text: 'FTC SDK method names' }),
+          el('li', { text: 'Free, no account' }),
         ),
-        el('figcaption', { class: 'nb-caption', text: 'The simulator from every lesson, drawn to the scale of a real FTC field' }),
       ),
+      demo.element,
     ),
 
     // ------------------------------------------------- how a lesson works
-    el('section', { class: 'nb-story', 'aria-label': 'How a lesson works' },
-      storyRow('nb-row',
-        el('div', { class: 'nb-row-text' },
-          el('h2', { text: 'You start with code that already works' }),
-          el('p', { text: 'Lesson 1 drives the robot 50 centimetres. One number decides how long the wheels turn. Your job is to find it and make the robot go further.' }),
-        ),
-        editorMock(),
+    el('section', { class: 'nb-how', 'aria-labelledby': 'how-title' },
+      el('div', { class: 'nb-section-head' },
+        el('h2', { id: 'how-title', text: 'How a lesson works' }),
+        el('p', { text: 'Every lesson is the same three steps on one screen, and takes 10 to 40 minutes. These are from lesson 1.' }),
       ),
-      storyRow('nb-row nb-row-flip',
-        beforeAfter(),
-        el('div', { class: 'nb-row-text' },
-          el('h2', { text: 'Press Run and see what changed' }),
-          el('p', { text: 'The field is drawn to scale, 12 feet across like the real one. Double the number and the robot goes twice as far. When it does something you did not expect, the console tells you which line it got stuck on.' }),
-        ),
-      ),
-      storyRow('nb-row',
-        el('div', { class: 'nb-row-text' },
-          el('h2', { text: 'Mentors get a guide for every tier' }),
-          el('p', { text: 'Each one lists what the kids already know, the mistakes you will see in the order you will see them, and what to say when someone is stuck.' }),
-          el('a', { href: '#/mentor', class: 'nb-link', text: 'Read the Tier 0 guide' }),
-        ),
-        rubricSheet(),
+      el('ol', { class: 'nb-steps' },
+        step('01', 'Read the mission', readingMock(),
+          'A short read in plain words. New words are in bold and in the glossary.'),
+        step('02', 'Change the code', editorMock(),
+          'The code already works. You find the number that matters and change it.'),
+        step('03', 'Run it and watch the checks', runMock(),
+          'The robot drives your code, and each check turns green when it passes.'),
       ),
     ),
 
@@ -149,35 +121,193 @@ export function homePage(): HTMLElement {
         ),
       ),
     ),
+
+    // ------------------------------------------------------------ mentors
+    el('section', { class: 'nb-mentors', 'aria-labelledby': 'mentors-title' },
+      el('div', { class: 'nb-mentors-text' },
+        el('h2', { id: 'mentors-title', text: 'Mentors get a guide for every tier' }),
+        el('p', { text: 'Each one lists what the kids already know, the mistakes you will see in the order you will see them, and what to say when someone is stuck.' }),
+        el('a', { href: '#/mentor', class: 'nb-link', text: 'Read the Tier 0 guide' }),
+      ),
+      rubricSheet(),
+    ),
   );
 
-  // The one animation on the page: the robot drives its route once and the ink follows it.
-  // Under reduced motion the robot is parked at the end with the route already drawn.
+  page.addEventListener('nebula:leave', () => demo.destroy());
+  requestAnimationFrame(() => demo.resize());
+  return page;
+}
+
+// ------------------------------------------------------------------ the hero demo
+
+interface Demo {
+  element: HTMLElement;
+  resize(): void;
+  destroy(): void;
+}
+
+/** A copy of the lesson screen running HERO_LINES: code, field, checks and a readout. */
+function heroDemo(): Demo {
+  const field = createFieldView({ label: 'The simulator: a tank robot driving a square, one side and one corner at a time', instrument: true });
+  const frames = playWatch(HERO_SPEC);
   const last = frames.length - 1;
+
+  const route = svg('path', { class: 'nb-route', d: routePath(frames), pathLength: '1', filter: 'url(#nb-wobble)' });
+  const routeLayer = svg('svg', { class: 'nb-route-layer', viewBox: `0 0 ${FIELD_CM} ${FIELD_CM}`, 'aria-hidden': 'true' }, route);
+
+  const lines = HERO_LINES.map((text, i) =>
+    el('span', { class: 'nb-demo-line' }, el('span', { class: 'nb-code-n', text: String(FIRST_LINE + i) }), ...highlight(text)));
+
+  const checks = HERO_CHECKS.checks.map((c) =>
+    el('li', { class: 'nb-check' }, el('span', { class: 'nb-check-mark', 'aria-hidden': 'true' }, icon('passed', 16)), el('span', { text: c.label ?? '' })));
+  const checksDone = el('span', { class: 'visually-hidden' });
+
+  const readout = {
+    side: el('output', { class: 'nb-readout-v' }),
+    left: el('output', { class: 'nb-readout-v' }),
+    right: el('output', { class: 'nb-readout-v' }),
+    time: el('output', { class: 'nb-readout-v' }),
+  };
+  const status = el('span', { class: 'nb-window-state' });
+
+  const toggle = el('button', { type: 'button', class: 'nb-demo-toggle' });
+  const setToggle = (playing: boolean) => {
+    toggle.replaceChildren(icon(playing ? 'pause' : 'run', 16), el('span', { text: playing ? 'Pause' : 'Play' }));
+    toggle.setAttribute('aria-label', playing ? 'Pause the demo' : 'Play the demo');
+  };
+
+  const element = el('figure', { class: 'nb-demo' },
+    el('div', { class: 'nb-window' },
+      // The mascot sits on top of the window like a figure on a monitor, feet on its edge.
+      el('div', { class: 'nb-mascot', 'aria-hidden': 'true' },
+        el('img', { src: `${import.meta.env.BASE_URL}art/mascot-560.webp`, alt: '', width: '322', height: '560', fetchpriority: 'high' }),
+      ),
+      el('div', { class: 'nb-window-bar' },
+        el('div', { class: 'nb-window-tools' },
+          el('span', { class: 'nb-window-file', text: 'Square.java' }),
+          toggle,
+        ),
+        status,
+      ),
+      el('div', { class: 'nb-window-body' },
+        el('div', { class: 'nb-window-code' },
+          el('pre', { class: 'nb-code nb-demo-code', tabindex: '0', 'aria-label': 'The Java the robot is running' }, el('code', {}, ...lines)),
+          el('div', { class: 'nb-demo-checks' },
+            el('p', { class: 'nb-demo-checks-title', text: 'Checks from the Tier 0 checkpoint' }),
+            el('ul', {}, ...checks),
+            checksDone,
+          ),
+        ),
+        el('div', { class: 'nb-window-field' }, field.canvas, routeLayer),
+      ),
+      el('dl', { class: 'nb-readout' },
+        el('div', {}, el('dt', { text: 'side' }), el('dd', {}, readout.side)),
+        el('div', {}, el('dt', { text: 'leftDrive' }), el('dd', {}, readout.left)),
+        el('div', {}, el('dt', { text: 'rightDrive' }), el('dd', {}, readout.right)),
+        el('div', {}, el('dt', { text: 'time' }), el('dd', {}, readout.time)),
+      ),
+    ),
+    el('figcaption', { class: 'nb-caption', text: 'Eight lines from the Tier 0 checkpoint, running in the same simulator every lesson uses' }),
+  );
+
+  const power = (p: number) => (p < 0 ? '−' : '') + Math.abs(p).toFixed(2);
+  let shownDone: boolean | null = null;
   const show = (index: number) => {
     field.draw(frames[index]!.snapshot);
     route.style.strokeDashoffset = String(1 - index / Math.max(1, last));
+    const s = demoStateAt(index);
+    lines.forEach((line, i) => line.classList.toggle('is-running', s.lines.includes(i)));
+    readout.side.textContent = `${s.side} of ${SIDES}`;
+    readout.left.textContent = power(s.left);
+    readout.right.textContent = power(s.right);
+    readout.time.textContent = `${s.seconds.toFixed(1)} s`;
+    if (s.done !== shownDone) {
+      shownDone = s.done;
+      element.classList.toggle('is-done', s.done);
+      status.textContent = s.done ? `${checks.length} of ${checks.length} checks passed` : 'Running';
+      // Announced once per run, not on every frame.
+      checksDone.textContent = s.done ? `All ${checks.length} checks passed.` : '';
+    }
   };
-  if (prefersReducedMotion()) {
-    show(last);
-  } else {
-    let raf = 0;
-    const startedAt = performance.now() + 500;
-    const play = (now: number) => {
-      const index = frameIndex(now, startedAt, frames.length, false);
-      show(index);
-      if (index < last) raf = requestAnimationFrame(play);
-    };
-    show(0);
-    raf = requestAnimationFrame(play);
-    page.addEventListener('nebula:leave', () => {
-      cancelAnimationFrame(raf);
-      field.destroy();
-    });
-  }
 
-  requestAnimationFrame(() => field.resize());
-  return page;
+  // The loop: run, hold the finished square, run again. It pauses when it is off screen or
+  // the tab is hidden, and the Pause button stops it for good (WCAG 2.2.2). Under reduced
+  // motion it starts finished and Play runs it once.
+  const reduced = prefersReducedMotion();
+  const cycle = frames.length + Math.round(HOLD_MS / 20);
+  let raf = 0;
+  let playing = false;
+  let userPaused = reduced;
+  let visible = true;
+  let frameAt = reduced ? last : 0;
+  let origin = 0;
+
+  const tick = (now: number) => {
+    const raw = frameIndex(now, origin, reduced ? frames.length : cycle, !reduced);
+    frameAt = raw;
+    show(Math.min(raw, last));
+    if (reduced && raw >= last) {
+      stop();
+      userPaused = true;
+      setToggle(false);
+      return;
+    }
+    raf = requestAnimationFrame(tick);
+  };
+  const start = () => {
+    if (playing) return;
+    playing = true;
+    origin = performance.now() - frameAt * 20;
+    raf = requestAnimationFrame(tick);
+  };
+  const stop = () => {
+    playing = false;
+    cancelAnimationFrame(raf);
+  };
+  const sync = () => (!userPaused && visible && !document.hidden ? start() : stop());
+
+  toggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    if (!userPaused && frameAt >= last && reduced) frameAt = 0;
+    setToggle(!userPaused);
+    sync();
+  });
+  const seen = new IntersectionObserver(([entry]) => {
+    visible = entry?.isIntersecting ?? true;
+    sync();
+  });
+  seen.observe(element);
+  document.addEventListener('visibilitychange', sync);
+
+  setToggle(!userPaused);
+  show(frameAt);
+  sync();
+
+  return {
+    element,
+    resize: () => field.resize(),
+    destroy: () => {
+      stop();
+      seen.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+      field.destroy();
+    },
+  };
+}
+
+/** Just enough colouring for the eight demo lines, in the editor's own token colours. */
+function highlight(line: string): (string | HTMLElement)[] {
+  const parts: (string | HTMLElement)[] = [];
+  const re = /\b(for|int)\b|\b(\d+(?:\.\d+)?)\b|\b(setPower|sleep)\b/g;
+  let at = 0;
+  for (const m of line.matchAll(re)) {
+    if (m.index! > at) parts.push(line.slice(at, m.index));
+    const cls = m[1] ? 'syn-kw' : m[2] ? 'syn-num' : 'syn-fn';
+    parts.push(el('span', { class: cls, text: m[0] }));
+    at = m.index! + m[0].length;
+  }
+  parts.push(line.slice(at));
+  return parts;
 }
 
 /** The route as an SVG path in field centimetres (y flipped: the field's y runs up). */
@@ -188,6 +318,78 @@ function routePath(frames: ReturnType<typeof playWatch>): string {
     .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)} ${(FIELD_CM - p.y).toFixed(1)}`)
     .join(' ');
 }
+
+// ------------------------------------------------------------ how a lesson works
+
+function step(n: string, title: string, view: HTMLElement, note: string): HTMLElement {
+  return el('li', { class: 'nb-step' },
+    el('div', { class: 'nb-step-head' },
+      el('span', { class: 'nb-step-n', 'aria-hidden': 'true', text: n }),
+      el('h3', { text: title }),
+    ),
+    el('div', { class: 'nb-step-view' }, view),
+    el('p', { class: 'nb-step-note', text: note }),
+  );
+}
+
+/** Lesson 1's reading pane, in its own words. */
+function readingMock(): HTMLElement {
+  const code = (t: string) => el('code', { text: t });
+  return el('div', { class: 'nb-read', 'aria-hidden': 'true' },
+    el('p', { class: 'nb-read-h', text: 'Mission' }),
+    el('p', { text: 'The robot drives forward, and you decide how far.' }),
+    el('p', { class: 'nb-read-h', text: 'Learn' }),
+    el('p', {}, code('leftDrive.setPower(0.5);'), ' tells the left wheel how fast to spin. ', el('strong', { text: 'Power' }), ' runs from ', code('-1.0'), ' to ', code('1.0'), ', so ', code('0.5'), ' is half speed.'),
+    el('p', {}, code('sleep(1000);'), ' keeps it going for 1000 ', el('strong', { text: 'milliseconds' }), '. That is one second.'),
+  );
+}
+
+/** Lesson 1's code as the editor shows it, the one number changed and circled in ink. */
+function editorMock(): HTMLElement {
+  const num = (t: string) => el('span', { class: 'syn-num', text: t });
+  const fn = (t: string) => el('span', { class: 'syn-fn', text: t });
+  const com = (t: string) => el('span', { class: 'syn-com', text: t });
+  const line = (n: number, ...parts: (string | HTMLElement)[]) =>
+    el('span', { class: n === 21 ? 'nb-code-line is-marked' : 'nb-code-line' }, el('span', { class: 'nb-code-n', text: String(n) }), ...parts);
+  return el('div', { class: 'nb-editor', 'aria-hidden': 'true' },
+    el('pre', { class: 'nb-code' },
+      el('code', {},
+        line(17, '    leftDrive.', fn('setPower'), '(', num('0.5'), ');'),
+        line(18, '    rightDrive.', fn('setPower'), '(', num('0.5'), ');'),
+        line(19, ''),
+        line(20, '    ', com('// TODO: make this number bigger')),
+        line(21, '    ', fn('sleep'), '(', el('span', { class: 'nb-code-target' }, num('2000'), inkCircle('nb-code-circle')), ');'),
+        line(22, ''),
+        line(23, '    leftDrive.', fn('setPower'), '(', num('0'), ');'),
+        line(24, '    rightDrive.', fn('setPower'), '(', num('0'), ');'),
+      ),
+    ),
+  );
+}
+
+/** The run: the robot twice as far as before, measured, and lesson 1's checks passed. */
+function runMock(): HTMLElement {
+  const before = 50;
+  const after = 100;
+  const y = (cm: number) => 128 - cm;
+  return el('div', { class: 'nb-run' },
+    svg('svg', { class: 'nb-mini-field', viewBox: '0 0 120 140', role: 'img', 'aria-label': `With sleep(2000) the robot drives ${after} centimetres, twice as far as before` },
+      ...[20, 40, 60, 80, 100].map((x) => svg('line', { x1: String(x), y1: '0', x2: String(x), y2: '140', class: 'nb-mini-grid' })),
+      ...[20, 40, 60, 80, 100, 120].map((v) => svg('line', { x1: '0', y1: String(v), x2: '120', y2: String(v), class: 'nb-mini-grid' })),
+      svg('line', { x1: '40', y1: '128', x2: '40', y2: String(y(after)), class: 'nb-mini-path' }),
+      svg('rect', { x: '32', y: String(y(before) - 8), width: '16', height: '16', rx: '2', class: 'nb-mini-ghost' }),
+      svg('rect', { x: '32', y: String(y(after) - 8), width: '16', height: '16', rx: '2', class: 'nb-mini-robot' }),
+      svg('path', { d: `M60 ${y(after)} h6 V128 h-6`, class: 'nb-mini-measure', filter: 'url(#nb-wobble)' }),
+      svg('text', { x: '72', y: String((y(after) + 128) / 2 + 3), 'font-size': '10', class: 'nb-mini-cm', text: `${after} cm` }),
+    ),
+    el('ul', { class: 'nb-run-checks' },
+      ...LESSON_ONE_CHECKS.map((label) =>
+        el('li', { class: 'nb-check is-passed' }, el('span', { class: 'nb-check-mark', 'aria-hidden': 'true' }, icon('passed', 16)), el('span', { text: label }))),
+    ),
+  );
+}
+
+// ------------------------------------------------------------------ ink and paper
 
 /** The hand-drawn look: a little turbulence displacing a stroke, so ink is never ruled. */
 function inkDefs(): SVGElement {
@@ -203,60 +405,6 @@ function inkDefs(): SVGElement {
 function inkCircle(cls: string): SVGElement {
   return svg('svg', { class: cls, viewBox: '0 0 100 100', 'aria-hidden': 'true' },
     svg('path', { d: 'M58 9 C 24 4, 6 30, 9 55 C 12 82, 42 95, 66 88 C 90 80, 97 52, 88 30 C 82 16, 68 9, 47 12', filter: 'url(#nb-wobble)' }),
-  );
-}
-
-function storyRow(cls: string, ...children: (HTMLElement | SVGElement)[]): HTMLElement {
-  return el('div', { class: cls }, ...children);
-}
-
-/** Lesson 1's real code, set like the editor, with the one number circled in ink. */
-function editorMock(): HTMLElement {
-  const num = (t: string) => el('span', { class: 'syn-num', text: t });
-  const fn = (t: string) => el('span', { class: 'syn-fn', text: t });
-  const com = (t: string) => el('span', { class: 'syn-com', text: t });
-  const line = (n: number, ...parts: (string | HTMLElement)[]) =>
-    el('span', { class: n === 21 ? 'nb-code-line is-marked' : 'nb-code-line' }, el('span', { class: 'nb-code-n', text: String(n) }), ...parts);
-  return el('figure', { class: 'nb-editor' },
-    el('figcaption', { class: 'nb-editor-tab', text: 'HelloRobot.java' }),
-    el('pre', { class: 'nb-code' },
-      el('code', {},
-        line(15, '        ', fn('waitForStart'), '();'),
-        line(16, ''),
-        line(17, '        leftDrive.', fn('setPower'), '(', num('0.5'), ');'),
-        line(18, '        rightDrive.', fn('setPower'), '(', num('0.5'), ');'),
-        line(19, ''),
-        line(20, '        ', com('// TODO: make this number bigger')),
-        line(21, '        ', fn('sleep'), '(', el('span', { class: 'nb-code-target' }, num('1000'), inkCircle('nb-code-circle')), ');'),
-        line(22, ''),
-        line(23, '        leftDrive.', fn('setPower'), '(', num('0'), ');'),
-        line(24, '        rightDrive.', fn('setPower'), '(', num('0'), ');'),
-      ),
-    ),
-    el('p', { class: 'nb-editor-note', text: 'This one. Milliseconds the wheels keep turning.' }),
-  );
-}
-
-/** The same robot, the same field, two numbers: what Run shows you. */
-function beforeAfter(): HTMLElement {
-  const panel = (label: string, cm: number) => {
-    const top = 140 - 20 - cm;
-    return el('figure', { class: 'nb-mini' },
-      el('figcaption', { class: 'nb-mini-label', text: label }),
-      svg('svg', { class: 'nb-mini-field', viewBox: '0 0 120 140', role: 'img', 'aria-label': `The robot drives ${cm} centimetres` },
-        ...[20, 40, 60, 80, 100].map((x) => svg('line', { x1: String(x), y1: '0', x2: String(x), y2: '140', class: 'nb-mini-grid' })),
-        ...[20, 40, 60, 80, 100, 120].map((y) => svg('line', { x1: '0', y1: String(y), x2: '120', y2: String(y), class: 'nb-mini-grid' })),
-        svg('line', { x1: '60', y1: '120', x2: '60', y2: String(top + 10), class: 'nb-mini-path' }),
-        svg('rect', { x: '52', y: String(top), width: '16', height: '16', rx: '2', class: 'nb-mini-robot' }),
-        svg('rect', { x: '52', y: '120', width: '16', height: '16', rx: '2', class: 'nb-mini-start' }),
-        svg('path', { d: `M80 ${top + 8} h6 V128 h-6`, class: 'nb-mini-measure', filter: 'url(#nb-wobble)' }),
-        svg('text', { x: '90', y: String((top + 128) / 2 + 3), 'font-size': '7', class: 'nb-mini-cm', text: `${cm} cm` }),
-      ),
-    );
-  };
-  return el('div', { class: 'nb-before-after' },
-    panel('sleep(1000)', 50),
-    panel('sleep(2000)', 100),
   );
 }
 

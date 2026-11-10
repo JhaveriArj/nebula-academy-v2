@@ -268,11 +268,12 @@ something being wrong; the design lint rejects them in `src/ui/`.
 ## Motion, icons, and the hero
 
 **Motion.** The robot moving in the sim (the product, not an effect); the route extending on the
-Level Map; on the home page, one thing: the robot drives its route once, 500 ms after load, and
-the route draws itself in yellow ink behind it. Nothing loops, nothing scrolls in, nothing pulses.
-Hover changes color or underline only. Under `prefers-reduced-motion: reduce` the route is
-already drawn and the robot is parked at its end. Motion is handled rule by rule (no global
-0.001 ms override, which modern-web-guidance warns can make motion more jarring).
+Level Map; on the home page, one thing: the hero demo. The robot drives a square while the
+running lines of Java light up, the route draws in yellow ink behind it, the checks pass one
+after another, and after a pause it runs again. It has a Pause button (WCAG 2.2.2), stops when
+it is off screen or the tab is hidden, and under `prefers-reduced-motion: reduce` it starts
+finished with Play to run it once. Nothing else loops, scrolls in or pulses. Hover changes color
+or underline only. Motion is handled rule by rule (no global 0.001 ms override).
 
 **Icons.** Drawn by hand as SVG in `src/ui/icons.ts`, 24×24, 1.75px stroke, no fill, inheriting
 `currentColor`. No emoji anywhere in the UI or lesson prose.
@@ -280,17 +281,20 @@ already drawn and the robot is parked at its end. Motion is handled rule by rule
 **Focus.** 3px ring with a 2px offset. `--link` on the page, `--star` in space. Never removed,
 never only a color change.
 
-**The hero is the instrument.** The page's one `<h1>` and the actions sit on the left. On the
-right, the real simulator sits in a frame with ruler ticks, mono grid references (A to F, 0 to
-12 ft), a faint scanline and vignette, and runs off the right edge of the window like a screen
-too big for the desk. The mascot leans on the frame's left edge, standing on a hairline desk
-with a cast shadow; no halo, no glow.
+**The hero is the product working.** The `<h1>`, one sentence, two buttons and a quiet row of
+facts sit on the left. On the right, a small copy of the lesson screen runs off the window's
+right edge: eight lines of Java from the Tier 0 checkpoint idea (a `for` loop of one side and
+one corner), the field, three of the checkpoint's own checks, and a live readout of `side`,
+`leftDrive`, `rightDrive` and time. The demo plays a script (`src/ui/heroDemo.ts`) so the home
+page stays light; `tests/hero-demo.test.ts` runs the same Java through the real interpreter and
+fails if the script and the Java disagree or the checks stop passing. The mascot stands on top
+of the window like a figure on a monitor, with a contact shadow on its edge.
 
-**The home page, top to bottom.** Hero; three rows that alternate sides, each with a real
-artifact (the actual lines of lesson 1 with the number circled in ink, two scale drawings of
-`sleep(1000)` and `sleep(2000)`, the Tier 0 mentor rubric on paper); then the six tiers written
-on a ruled notebook page, with a big drop-cap number each and a hand-inked circle on the tier
-you are in.
+**The home page, top to bottom.** Hero; "How a lesson works", one band in three numbered steps
+(the numbers are a real sequence) with lesson 1's reading pane, its code with the number changed
+and circled, and its run with its three checks; the six tiers on a ruled notebook page with a
+hand-inked circle on the tier you are in; the mentor guide beside its rubric on paper. The
+content column is up to 1520px wide; the demo window runs to the window's edge.
 
 **Hand-inked marks.** Anything the mascot or a person "draws" (the circle round the number, the
 ticks on the rubric, the you-are-here circle, the measurement brackets) goes through one SVG
@@ -298,11 +302,12 @@ filter, `#nb-wobble` (feTurbulence plus feDisplacementMap), so it looks drawn ra
 The UI around it stays precise.
 
 **Yellow is rationed to three places** on the home page: the start button, the route, and the
-you-are-here circle. Glow is used once, on the route.
+you-are-here circle. Glow is used once, on the route. In the demo's code, keywords take the
+annotation lavender instead of the editor's yellow for the same reason.
 
 **Home page type.** Fredoka for the `<h1>` and the tier numbers only; Lexend (400 to 600) for
-everything else on the home page and in the header and Display panel; system monospace for
-labels, in sentence case at 14px, never uppercase or tracked. Headings stay at weight 500.
+everything else on the home page and in the header and Display panel; system monospace for code,
+the readout and captions, in sentence case at 14px, never uppercase or tracked. Headings stay at weight 500.
 
 **First visit.** Until a kid has picked a mode, the one start button is two: "I am 9 to 12"
 (Explorer) and "I am 13 to 18" (Builder). One tap sets the mode and starts lesson 1, so the

@@ -274,7 +274,7 @@
    route, and the "you are here" mark on the notebook page. */
 
 .nb {
-  --edge: max(32px, calc((100% - 1200px) / 2));
+  --edge: max(32px, calc((100% - 1520px) / 2));
   background: var(--nb-page);
   color: var(--nb-text);
   font-family: var(--face-ui);
@@ -283,14 +283,16 @@
 .nb-defs { position: absolute; width: 0; height: 0; }
 .nb :focus-visible { outline-color: var(--star); }
 
-/* --- Hero: the headline large and left, the instrument big and running off the right edge. */
+/* --- Hero: the copy on the left, the product running on the right and off the window's edge. */
 .nb-hero {
+  --field: clamp(360px, calc(100vh - 330px), 880px);
+  --code-w: 25rem;
   display: grid;
-  grid-template-columns: minmax(0, 33rem) minmax(0, 1fr);
-  column-gap: 96px;
+  grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+  column-gap: 48px;
   align-items: center;
   min-height: calc(100vh - 68px);
-  padding: 64px 0 96px var(--edge);
+  padding: 120px 0 72px var(--edge);
 }
 .nb-hero-copy { display: flex; flex-direction: column; gap: 24px; }
 .nb-title {
@@ -298,17 +300,16 @@
   max-width: 10ch;
   font-family: var(--face-display);
   font-weight: 500;
-  font-size: clamp(2.75rem, 1.4rem + 3.6vw, 4.5rem);
+  font-size: clamp(2.75rem, 1.4rem + 3.2vw, 4.5rem);
   line-height: 1.02;
   letter-spacing: -0.03em;
   color: var(--nb-text);
   text-wrap: balance;
 }
-.nb-lede { margin: 0; max-width: 32rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); }
-.nb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 8px; }
+.nb-lede { margin: 0; max-width: 30rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); text-wrap: pretty; }
+.nb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 8px; }
 .nb-start { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 .nb-start-label { margin: 0; font-size: 1rem; color: var(--nb-text-2); }
-.nb-start .nb-actions { gap: 12px; margin-top: 8px; }
 
 .nb-button {
   display: inline-flex;
@@ -316,18 +317,19 @@
   min-height: 48px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
+  border: var(--seam-w) solid transparent;
   font-family: var(--face-ui);
   font-weight: 500;
   font-size: 1rem;
   text-decoration: none;
-  transition: background-color 160ms var(--ease-out), scale 120ms var(--ease-out);
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), scale 120ms var(--ease-out);
 }
 .nb-button:active { scale: 0.98; }
 .nb-button-primary { background: var(--star); color: var(--on-star); }
-.nb-button-light { background: var(--nb-text); color: var(--nb-page); }
+.nb-button-quiet { color: var(--nb-text); border-color: color-mix(in srgb, var(--nb-text) 24%, transparent); }
 @media (hover: hover) {
   .nb-button-primary:hover { background: color-mix(in srgb, var(--star) 82%, var(--nb-text)); }
-  .nb-button-light:hover { background: var(--nb-text-2); }
+  .nb-button-quiet:hover { background: var(--nb-raised); border-color: color-mix(in srgb, var(--nb-text) 40%, transparent); }
 }
 .nb-link {
   display: inline-flex;
@@ -346,152 +348,225 @@
   .nb-link:hover { text-decoration-color: var(--nb-text); }
 }
 
-/* --- The instrument. A frame with ruler ticks on two edges, grid references in mono, a
-   faint scanline and vignette over the screen, and the route in ink on top. */
-.nb-instrument {
-  position: relative;
-  margin: 0;
-  width: min(720px, calc(100vh - 230px));
-  justify-self: end;
-  /* Runs off the right edge of the window, like a screen too big for the desk. */
-  margin-right: -88px;
+/* The facts, quiet: small, sentence case, hairlines between. */
+.nb-proof { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; row-gap: 8px; margin: 24px 0 0; padding: 0; list-style: none; }
+.nb-proof li {
+  max-width: none;
+  padding: 0 16px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--nb-text-2);
 }
-.nb-instrument-frame {
+.nb-proof li + li { border-left: var(--seam-w) solid var(--nb-line); }
+/* Three to a row, like a small table: no rule before the first in each row. */
+.nb-proof li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+
+/* --- The demo window: the lesson screen in miniature. Code and checks on the left, the
+   field on the right, a live readout along the bottom. It runs off the right edge. */
+.nb-demo { margin: 0; min-width: 0; }
+.nb-window {
   position: relative;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 28px;
-  gap: 8px;
-  padding: 16px 16px 8px 8px;
-  border-radius: var(--radius-xs);
-  background: var(--nb-raised);
+  grid-template-rows: 44px auto 44px;
   border: var(--seam-w) solid var(--nb-line);
-}
-/* Ticks every half foot along the top and left edges of the screen. */
-.nb-instrument-frame::before,
-.nb-instrument-frame::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-}
-.nb-instrument-frame::before {
-  left: 44px;
-  right: 16px;
-  top: 4px;
-  height: 8px;
-  background: repeating-linear-gradient(90deg, var(--nb-text-3) 0 1px, transparent 1px calc(100% / 24));
-  opacity: 0.6;
-}
-.nb-instrument-frame::after {
-  top: 16px;
-  bottom: 44px;
-  left: 4px;
-  width: 8px;
-  background: repeating-linear-gradient(180deg, var(--nb-text-3) 0 1px, transparent 1px calc(100% / 24));
-  opacity: 0.6;
-}
-.nb-screen {
-  position: relative;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  border-right: 0;
+  border-start-start-radius: var(--radius);
+  border-end-start-radius: var(--radius);
   background: var(--nb-deep);
 }
-.nb-screen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, color-mix(in srgb, var(--nb-text) 3%, transparent) 0 1px, transparent 1px 3px),
-    radial-gradient(closest-side, transparent 70%, color-mix(in srgb, var(--nb-shadow) 55%, transparent));
+.nb-window-bar,
+.nb-readout {
+  display: grid;
+  grid-template-columns: var(--code-w) minmax(0, 1fr);
+  align-items: center;
+  font-family: var(--face-code);
+  font-size: 0.875rem;
 }
-.nb-route-layer { position: absolute; inset: 0; width: 100%; height: 100%; filter: var(--screen-glow); }
+.nb-window-bar { border-bottom: var(--seam-w) solid var(--nb-line); }
+.nb-window-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 0 16px; min-width: 0; }
+.nb-window-file { color: var(--nb-text-2); }
+.nb-window-state { padding-left: 16px; color: var(--nb-text-3); }
+.nb-demo.is-done .nb-window-state { color: var(--space-go); }
+.nb-demo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--nb-text-2);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+@media (hover: hover) {
+  .nb-demo-toggle:hover { background: var(--nb-raised); color: var(--nb-text); }
+}
+
+.nb-window-body { display: grid; grid-template-columns: var(--code-w) var(--field) minmax(0, 1fr); }
+.nb-window-code {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+  background: var(--nb-raised);
+  border-right: var(--seam-w) solid var(--nb-line);
+}
+.nb-demo-code { padding: 16px 0; font-size: 0.875rem; overflow-x: visible; }
+.nb-demo-line { display: block; padding-right: 12px; white-space: pre; transition: background-color 120ms var(--ease-out); }
+.nb-demo-line .nb-code-n { width: 44px; padding-right: 16px; }
+.nb-demo-line.is-running { background: color-mix(in srgb, var(--nb-text) 9%, transparent); box-shadow: inset 2px 0 0 var(--nb-text-2); }
+.nb-code .syn-kw { color: var(--syn-annotation); }
+
+.nb-demo-checks { padding: 0 16px 20px; }
+.nb-demo-checks-title { margin: 0 0 8px; font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
+.nb-demo-checks ul,
+.nb-run-checks { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.nb-check { display: flex; gap: 10px; align-items: flex-start; max-width: none; font-size: 0.875rem; line-height: 1.45; color: var(--nb-text-3); transition: color 200ms var(--ease-out); }
+.nb-check-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: var(--seam-w) solid var(--nb-line);
+  color: var(--space-go);
+  transition: border-color 200ms var(--ease-out);
+}
+.nb-check-mark svg { opacity: 0; transition: opacity 200ms var(--ease-out); }
+.nb-check.is-passed,
+.nb-demo.is-done .nb-check { color: var(--nb-text); }
+.nb-check.is-passed .nb-check-mark,
+.nb-demo.is-done .nb-check-mark { border-color: var(--space-go); }
+.nb-check.is-passed .nb-check-mark svg,
+.nb-demo.is-done .nb-check-mark svg { opacity: 1; }
+/* Each check passes a beat after the one above it. */
+.nb-demo.is-done .nb-check:nth-child(2),
+.nb-demo.is-done .nb-check:nth-child(2) * { transition-delay: 160ms; }
+.nb-demo.is-done .nb-check:nth-child(3),
+.nb-demo.is-done .nb-check:nth-child(3) * { transition-delay: 320ms; }
+
+.nb-window-field { position: relative; width: var(--field); height: var(--field); }
+.nb-window-field canvas { display: block; }
+.nb-route-layer { position: absolute; inset: 0; width: 100%; height: 100%; filter: var(--screen-glow); pointer-events: none; }
 .nb-route {
   fill: none;
   stroke: var(--star);
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 1;
+  stroke-dasharray: 1 1;
   stroke-dashoffset: 1;
 }
-.nb-ruler {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-family: var(--face-code);
-  font-size: 0.875rem;
-  color: var(--nb-text-3);
-}
-.nb-ruler-y { display: flex; flex-direction: column; justify-content: space-around; align-items: center; }
-.nb-ruler-x { grid-column: 2; display: flex; justify-content: space-between; align-items: center; }
-.nb-ruler li { max-width: none; }
-.nb-caption {
-  /* Stays clear of the part of the frame that runs off the window. */
-  margin: 16px 120px 0 44px;
-  font-family: var(--face-code);
-  font-size: 0.875rem;
-  color: var(--nb-text-3);
-}
 
-/* The mascot leans on the frame's left edge and stands on the desk the instrument sits on:
-   a hairline running out from under the frame, with a shadow cast away from the light. */
+.nb-readout { border-top: var(--seam-w) solid var(--nb-line); grid-template-columns: none; display: flex; gap: 32px; padding: 0 16px; }
+.nb-readout div { display: flex; gap: 8px; }
+.nb-readout dt { color: var(--nb-text-3); }
+.nb-readout dd { margin: 0; min-width: 6ch; color: var(--nb-text); font-variant-numeric: tabular-nums; }
+
+.nb-caption { margin: 16px 0 0; font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
+
+/* The mascot sits on the window's top edge like a figure on a monitor, its shadow on the
+   frame under its feet. */
 .nb-mascot {
   position: absolute;
-  left: -150px;
-  bottom: 0;
-  width: 156px;
+  bottom: calc(100% - 3px);
+  left: calc(var(--code-w) - 112px);
+  width: 72px;
   pointer-events: none;
 }
-.nb-mascot img { position: relative; z-index: 1; display: block; width: 100%; height: auto; rotate: 8deg; transform-origin: 70% 100%; }
-.nb-mascot::before {
-  content: '';
-  position: absolute;
-  right: -2px;
-  bottom: -1px;
-  width: 260px;
-  border-top: var(--seam-w) solid var(--nb-line);
-}
+.nb-mascot img { position: relative; z-index: 1; display: block; width: 100%; height: auto; }
 .nb-mascot::after {
   content: '';
   position: absolute;
-  left: 18%;
-  right: -18%;
-  bottom: -6px;
-  height: 14px;
+  left: 4px;
+  right: 4px;
+  bottom: -5px;
+  height: 10px;
   border-radius: 50%;
   background: radial-gradient(closest-side, var(--nb-shadow), transparent);
-  skew: -30deg 0;
 }
 
-/* --- How a lesson works: three editorial rows, each with its own kind of visual. */
-.nb-story {
-  display: flex;
-  flex-direction: column;
-  gap: 160px;
-  padding: 64px var(--edge) 160px;
+/* --- How a lesson works: one band in three steps, hairlines between them. */
+.nb-how { padding: 64px var(--edge) 144px; }
+.nb-section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px 48px; margin-bottom: 32px; }
+.nb-section-head h2,
+.nb-mentors-text h2 {
+  margin: 0;
+  font-family: var(--face-ui);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--nb-text);
+  text-wrap: balance;
 }
-.nb-row {
+.nb-section-head p { margin: 0; max-width: 32rem; font-size: 1.0625rem; line-height: 1.6; color: var(--nb-text-2); }
+.nb-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--seam-w) solid var(--nb-line);
+  border-radius: var(--radius-lg);
+  background: var(--nb-raised);
+}
+.nb-step { display: flex; flex-direction: column; gap: 20px; max-width: none; padding: 24px; min-width: 0; }
+.nb-step + .nb-step { border-left: var(--seam-w) solid var(--nb-line); }
+.nb-step-head { display: flex; align-items: baseline; gap: 12px; }
+.nb-step-n { font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); font-variant-numeric: tabular-nums; }
+.nb-step-head h3 { margin: 0; font-family: var(--face-ui); font-weight: 500; font-size: 1.25rem; line-height: 1.3; color: var(--nb-text); }
+.nb-step-view { flex: 1; display: flex; min-height: 248px; }
+.nb-step-view > * { flex: 1; min-width: 0; }
+.nb-step-note { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--nb-text-2); }
+
+/* Step 01: lesson 1's reading pane, in the lesson page's own reading face. */
+.nb-read {
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--nb-deep);
+  border: var(--seam-w) solid var(--nb-line);
+  font-family: var(--face-text);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--nb-text-2);
+}
+.nb-read p { margin: 0 0 12px; max-width: none; }
+.nb-read p:last-child { margin-bottom: 0; }
+.nb-read .nb-read-h { margin-bottom: 4px; font-family: var(--face-ui); font-weight: 500; color: var(--nb-text); }
+.nb-read .nb-read-h + p + .nb-read-h { margin-top: 16px; }
+.nb-read strong { font-weight: 600; color: var(--nb-text); }
+.nb-read code { padding: 1px 4px; border-radius: var(--radius-xs); background: var(--nb-raised-2); font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text); }
+
+/* Step 03: the run, measured, and lesson 1's checks. */
+.nb-run {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--nb-deep);
+  border: var(--seam-w) solid var(--nb-line);
+}
+
+/* --- Mentors: the guide's words beside its rubric on paper. */
+.nb-mentors {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: 96px;
   align-items: center;
+  padding: 0 var(--edge) 160px;
 }
-.nb-row-flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
-.nb-row-text { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-.nb-row-text h2 {
-  margin: 0;
-  max-width: 16ch;
-  font-family: var(--face-ui);
-  font-weight: 500;
-  font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.25rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--nb-text);
-}
-.nb-row-text p { margin: 0; max-width: 30rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); }
+.nb-mentors-text { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.nb-mentors-text p { margin: 0; max-width: 30rem; font-size: 1.125rem; line-height: 1.6; color: var(--nb-text-2); }
 
 /* The editor: a 12px window, the one marked line on a lighter step, the number circled. */
 .nb-editor {
@@ -530,15 +605,12 @@
 .nb-code-circle path { stroke: var(--nb-text); stroke-width: 4; }
 .nb-editor-note { margin: 0; padding: 12px 20px 16px; border-top: var(--seam-w) solid var(--nb-line); font-size: 0.9375rem; color: var(--nb-text-2); }
 
-/* Before and after: two small fields with 4px corners, measured in ink. */
-.nb-before-after { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-.nb-mini { margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.nb-mini-label { font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-2); }
+/* The run in step 03: a small field with 4px corners, measured in ink. */
 .nb-mini-field { display: block; width: 100%; height: auto; border-radius: var(--radius-xs); background: var(--nb-deep); border: var(--seam-w) solid var(--nb-line); }
 .nb-mini-grid { stroke: var(--nb-line); stroke-width: 0.6; }
 .nb-mini-path { stroke: var(--nb-text-3); stroke-width: 1.4; stroke-dasharray: 3 3; }
 .nb-mini-robot { fill: var(--nb-raised-2); stroke: var(--nb-text); stroke-width: 1.2; }
-.nb-mini-start { fill: none; stroke: var(--nb-text-3); stroke-width: 0.8; stroke-dasharray: 2 2; }
+.nb-mini-ghost { fill: none; stroke: var(--nb-text-3); stroke-width: 0.8; stroke-dasharray: 2 2; }
 .nb-mini-measure { fill: none; stroke: var(--nb-text); stroke-width: 1.2; }
 .nb-mini-cm { fill: var(--nb-text); font-family: var(--face-code); }
 
@@ -637,27 +709,42 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   body[data-route='home'] .nav-link:hover { background: var(--nb-raised); color: var(--nb-text); }
 }
 
-/* --- Narrower screens: the instrument moves under the copy, then everything stacks. */
+/* --- Narrower screens: the window moves under the copy and still runs off the edge, then
+   on phones it fits the screen and the steps stack. */
 @media (max-width: 1180px) {
-  .nb-hero { grid-template-columns: minmax(0, 1fr); row-gap: 64px; padding-right: var(--edge); min-height: 0; }
-  .nb-instrument { width: min(100%, 640px); margin: 0 0 0 auto; }
-  .nb-caption { margin-right: 0; }
-  .nb-row, .nb-row-flip { grid-template-columns: minmax(0, 1fr); gap: 48px; }
-  .nb-row-flip .nb-before-after { order: 2; }
+  .nb-hero { --field: clamp(320px, 52vw, 560px); --code-w: 24rem; grid-template-columns: minmax(0, 1fr); row-gap: 120px; min-height: 0; padding-top: 64px; }
+  .nb-hero-copy { padding-right: var(--edge); }
+  .nb-steps { grid-template-columns: minmax(0, 1fr); }
+  .nb-step + .nb-step { border-left: 0; border-top: var(--seam-w) solid var(--nb-line); }
+  .nb-step-view { min-height: 0; }
+  .nb-mentors { grid-template-columns: minmax(0, 1fr); gap: 48px; }
 }
 @media (max-width: 760px) {
   .nb { --edge: 20px; }
-  .nb-hero { padding-top: 40px; }
-  .nb-mascot { width: 88px; left: -84px; }
-  .nb-instrument { margin: 0 0 0 48px; width: calc(100% - 48px); }
-  .nb-story { gap: 96px; padding-bottom: 96px; }
+  .nb-hero { --field: calc(100vw - 42px); --code-w: 100%; padding-top: 40px; padding-right: var(--edge); row-gap: 112px; }
+  .nb-hero-copy { padding-right: 0; }
+  .nb-window { border-right: var(--seam-w) solid var(--nb-line); border-radius: var(--radius); overflow: clip; overflow-clip-margin: 160px; }
+  .nb-window-bar { grid-template-columns: minmax(0, 1fr); }
+  .nb-window-state { padding-bottom: 10px; }
+  .nb-window { grid-template-rows: auto auto auto; }
+  .nb-window-bar { min-height: 44px; }
+  .nb-window-body { grid-template-columns: minmax(0, 1fr); }
+  .nb-window-code { border-right: 0; border-bottom: var(--seam-w) solid var(--nb-line); }
+  .nb-mascot { left: auto; right: 24px; width: 64px; }
+  .nb-readout { flex-wrap: wrap; gap: 4px 20px; padding: 10px 16px; }
+  .nb-step { padding: 20px 16px; }
+  .nb-run { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .nb-run .nb-mini-field { max-width: 11rem; }
+  .nb-proof { grid-template-columns: repeat(2, auto); }
+  .nb-proof li:nth-child(3n + 1) { padding-left: 16px; border-left: var(--seam-w) solid var(--nb-line); }
+  .nb-proof li:nth-child(2n + 1) { padding-left: 0; border-left: 0; }
+  .nb-demo-code { overflow-x: auto; }
   .nb-paper { padding: 40px 20px 16px; }
   .nb-tier { grid-template-columns: 64px minmax(0, 1fr); }
   .nb-tier-num { font-size: 3.5rem; }
   .nb-tier-meta { display: none; }
   .nb-rubric { rotate: 0deg; }
-  /* Side by side, each field is too narrow for its measurement to read. */
-  .nb-before-after { grid-template-columns: minmax(0, 18rem); gap: 32px; }
+  .nb-mentors { padding-bottom: 96px; }
 }
 
 /* ------------------------------------------------------------------ chart */

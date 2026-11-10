@@ -153,6 +153,19 @@ tests, build; Lighthouse 100 on a11y, best practices and SEO; local LCP 106 ms, 
 horizontal scroll at 1440, 1366, 1024 and 390. `public/art/mascot-264.png` is no longer used
 anywhere and can be deleted.
 
+## Live demo hero (2026-11-09)
+
+The notebook page read as empty, so the hero now shows the product working: a copy of the
+lesson screen runs eight lines of Java (a square: one side and one corner, four times), with the
+running lines highlighted, a live readout, and three Tier 0 checkpoint checks that pass when the
+robot stops. It loops slowly, pauses off screen, has a Pause button, and starts finished under
+reduced motion. `tests/hero-demo.test.ts` runs the same Java in the real interpreter so the demo
+cannot drift. New "How a lesson works" band (read, change, run) built from lesson 1's own text,
+code and checks; the old three editorial rows are gone and the mentor row moved below the
+tiers. Proof row under the buttons; content column widened to 1520px. Lighthouse 100/100/100
+desktop and mobile, local LCP 101 ms, CLS 0. The "six tiers" section is unchanged, waiting on the
+rest of the brief (it was cut off in the message).
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for
