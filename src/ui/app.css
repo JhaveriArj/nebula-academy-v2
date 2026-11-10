@@ -734,6 +734,7 @@ html { scrollbar-gutter: stable; }
 .nb-step { position: relative; }
 .nb-step-bar { display: none; }
 .nb-run-slot { position: relative; }
+.nb-window-field.is-docked { position: absolute; top: calc(-1 * var(--seam-w)); left: calc(-1 * var(--seam-w)); z-index: 1; will-change: auto; }
 .nb-run-cm { display: none; }
 
 /* homeMotion.ts sizes each pinned scene from its measured pin (pin height plus 80vh of scroll

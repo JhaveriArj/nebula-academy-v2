@@ -103,28 +103,59 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
   // --- 1 and 2: the field's journey and the pinned steps. -------------------------------
   const howRange = pinScene(how, page.querySelector<HTMLElement>('.nb-how-pin')!, 0.8);
   // The pane's resting place, in page coordinates, measured without any transform on it.
-  let home = { left: 0, top: 0, width: 1 };
+  let home = { left: 0, top: 0, width: 1, height: 1 };
   const measure = () => {
     pane.style.transform = '';
     const r = pane.getBoundingClientRect();
-    home = { left: r.left + scrollX, top: r.top + scrollY, width: r.width };
+    home = { left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height };
   };
   measure();
 
   let travel = 0;
   let band = 0;
   let lessonShown = -1;
+
+  // Once it lands, the field moves into the pad itself. Left in the hero, it would have to be
+  // pushed back by the scroll distance on every frame to stay on the sticky pad, and that
+  // correction always arrives a frame after the browser has scrolled, so the field shook up
+  // and down for the whole pinned band. Inside the pad, sticky positioning carries it natively.
+  // A placeholder keeps the hero's size while it is away.
+  const placeholder = document.createElement('div');
+  placeholder.className = 'nb-field-placeholder';
+  let docked = false;
+  const dock = (on: boolean) => {
+    if (on === docked) return;
+    docked = on;
+    if (on) {
+      placeholder.style.width = `${home.width}px`;
+      placeholder.style.height = `${home.height}px`;
+      pane.before(placeholder);
+      slot.append(pane);
+      pane.classList.add('is-docked');
+    } else {
+      placeholder.replaceWith(pane);
+      pane.classList.remove('is-docked');
+    }
+  };
+
   const render = () => {
-    // Travel: from the hero to the landing pad in step 03. The pad is read live because the
-    // band it sits in is sticky.
+    // Travel: from the hero to the landing pad in step 03. Until the band pins, the hero and
+    // the pad scroll together, so the distance between them does not change with scroll and
+    // only the eased progress moves the field.
     const t = ease(travel);
-    const pad = slot.getBoundingClientRect();
-    const fromLeft = home.left - scrollX;
-    const fromTop = home.top - scrollY;
-    const scale = 1 + (pad.width / home.width - 1) * t;
-    const x = (pad.left - fromLeft) * t;
-    const y = (pad.top - fromTop) * t;
-    pane.style.transform = travel > 0 ? `translate3d(${x}px, ${y}px, 0) scale(${scale})` : '';
+    if (travel >= 1) {
+      dock(true);
+      pane.style.transform = `scale(${slot.getBoundingClientRect().width / home.width})`;
+    } else {
+      dock(false);
+      const pad = slot.getBoundingClientRect();
+      const fromLeft = home.left - scrollX;
+      const fromTop = home.top - scrollY;
+      const scale = 1 + (pad.width / home.width - 1) * t;
+      const x = (pad.left - fromLeft) * t;
+      const y = (pad.top - fromTop) * t;
+      pane.style.transform = travel > 0 ? `translate3d(${x}px, ${y}px, 0) scale(${scale})` : '';
+    }
     pane.classList.toggle('is-travelling', travel > 0 && travel < 1);
     pane.classList.toggle('is-landed', travel >= 1);
 
@@ -210,6 +241,7 @@ function startScenes(page: HTMLElement, demo: Demo): () => void {
 
   return () => {
     off.forEach((f) => f());
+    dock(false);
     demo.hold(false);
     pane.style.transform = '';
     pane.classList.remove('is-travelling', 'is-landed');
