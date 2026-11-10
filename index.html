@@ -11,8 +11,8 @@
     <link rel="icon" href="./art/icons/favicon.svg" type="image/svg+xml" />
     <!-- The home hero's mascot is the LCP element, but the app builds the page in JS, so the
          browser cannot see the image until the script has run. Preloading lets it download
-         alongside the script. 25 KB, so the cost on other routes is small. -->
-    <link rel="preload" as="image" href="./art/mascot-560.webp" type="image/webp" fetchpriority="high" />
+         alongside the script. 60 KB at the usual size, so the cost on other routes is small. -->
+    <link rel="preload" as="image" href="./art/mascot-hero-560.webp" imagesrcset="./art/mascot-hero-560.webp 560w, ./art/mascot-hero-1108.webp 1108w" imagesizes="(min-width: 2000px) 440px, 260px" type="image/webp" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

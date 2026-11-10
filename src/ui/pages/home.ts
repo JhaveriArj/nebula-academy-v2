@@ -8,7 +8,7 @@ import { pathway } from '../../content/loader';
 import { FIELD_CM } from '../../sim/field';
 import { lessonHref } from '../router';
 import { frameIndex } from '../frames';
-import { FIRST_LINE, HERO_CHECKS, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, demoStateAt } from '../heroDemo';
+import { FIRST_LINE, HERO_CHECKS, HERO_JAVA, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, demoStateAt } from '../heroDemo';
 
 /* The home page: an FTC team's engineering notebook, read at night.
 
@@ -43,15 +43,42 @@ export function homePage(): HTMLElement {
       },
     }, label);
 
-  const demo = heroDemo();
+  const operator = el('div', { class: 'nb-operator', 'aria-hidden': 'true' },
+    el('img', {
+      src: `${import.meta.env.BASE_URL}art/mascot-hero-560.webp`,
+      srcset: `${import.meta.env.BASE_URL}art/mascot-hero-560.webp 560w, ${import.meta.env.BASE_URL}art/mascot-hero-1108.webp 1108w`,
+      sizes: '(min-width: 2000px) 440px, 260px',
+      alt: '',
+      width: '560',
+      height: '1233',
+      fetchpriority: 'high',
+    }),
+  );
+  const nod = () => {
+    if (prefersReducedMotion()) return;
+    operator.classList.remove('is-nodding');
+    void operator.offsetWidth;
+    operator.classList.add('is-nodding');
+  };
+  const demo = heroDemo(nod);
 
   const page = el('div', { class: 'nb' },
     inkDefs(),
 
     // ------------------------------------------------------------------ hero
     el('section', { class: 'nb-hero', 'aria-labelledby': 'hero-title' },
-      el('div', { class: 'nb-hero-copy' },
-        el('h1', { class: 'nb-title', id: 'hero-title', text: 'Program a competition robot in real Java' }),
+      el('div', { class: 'nb-hero-head' },
+        el('div', { class: 'nb-hero-title' },
+          el('h1', { class: 'nb-title', id: 'hero-title', text: 'Program a competition robot in real Java' }),
+          el('ul', { class: 'nb-proof', 'aria-label': 'At a glance' },
+            el('li', { text: `${lessonCount} lessons` }),
+            el('li', { text: `${pathway.tiers.length} tiers` }),
+            el('li', { text: 'Ages 9 to 18' }),
+            el('li', { text: 'FTC SDK method names' }),
+            el('li', { text: 'Free, no account' }),
+          ),
+        ),
+        el('div', { class: 'nb-hero-copy' },
         el('p', { class: 'nb-lede', text: 'You write the code, a robot on the screen drives it, and by the last tier the same code runs on your FTC team’s robot.' }),
         hasChosenMode()
           ? el('div', { class: 'nb-actions' },
@@ -68,15 +95,14 @@ export function homePage(): HTMLElement {
                 ageButton('builder', 'I am 13 to 18', false),
               ),
             ),
-        el('ul', { class: 'nb-proof', 'aria-label': 'At a glance' },
-          el('li', { text: `${lessonCount} lessons` }),
-          el('li', { text: `${pathway.tiers.length} tiers` }),
-          el('li', { text: 'Ages 9 to 18' }),
-          el('li', { text: 'FTC SDK method names' }),
-          el('li', { text: 'Free, no account' }),
         ),
       ),
-      demo.element,
+      // The mascot is the operator: it stands on the same line as the bottom of the window,
+      // turned toward the code, and nods once each time the checks pass.
+      el('div', { class: 'nb-hero-stage' },
+        operator,
+        demo.element,
+      ),
     ),
 
     // ------------------------------------------------- how a lesson works
@@ -147,7 +173,7 @@ interface Demo {
 }
 
 /** A copy of the lesson screen running HERO_LINES: code, field, checks and a readout. */
-function heroDemo(): Demo {
+function heroDemo(onPass: () => void): Demo {
   const field = createFieldView({ label: 'The simulator: a tank robot driving a square, one side and one corner at a time', instrument: true });
   const frames = playWatch(HERO_SPEC);
   const last = frames.length - 1;
@@ -155,8 +181,30 @@ function heroDemo(): Demo {
   const route = svg('path', { class: 'nb-route', d: routePath(frames), pathLength: '1', filter: 'url(#nb-wobble)' });
   const routeLayer = svg('svg', { class: 'nb-route-layer', viewBox: `0 0 ${FIELD_CM} ${FIELD_CM}`, 'aria-hidden': 'true' }, route);
 
-  const lines = HERO_LINES.map((text, i) =>
-    el('span', { class: 'nb-demo-line' }, el('span', { class: 'nb-code-n', text: String(FIRST_LINE + i) }), ...highlight(text)));
+  // The whole of Square.java, with the eight running lines at full strength and the rest
+  // dimmed; the panel opens scrolled so the loop sits in view with a little context above.
+  const fileLines = HERO_JAVA.replace(/\n$/, '').split('\n');
+  const lastLoopLine = FIRST_LINE + HERO_LINES.length - 1;
+  const allLines = fileLines.map((text, i) =>
+    el('span', { class: i + 1 >= FIRST_LINE && i + 1 <= lastLoopLine ? 'nb-demo-line' : 'nb-demo-line is-context' },
+      el('span', { class: 'nb-code-n', text: String(i + 1) }), ...highlight(text)));
+  const lines = allLines.slice(FIRST_LINE - 1, lastLoopLine);
+  const code = el('pre', { class: 'nb-code nb-demo-code', tabindex: '0', 'aria-label': 'Square.java, the Java the robot is running' }, el('code', {}, ...allLines));
+  const scrollToLoop = () => {
+    // Show up to three dimmed lines above the loop, but never at the cost of the loop itself.
+    const first = allLines[FIRST_LINE - 1];
+    const end = allLines[lastLoopLine - 1];
+    if (!first || !end) return;
+    const loopHeight = end.offsetTop + end.offsetHeight - first.offsetTop;
+    const room = code.clientHeight - 32 - loopHeight;
+    let top = first.offsetTop;
+    for (let i = 1; i <= 3; i++) {
+      const above = allLines[FIRST_LINE - 1 - i];
+      if (!above || first.offsetTop - above.offsetTop > room) break;
+      top = above.offsetTop;
+    }
+    code.scrollTop = top - 16;
+  };
 
   const checks = HERO_CHECKS.checks.map((c) =>
     el('li', { class: 'nb-check' }, el('span', { class: 'nb-check-mark', 'aria-hidden': 'true' }, icon('passed', 16)), el('span', { text: c.label ?? '' })));
@@ -168,7 +216,8 @@ function heroDemo(): Demo {
     right: el('output', { class: 'nb-readout-v' }),
     time: el('output', { class: 'nb-readout-v' }),
   };
-  const status = el('span', { class: 'nb-window-state' });
+  const statusText = el('span');
+  const status = el('span', { class: 'nb-window-state' }, el('span', { class: 'nb-state-dot', 'aria-hidden': 'true' }), statusText);
 
   const toggle = el('button', { type: 'button', class: 'nb-demo-toggle' });
   const setToggle = (playing: boolean) => {
@@ -178,20 +227,16 @@ function heroDemo(): Demo {
 
   const element = el('figure', { class: 'nb-demo' },
     el('div', { class: 'nb-window' },
-      // The mascot sits on top of the window like a figure on a monitor, feet on its edge.
-      el('div', { class: 'nb-mascot', 'aria-hidden': 'true' },
-        el('img', { src: `${import.meta.env.BASE_URL}art/mascot-560.webp`, alt: '', width: '322', height: '560', fetchpriority: 'high' }),
-      ),
       el('div', { class: 'nb-window-bar' },
         el('div', { class: 'nb-window-tools' },
           el('span', { class: 'nb-window-file', text: 'Square.java' }),
+          status,
           toggle,
         ),
-        status,
       ),
       el('div', { class: 'nb-window-body' },
         el('div', { class: 'nb-window-code' },
-          el('pre', { class: 'nb-code nb-demo-code', tabindex: '0', 'aria-label': 'The Java the robot is running' }, el('code', {}, ...lines)),
+          code,
           el('div', { class: 'nb-demo-checks' },
             el('p', { class: 'nb-demo-checks-title', text: 'Checks from the Tier 0 checkpoint' }),
             el('ul', {}, ...checks),
@@ -224,7 +269,8 @@ function heroDemo(): Demo {
     if (s.done !== shownDone) {
       shownDone = s.done;
       element.classList.toggle('is-done', s.done);
-      status.textContent = s.done ? `${checks.length} of ${checks.length} checks passed` : 'Running';
+      statusText.textContent = s.done ? `${checks.length} of ${checks.length} passed` : 'running';
+      if (s.done && !reduced) onPass();
       // Announced once per run, not on every frame.
       checksDone.textContent = s.done ? `All ${checks.length} checks passed.` : '';
     }
@@ -285,7 +331,10 @@ function heroDemo(): Demo {
 
   return {
     element,
-    resize: () => field.resize(),
+    resize: () => {
+      field.resize();
+      scrollToLoop();
+    },
     destroy: () => {
       stop();
       seen.disconnect();
@@ -298,11 +347,11 @@ function heroDemo(): Demo {
 /** Just enough colouring for the eight demo lines, in the editor's own token colours. */
 function highlight(line: string): (string | HTMLElement)[] {
   const parts: (string | HTMLElement)[] = [];
-  const re = /\b(for|int)\b|\b(\d+(?:\.\d+)?)\b|\b(setPower|sleep)\b/g;
+  const re = /\b(for|int|package|import|public|class|extends|void)\b|\b(\d+(?:\.\d+)?)\b|\b(setPower|sleep|waitForStart|get)\b|("[^"]*")|(@\w+)/g;
   let at = 0;
   for (const m of line.matchAll(re)) {
     if (m.index! > at) parts.push(line.slice(at, m.index));
-    const cls = m[1] ? 'syn-kw' : m[2] ? 'syn-num' : 'syn-fn';
+    const cls = m[1] ? 'syn-kw' : m[2] ? 'syn-num' : m[3] ? 'syn-fn' : m[4] ? 'syn-str' : 'syn-ann';
     parts.push(el('span', { class: cls, text: m[0] }));
     at = m.index! + m[0].length;
   }

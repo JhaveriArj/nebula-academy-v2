@@ -166,6 +166,18 @@ tiers. Proof row under the buttons; content column widened to 1520px. Lighthouse
 desktop and mobile, local LCP 101 ms, CLS 0. The "six tiers" section is unchanged, waiting on the
 rest of the brief (it was cut off in the message).
 
+## Mascot as the operator (2026-11-09)
+
+The supplied mascot was a 379x658 raster with a white matte fringe. It is now upscaled 4x with
+Real-ESRGAN locally (art-source/mascot-4x.png), the fringe recoloured to its linework navy, and
+the antenna yellow set to exactly --star. Its colours are --mascot-* tokens. In the hero it
+stands beside the demo window at the window's height, on its baseline, and nods when the checks
+pass; the header uses a new vector head on the wordmark baseline with a Fredoka wordmark. The
+code panel now shows all of Square.java (loop at full strength, the rest dimmed) and the status
+is a mono label with a dot. A short-screen layout keeps the whole stage above the fold at
+1366x768. Unused: mascot-112.png, mascot-264.png, mascot-560.webp (kept until the owner says
+to delete them).
+
 ## Decisions
 
 Decided 2026-11-08: **keep the TypeScript interpreter** (decision 1), and **Builder asks for

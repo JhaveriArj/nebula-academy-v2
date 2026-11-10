@@ -1,5 +1,6 @@
 import { el } from './dom';
 import { icon } from './icons';
+import { mascotHead } from './mascot';
 import { getAppearance, getBigType, getMode, setAppearance, setBigType, setMode, type Appearance, type Mode } from '../progress/store';
 
 /* The header. The mode toggle is two buttons rather than a switch, because a switch does
@@ -14,7 +15,6 @@ export interface Header {
   refresh(): void;
 }
 
-const BASE = import.meta.env.BASE_URL;
 
 export function createHeader(onModeChange: () => void): Header {
   const modeButtons = new Map<Mode, HTMLButtonElement>();
@@ -86,8 +86,11 @@ export function createHeader(onModeChange: () => void): Header {
 
   const element = el('header', { class: 'site-header' },
     el('a', { href: '#/', class: 'wordmark', 'aria-label': 'Nebula Academy, home' },
-      el('img', { src: `${BASE}art/mascot-112.png`, alt: '', width: '25', height: '44' }),
-      el('span', { class: 'wordmark-name', text: 'Nebula Academy' }),
+      // Head and name share a baseline inside a box the link centres.
+      el('span', { class: 'wordmark-lockup' },
+        mascotHead(28),
+        el('span', { class: 'wordmark-name', text: 'Nebula Academy' }),
+      ),
     ),
     el('nav', { class: 'site-nav', 'aria-label': 'Main' },
       el('a', { href: '#/chart', class: 'nav-link' }, el('span', { text: 'Chart' })),

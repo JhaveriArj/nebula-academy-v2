@@ -7,8 +7,8 @@ viewBox and a documented anchor point; keep both and a replacement drops straigh
 | File | What it is | Where it is used | Anchor |
 |---|---|---|---|
 | `logo.png` | The mascot, exactly as supplied. Source of the palette. Not loaded by the app. | — | — |
-| `mascot-112.png` | The mascot resized to 112 px tall (10 KB) | Header, every page | — |
-| `mascot-264.png` | The mascot resized to 264 px tall (43 KB), 2x its display size | Home hero | — |
+| `mascot-hero-560.webp`, `mascot-hero-1108.webp` | The mascot from `art-source/mascot-4x.png`, 560 and 1108 px wide (60 KB, 148 KB) | Home hero, chosen by `srcset` | Feet at the bottom edge |
+| `mascot-112.png`, `mascot-264.png`, `mascot-560.webp` | Older resizes of `logo.png`; no longer loaded | — | — |
 | `robot-tank.svg` | Tank drivetrain robot, top down, 18 in square | Field view, Tiers 0–2 | Box centre; forward is −y |
 | `robot-mecanum.svg` | Mecanum robot, rollers drawn at 45° | Field view, Tiers 3–5 | Box centre; forward is −y |
 | `field-tile.svg` | 24 in foam tile, tiles seamlessly | Field view background | Top-left |
@@ -18,6 +18,14 @@ viewBox and a documented anchor point; keep both and a replacement drops straigh
 | `loading.svg` | A horizon line sweeping, not a spinner | Loading states | — |
 | `badge-t0.svg` … `badge-t5.svg` | Six tier mission patches | Star chart stations, home tier list | Centre |
 | `icons/favicon.svg` | Browser tab icon | `index.html` | — |
+
+## The mascot master
+
+`art-source/mascot-4x.png` (1108x2440, outside `public/` so it is not deployed) is the master.
+It is `logo.png` upscaled 4x with Real-ESRGAN (`realesrgan-x4plus-anime`, run locally), with the
+white matte fringe left by the original's removed background recoloured to the linework navy
+and the antenna yellow set to exactly `--star` (`#FEBC02`). Its colours are the `--mascot-*`
+tokens in `theme.css`. The header's head is a vector redrawn from it in `src/ui/mascot.ts`.
 
 ## Two things to keep if you redraw these
 

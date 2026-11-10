@@ -281,14 +281,24 @@ or underline only. Motion is handled rule by rule (no global 0.001 ms override).
 **Focus.** 3px ring with a 2px offset. `--link` on the page, `--star` in space. Never removed,
 never only a color change.
 
-**The hero is the product working.** The `<h1>`, one sentence, two buttons and a quiet row of
-facts sit on the left. On the right, a small copy of the lesson screen runs off the window's
-right edge: eight lines of Java from the Tier 0 checkpoint idea (a `for` loop of one side and
-one corner), the field, three of the checkpoint's own checks, and a live readout of `side`,
-`leftDrive`, `rightDrive` and time. The demo plays a script (`src/ui/heroDemo.ts`) so the home
-page stays light; `tests/hero-demo.test.ts` runs the same Java through the real interpreter and
-fails if the script and the Java disagree or the checks stop passing. The mascot stands on top
-of the window like a figure on a monitor, with a contact shadow on its edge.
+**The hero is the product working.** A headline row (the `<h1>` and the facts on the left; one
+sentence and two buttons on the right), then the stage. On the stage, a small copy of the lesson
+screen runs off the window's right edge: all of `Square.java` with the eight loop lines at full
+strength and the rest dimmed, the field, three of the Tier 0 checkpoint's own checks, a live
+readout, and a status label (mono, a steady dot, "running" or "3 of 3 passed"). The demo plays a
+script (`src/ui/heroDemo.ts`); `tests/hero-demo.test.ts` runs the same Java through the real
+interpreter and fails if they disagree.
+
+**The mascot is the operator.** It stands left of the window, as tall as it, feet on the
+window's bottom edge, turned toward the code, with a soft elliptical shadow on the page. When
+the checks pass it nods once (2.5 degrees, 720 ms; none under reduced motion). No glow, halo or
+outline, never clipped: on short screens the stage gets denser so its feet stay above the fold,
+and on phones it leaves the hero and the head in the header carries the brand. Art comes from
+`art-source/mascot-4x.png`; see `public/art/README.md`.
+
+**The lockup.** The header uses a vector head (`src/ui/mascot.ts`, 28px) set on the wordmark's
+baseline, with a 1px overshoot like a round letter, and the wordmark in Fredoka at the nav links'
+weight (500), 1.25x their size. The head is never drawn under 24px.
 
 **The home page, top to bottom.** Hero; "How a lesson works", one band in three numbered steps
 (the numbers are a real sequence) with lesson 1's reading pane, its code with the number changed

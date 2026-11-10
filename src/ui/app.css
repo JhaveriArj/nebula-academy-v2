@@ -39,10 +39,26 @@
   text-decoration: none;
   color: var(--ink);
 }
-.wordmark img { display: block; height: 44px; width: auto; }
+/* The lockup: the vector head sits on the wordmark's baseline, not centred in the box, and
+   drops 1px below it the way a round letter overshoots. */
+.wordmark-lockup { display: flex; align-items: baseline; gap: 10px; }
+.wordmark .mascot-head { display: block; flex: none; translate: 0 1px; overflow: visible; }
+/* Stalks in helmet blue: navy linework would vanish into the navy header. */
+.mascot-head .mh-line-stroke { fill: none; stroke: var(--mascot-helmet); stroke-width: 34; stroke-linecap: round; }
+.mascot-head .mh-tip,
+.mascot-head .mh-helmet,
+.mascot-head .mh-rim,
+.mascot-head .mh-eye { stroke: var(--mascot-line); stroke-width: 26; }
+.mascot-head .mh-tip { fill: var(--star); }
+.mascot-head .mh-helmet { fill: var(--mascot-helmet); }
+.mascot-head .mh-rim { fill: var(--mascot-rim); }
+.mascot-head .mh-visor { fill: var(--mascot-visor); }
+.mascot-head .mh-eye { fill: var(--mascot-eye); }
+.mascot-head .mh-shine { fill: var(--mascot-rim); }
 /* Hierarchy in the header: the brand is the loudest thing, then the mode switch, then the
    quiet text links, then Display. */
-.wordmark-name { font-family: var(--face-ui); font-weight: 600; font-size: 20px; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; }
+/* The display face at the nav links' weight, one step larger than they are. */
+.wordmark-name { font-family: var(--face-display); font-weight: 500; font-size: calc(var(--size-label) * 1.25); letter-spacing: 0; line-height: 1; white-space: nowrap; }
 
 /* The header and the Display panel are interface, so they are set in the interface face. */
 .site-header, .site-header button, .display-panel, .display-panel button { font-family: var(--face-ui); }
@@ -283,25 +299,37 @@
 .nb-defs { position: absolute; width: 0; height: 0; }
 .nb :focus-visible { outline-color: var(--star); }
 
-/* --- Hero: the copy on the left, the product running on the right and off the window's edge. */
+/* --- Hero: the headline row, then the stage: the mascot at work beside the product running
+   in a window that goes off the right edge. */
 .nb-hero {
-  --field: clamp(360px, calc(100vh - 330px), 880px);
-  --code-w: 25rem;
-  display: grid;
-  grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
-  column-gap: 48px;
-  align-items: center;
+  /* At least 400px, so the eight running lines and the checks both fit beside the field. */
+  --field: clamp(400px, calc(100vh - 460px), 880px);
+  /* Wide enough for line 16 at the file's real indentation. */
+  --code-w: 31rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 48px;
   min-height: calc(100vh - 68px);
-  padding: 120px 0 72px var(--edge);
+  padding: 48px 0 56px var(--edge);
 }
-.nb-hero-copy { display: flex; flex-direction: column; gap: 24px; }
+.nb-hero-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+  column-gap: 64px;
+  row-gap: 24px;
+  align-items: end;
+  padding-right: var(--edge);
+}
+.nb-hero-title { display: flex; flex-direction: column; gap: 24px; }
+.nb-hero-copy { display: flex; flex-direction: column; gap: 20px; }
 .nb-title {
   margin: 0;
-  max-width: 10ch;
+  max-width: 17ch;
   font-family: var(--face-display);
   font-weight: 500;
-  font-size: clamp(2.75rem, 1.4rem + 3.2vw, 4.5rem);
-  line-height: 1.02;
+  font-size: clamp(2.75rem, 1.6rem + 2.6vw, 4.5rem);
+  line-height: 1.04;
   letter-spacing: -0.03em;
   color: var(--nb-text);
   text-wrap: balance;
@@ -349,7 +377,7 @@
 }
 
 /* The facts, quiet: small, sentence case, hairlines between. */
-.nb-proof { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; row-gap: 8px; margin: 24px 0 0; padding: 0; list-style: none; }
+.nb-proof { display: flex; flex-wrap: wrap; row-gap: 8px; margin: 0; padding: 0; list-style: none; }
 .nb-proof li {
   max-width: none;
   padding: 0 16px;
@@ -359,8 +387,7 @@
   color: var(--nb-text-2);
 }
 .nb-proof li + li { border-left: var(--seam-w) solid var(--nb-line); }
-/* Three to a row, like a small table: no rule before the first in each row. */
-.nb-proof li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+.nb-proof li:first-child { padding-left: 0; }
 
 /* --- The demo window: the lesson screen in miniature. Code and checks on the left, the
    field on the right, a live readout along the bottom. It runs off the right edge. */
@@ -384,9 +411,12 @@
   font-size: 0.875rem;
 }
 .nb-window-bar { border-bottom: var(--seam-w) solid var(--nb-line); }
-.nb-window-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 0 16px; min-width: 0; }
+.nb-window-tools { display: flex; align-items: center; gap: 12px; padding: 0 4px 0 16px; min-width: 0; }
 .nb-window-file { color: var(--nb-text-2); }
-.nb-window-state { padding-left: 16px; color: var(--nb-text-3); }
+.nb-window-tools .nb-window-file { margin-right: 4px; }
+/* Status: a small mono label with a steady dot, never a second button-sized thing. */
+.nb-window-state { display: inline-flex; align-items: center; gap: 8px; margin-right: auto; color: var(--nb-text-3); }
+.nb-state-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .nb-demo.is-done .nb-window-state { color: var(--space-go); }
 .nb-demo-toggle {
   display: inline-flex;
@@ -411,19 +441,26 @@
 .nb-window-code {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
   min-width: 0;
+  height: var(--field);
   background: var(--nb-raised);
   border-right: var(--seam-w) solid var(--nb-line);
 }
-.nb-demo-code { padding: 16px 0; font-size: 0.875rem; overflow-x: visible; }
+.nb-demo-code { position: relative; flex: 1 1 0; min-height: 0; padding: 16px 0; font-size: 0.875rem; overflow: auto; scrollbar-width: thin; }
+/* Lines outside the loop: one muted colour that still passes 4.5:1, instead of opacity. */
+.nb-demo-line.is-context,
+.nb-demo-line.is-context * { color: var(--nb-text-3); }
+/* The long setup lines wrap under themselves instead of scrolling sideways. */
+.nb-demo-code .nb-demo-line.is-context { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 44px; text-indent: -44px; }
+.nb-code .syn-str { color: var(--syn-string); }
+.nb-code .syn-ann { color: var(--syn-annotation); }
 .nb-demo-line { display: block; padding-right: 12px; white-space: pre; transition: background-color 120ms var(--ease-out); }
 .nb-demo-line .nb-code-n { width: 44px; padding-right: 16px; }
 .nb-demo-line.is-running { background: color-mix(in srgb, var(--nb-text) 9%, transparent); box-shadow: inset 2px 0 0 var(--nb-text-2); }
 .nb-code .syn-kw { color: var(--syn-annotation); }
 
-.nb-demo-checks { padding: 0 16px 20px; }
+.nb-demo-checks { padding: 16px 16px 20px; border-top: var(--seam-w) solid var(--nb-line); }
 .nb-demo-checks-title { margin: 0 0 8px; font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
 .nb-demo-checks ul,
 .nb-run-checks { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -472,25 +509,53 @@
 
 .nb-caption { margin: 16px 0 0; font-family: var(--face-code); font-size: 0.875rem; color: var(--nb-text-3); }
 
-/* The mascot sits on the window's top edge like a figure on a monitor, its shadow on the
-   frame under its feet. */
-.nb-mascot {
-  position: absolute;
-  bottom: calc(100% - 3px);
-  left: calc(var(--code-w) - 112px);
-  width: 72px;
-  pointer-events: none;
+/* The operator. The mascot stands on the line the window stands on, as tall as the window,
+   turned toward the code. Its shadow falls on the page under its feet; nothing glows. */
+.nb-hero-stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  column-gap: 24px;
 }
-.nb-mascot img { position: relative; z-index: 1; display: block; width: 100%; height: auto; }
-.nb-mascot::after {
+.nb-demo { align-self: end; }
+.nb-operator {
+  position: relative;
+  /* The window is the field plus two 44px bars; the caption below it is not. */
+  height: calc(var(--field) + 88px);
+  /* Lifts the feet onto the window's bottom edge, above the caption under it. */
+  margin-bottom: 39px;
+  transform-origin: 50% 100%;
+}
+.nb-operator img { position: relative; z-index: 1; display: block; height: 100%; width: auto; }
+.nb-operator::after {
   content: '';
   position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: -5px;
-  height: 10px;
+  left: -4%;
+  right: -18%;
+  bottom: -12px;
+  height: 26px;
   border-radius: 50%;
-  background: radial-gradient(closest-side, var(--nb-shadow), transparent);
+  background: radial-gradient(closest-side, var(--nb-shadow) 30%, transparent);
+}
+/* When the checks pass: one small nod toward the screen, then still. */
+.nb-operator.is-nodding img { animation: nb-nod 720ms var(--ease-out) 1; transform-origin: 50% 100%; }
+@keyframes nb-nod {
+  0%, 100% { rotate: 0deg; }
+  35% { rotate: 2.5deg; }
+  70% { rotate: -0.5deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-operator.is-nodding img { animation: none; }
+}
+
+/* Short screens (1366x768 is the baseline): the whole stage, mascot's feet included, has to
+   fit above the fold, so the field gives up 60px and the code panel gets denser. */
+@media (min-width: 1181px) and (max-height: 820px) {
+  .nb-hero { --field: clamp(340px, calc(100vh - 428px), 880px); padding-top: 32px; gap: 36px; }
+  .nb-demo-code { line-height: 1.6; padding: 12px 0; }
+  .nb-demo-checks { padding: 12px 16px 14px; }
+  .nb-demo-checks-title { display: none; }
+  .nb-demo-checks ul { gap: 4px; }
 }
 
 /* --- How a lesson works: one band in three steps, hairlines between them. */
@@ -712,8 +777,8 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 /* --- Narrower screens: the window moves under the copy and still runs off the edge, then
    on phones it fits the screen and the steps stack. */
 @media (max-width: 1180px) {
-  .nb-hero { --field: clamp(320px, 52vw, 560px); --code-w: 24rem; grid-template-columns: minmax(0, 1fr); row-gap: 120px; min-height: 0; padding-top: 64px; }
-  .nb-hero-copy { padding-right: var(--edge); }
+  .nb-hero { --field: clamp(300px, 40vw, 480px); --code-w: 27rem; min-height: 0; padding-top: 48px; }
+  .nb-hero-head { grid-template-columns: minmax(0, 1fr); }
   .nb-steps { grid-template-columns: minmax(0, 1fr); }
   .nb-step + .nb-step { border-left: 0; border-top: var(--seam-w) solid var(--nb-line); }
   .nb-step-view { min-height: 0; }
@@ -721,22 +786,25 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 }
 @media (max-width: 760px) {
   .nb { --edge: 20px; }
-  .nb-hero { --field: calc(100vw - 42px); --code-w: 100%; padding-top: 40px; padding-right: var(--edge); row-gap: 112px; }
-  .nb-hero-copy { padding-right: 0; }
+  .nb-hero { --field: calc(100vw - 42px); --code-w: 100%; padding-top: 40px; padding-right: var(--edge); gap: 40px; }
+  .nb-hero-head { padding-right: 0; }
+  /* On a phone the window takes the full width; the mascot stays in the header lockup. */
+  .nb-hero-stage { grid-template-columns: minmax(0, 1fr); }
+  .nb-operator { display: none; }
+  .nb-window-code { height: auto; }
+  .nb-demo-code { flex: none; max-height: 16rem; }
   .nb-window { border-right: var(--seam-w) solid var(--nb-line); border-radius: var(--radius); overflow: clip; overflow-clip-margin: 160px; }
   .nb-window-bar { grid-template-columns: minmax(0, 1fr); }
-  .nb-window-state { padding-bottom: 10px; }
   .nb-window { grid-template-rows: auto auto auto; }
   .nb-window-bar { min-height: 44px; }
   .nb-window-body { grid-template-columns: minmax(0, 1fr); }
   .nb-window-code { border-right: 0; border-bottom: var(--seam-w) solid var(--nb-line); }
-  .nb-mascot { left: auto; right: 24px; width: 64px; }
   .nb-readout { flex-wrap: wrap; gap: 4px 20px; padding: 10px 16px; }
   .nb-step { padding: 20px 16px; }
   .nb-run { grid-template-columns: minmax(0, 1fr); padding: 16px; }
   .nb-run .nb-mini-field { max-width: 11rem; }
-  .nb-proof { grid-template-columns: repeat(2, auto); }
-  .nb-proof li:nth-child(3n + 1) { padding-left: 16px; border-left: var(--seam-w) solid var(--nb-line); }
+  /* Two to a row, like a small table: no rule before the first in each row. */
+  .nb-proof { display: grid; grid-template-columns: repeat(2, auto); justify-content: start; }
   .nb-proof li:nth-child(2n + 1) { padding-left: 0; border-left: 0; }
   .nb-demo-code { overflow-x: auto; }
   .nb-paper { padding: 40px 20px 16px; }

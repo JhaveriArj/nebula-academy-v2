@@ -48,6 +48,17 @@
   --paper-ink:   #201C3D;
   --paper-ink-2: #5B5470;
   --face-ui: 'Lexend', system-ui, -apple-system, sans-serif;
+
+  /* The mascot's own colours, sampled from art-source/mascot-4x.png. They are the character,
+     so they do not change between light and dark. The antenna yellow is --star itself. */
+  --mascot-line:    #06063D;
+  --mascot-helmet:  #5351F9;
+  --mascot-visor:   #A08DC9;
+  --mascot-rim:     #C3B9E3;
+  --mascot-eye:     #8061C3;
+  --mascot-suit:    #553B8C;
+  --mascot-hand:    #DDA8DB;
+  --mascot-badge:   #C66BC2;
   --alert:        #B3261E;  /* the robot got confused */
 
   /* --- Space: the dark working screens. Same in both modes. -------------- */
