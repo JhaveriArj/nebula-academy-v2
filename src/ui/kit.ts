@@ -107,28 +107,51 @@ export function mascot(pose: MascotPose, options: { height?: number; shadow?: bo
 export interface Point { x: number; y: number }
 export interface Pose extends Point { headingDeg: number }
 
+export interface Route {
+  points: Point[];
+  start: Pose;
+  end: Pose;
+  /** How far the robot turned, unwrapped, relative to its start: the furthest it went each
+      way and where it ended. A robot that spins on the spot leaves no route, so the turn is
+      drawn as an arc instead. */
+  turn: { min: number; max: number; final: number };
+}
+
 /** The route a watch script drives, as field points, plus where the robot ends up. */
-export function routeOf(spec: WatchSpec): { points: Point[]; start: Pose; end: Pose } {
+export function routeOf(spec: WatchSpec): Route {
   const frames = playWatch(spec);
   const last = frames[frames.length - 1]!.snapshot;
   const trail = last.trail ?? [];
   const first = frames[0]!.snapshot.pose;
-  return { points: trail, start: { ...first }, end: { ...last.pose } };
+  let prev = first.headingDeg;
+  let total = 0;
+  let min = 0;
+  let max = 0;
+  for (const frame of frames) {
+    let d = frame.snapshot.pose.headingDeg - prev;
+    d = ((d + 540) % 360) - 180;
+    total += d;
+    prev = frame.snapshot.pose.headingDeg;
+    min = Math.min(min, total);
+    max = Math.max(max, total);
+  }
+  return { points: trail, start: { ...first }, end: { ...last.pose }, turn: { min, max, final: total } };
 }
 
 /** A lesson's path on a 6x6 field: tiles, where the robot starts (dashed), where it stops
     (solid), and the route between in the yellow ink. `tone: 'wrong'` draws the route in the
-    alert colour, for "this is what the bug looks like". */
-export function fieldThumb(route: { points: Point[]; start: Pose; end: Pose }, options: { size?: number; label: string; tone?: 'right' | 'wrong' } ): SVGElement {
+    alert colour, for "this is what the bug looks like"; `ghost` is the route it should have
+    driven, dashed underneath. A turn on the spot is drawn as an arc round the robot. */
+export function fieldThumb(route: Route, options: { size?: number; label: string; tone?: 'right' | 'wrong'; ghost?: Route } ): SVGElement {
   ensureInk();
-  const { size = 120, label, tone = 'right' } = options;
+  const { size = 120, label, tone = 'right', ghost } = options;
   const k = 120 / FIELD_CM;
   const X = (x: number) => (x * k).toFixed(1);
   const Y = (y: number) => ((FIELD_CM - y) * k).toFixed(1);
   // Start pose, the trail, then the end pose: a straight drive leaves too few trail points
   // to draw on its own.
-  const pts = [route.start, ...route.points.filter((_, i, all) => i % 2 === 0 || i === all.length - 1), route.end];
-  const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${X(p.x)} ${Y(p.y)}`).join(' ');
+  const pathOf = (r: Route) => [r.start, ...r.points.filter((_, i, all) => i % 2 === 0 || i === all.length - 1), r.end]
+    .map((p, i) => `${i === 0 ? 'M' : 'L'}${X(p.x)} ${Y(p.y)}`).join(' ');
   const robot = (pose: Pose, cls: string) =>
     svg('rect', { x: '-5', y: '-5', width: '10', height: '10', rx: '1.5', class: cls,
       transform: `translate(${X(pose.x)} ${Y(pose.y)}) rotate(${-pose.headingDeg})` });
@@ -138,10 +161,45 @@ export function fieldThumb(route: { points: Point[]; start: Pose; end: Pose }, o
       svg('line', { class: 'kit-thumb-grid', x1: String(v), y1: '0', x2: String(v), y2: '120' }),
       svg('line', { class: 'kit-thumb-grid', x1: '0', y1: String(v), x2: '120', y2: String(v) }),
     ]),
+    ghost ? svg('path', { class: 'kit-thumb-ghost', d: pathOf(ghost) }) : null,
+    ghost ? robot(ghost.end, 'kit-thumb-ghost-robot') : null,
     robot(route.start, 'kit-thumb-start'),
-    svg('path', { class: 'kit-thumb-route', d, ...ink }),
+    svg('path', { class: 'kit-thumb-route', d: pathOf(route), ...ink }),
+    turnArc(route, X, Y),
     robot(route.end, 'kit-thumb-robot'),
   );
+}
+
+/** The arc round the end pose for a robot that turned more than it drove. Heading 0 faces up
+    the field and grows anticlockwise; the arc sweeps from the furthest turn one way to the
+    furthest the other, with an arrowhead where it finished. Past a full turn it is a circle. */
+function turnArc(route: Route, X: (x: number) => string, Y: (y: number) => string): SVGElement | null {
+  const { min, max, final } = route.turn;
+  const span = max - min;
+  const drove = Math.hypot(route.end.x - route.start.x, route.end.y - route.start.y);
+  if (span < 20 || drove > 40) return null;
+  const cx = Number(X(route.end.x));
+  const cy = Number(Y(route.end.y));
+  const r = 13;
+  const h0 = route.start.headingDeg;
+  const at = (deg: number) => {
+    const a = ((-90 - (h0 + deg)) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  };
+  const sweep = Math.min(span, 330);
+  const startDeg = final >= 0 ? final - sweep : final + sweep;
+  const a = at(startDeg);
+  const b = at(final);
+  // Positive degrees are anticlockwise on screen, which is SVG's sweep-flag 0.
+  const large = sweep > 180 ? 1 : 0;
+  const flag = final >= startDeg ? 0 : 1;
+  const tangent = ((-90 - (h0 + final)) * Math.PI) / 180 + (flag === 0 ? -Math.PI / 2 : Math.PI / 2);
+  const head = (da: number) => `${(b.x - 5 * Math.cos(tangent + da)).toFixed(1)} ${(b.y - 5 * Math.sin(tangent + da)).toFixed(1)}`;
+  return svg('path', {
+    class: 'kit-thumb-route kit-thumb-turn',
+    d: `M${a.x.toFixed(1)} ${a.y.toFixed(1)} A${r} ${r} 0 ${large} ${flag} ${b.x.toFixed(1)} ${b.y.toFixed(1)} M${head(0.5)} L${b.x.toFixed(1)} ${b.y.toFixed(1)} L${head(-0.5)}`,
+    ...ink,
+  });
 }
 
 // ------------------------------------------------------------------ 3. tier emblems

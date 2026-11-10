@@ -1,0 +1,139 @@
+{
+  "_note": "Margin pictures for the mentor guide: the wrong robot behaviour for some of the common mistakes, by their number in the list.",
+  "mistakes": [
+    {
+      "mistake": 6,
+      "caption": "kP too high: the robot hunts back and forth past its heading",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 2400,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.6,
+              "frontRight": 0.6,
+              "backLeft": 0.6,
+              "backRight": 0.6
+            }
+          },
+          {
+            "atMs": 700,
+            "motors": {
+              "frontLeft": -0.6,
+              "frontRight": -0.6,
+              "backLeft": -0.6,
+              "backRight": -0.6
+            }
+          },
+          {
+            "atMs": 1200,
+            "motors": {
+              "frontLeft": 0.5,
+              "frontRight": 0.5,
+              "backLeft": 0.5,
+              "backRight": 0.5
+            }
+          },
+          {
+            "atMs": 1650,
+            "motors": {
+              "frontLeft": -0.4,
+              "frontRight": -0.4,
+              "backLeft": -0.4,
+              "backRight": -0.4
+            }
+          },
+          {
+            "atMs": 2000,
+            "motors": {
+              "frontLeft": 0.3,
+              "frontRight": 0.3,
+              "backLeft": 0.3,
+              "backRight": 0.3
+            }
+          },
+          {
+            "atMs": 2250,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 7,
+      "caption": "No minimum power: the turn stops a few degrees short of the heading it wanted",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1700,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.3,
+              "frontRight": 0.3,
+              "backLeft": 0.3,
+              "backRight": 0.3
+            }
+          },
+          {
+            "atMs": 1500,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1900,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.3,
+              "frontRight": 0.3,
+              "backLeft": 0.3,
+              "backRight": 0.3
+            }
+          },
+          {
+            "atMs": 1745,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

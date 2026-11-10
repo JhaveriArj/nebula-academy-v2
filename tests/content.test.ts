@@ -11,7 +11,7 @@ import { CHECK_TYPES } from '../src/runtime/testRunner';
 import { ALL_NATIVE_CLASSES, coverageKeys, findNativeClass, nativeMethods, nativeFields } from '../src/ftc-mock/registry';
 import { STRING_METHODS } from '../src/ftc-mock/javalang';
 import { parse } from '../src/runtime/java/parser';
-import { playWatch } from '../src/sim/watch';
+import { playWatch, type WatchSpec } from '../src/sim/watch';
 import { BANNED_WORDS, EMOJI, longWords, wordCount } from './helpers/prose';
 
 const pathway = loadPathway();
@@ -235,6 +235,24 @@ describe('content/ supporting files', () => {
   it('has a mentor guide for every tier', () => {
     for (const t of pathway.tiers) {
       expect(contentFileExists(`mentor/tier-${t.tier}.md`), `content/mentor/tier-${t.tier}.md is missing`).toBe(true);
+    }
+  });
+
+  it('gives each mentor margin picture a real mistake, a caption and a run that plays', () => {
+    for (const t of pathway.tiers) {
+      const file = `mentor/tier-${t.tier}.mistakes.json`;
+      if (!contentFileExists(file)) continue;
+      const guide = readContentFile(`mentor/tier-${t.tier}.md`);
+      const section = guide.split(/^## /m).find((s) => s.startsWith('Common mistakes')) ?? '';
+      const count = (section.match(/^\*\*/gm) ?? []).length;
+      const { mistakes } = JSON.parse(readContentFile(file)) as { mistakes: { mistake: number; caption: string; watch: WatchSpec; expected?: WatchSpec }[] };
+      for (const m of mistakes) {
+        expect(m.mistake >= 1 && m.mistake <= count, `${file}: mistake ${m.mistake} is not in the guide's list of ${count}`).toBe(true);
+        expect(m.caption.length, `${file}: mistake ${m.mistake} needs a caption`).toBeGreaterThan(10);
+        expect(BANNED_WORDS.exec(m.caption), `${file}: caption ${m.mistake}`).toBeNull();
+        expect(playWatch(m.watch).length).toBeGreaterThan(1);
+        if (m.expected) expect(playWatch(m.expected).length).toBeGreaterThan(1);
+      }
     }
   });
 

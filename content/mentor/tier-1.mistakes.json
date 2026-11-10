@@ -1,0 +1,84 @@
+{
+  "_note": "Margin pictures for the mentor guide: the wrong robot behaviour for some of the common mistakes, by their number in the list.",
+  "mistakes": [
+    {
+      "mistake": 6,
+      "caption": "The division throws the fraction away and the robot stops short",
+      "watch": {
+        "robot": "tank",
+        "start": {
+          "x": 182.88,
+          "y": 30.48,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 800,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 600,
+            "motors": {
+              "leftDrive": 0,
+              "rightDrive": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "robot": "tank",
+        "start": {
+          "x": 182.88,
+          "y": 30.48,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1900,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 1700,
+            "motors": {
+              "leftDrive": 0,
+              "rightDrive": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 8,
+      "caption": "The loop never ends: the robot drives on into the far wall",
+      "watch": {
+        "robot": "tank",
+        "start": {
+          "x": 182.88,
+          "y": 30.48,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 9000,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

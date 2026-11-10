@@ -5,6 +5,8 @@ import {
 import { HERO_SPEC, LESSON_ONE_RUN, LESSON_ONE_START } from '../heroDemo';
 import type { WatchSpec } from '../../sim/watch';
 
+const mistakeFiles = import.meta.glob('../../../content/mentor/*.mistakes.json', { eager: true, import: 'default' }) as Record<string, { mistakes: { mistake: number; caption: string; watch: WatchSpec; expected?: WatchSpec }[] }>;
+
 /* A contact sheet of every component in src/ui/kit.ts, for reviewing the kit. Development
    only: app.ts mounts it at #/kit when import.meta.env.DEV, so it never ships. */
 
@@ -82,6 +84,10 @@ export function kitSheet(): HTMLElement {
       spec('dark', el('p', { style: 'margin:0' }, 'Set ', codeChip('leftDrive.setPower(0.5);'), ' then wait.')),
       spec('paper', el('div', { style: 'width:280px' }, paper('plain', el('p', { style: 'margin:0' }, 'They write ', codeChip('int speed = 0.6;', 'paper'), ' and the error names both types.')))),
     ),
+
+    row('8 Mentor margin pictures', 'content/mentor/tier-N.mistakes.json',
+      ...Object.entries(mistakeFiles).flatMap(([file, data]) => data.mistakes.map((m) =>
+        spec(`${file.match(/tier-\d/)![0]} #${m.mistake}`, fieldThumb(routeOf(m.watch), { label: m.caption, tone: 'wrong', ...(m.expected ? { ghost: routeOf(m.expected) } : {}) }))))),
 
     row('7 Nebula', 'density 0, 0.3, 0.6, 1',
       ...[0, 0.3, 0.6, 1].map((d) => spec(`density ${d}`, el('div', { class: 'kit-nebula-box' }, nebula(d)))),

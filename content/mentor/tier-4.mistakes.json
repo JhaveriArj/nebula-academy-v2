@@ -1,0 +1,73 @@
+{
+  "_note": "Margin pictures for the mentor guide: the wrong robot behaviour for some of the common mistakes, by their number in the list.",
+  "mistakes": [
+    {
+      "mistake": 8,
+      "caption": "Waiting for a yaw of 190 that never comes: the turn goes round and round",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 6000,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.4,
+              "frontRight": 0.4,
+              "backLeft": 0.4,
+              "backRight": 0.4
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 12,
+      "caption": "No park between steps: still rolling forward, the robot drifts through its turn",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 121.92,
+          "y": 60.96,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 2800,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.5,
+              "frontRight": -0.5,
+              "backLeft": 0.5,
+              "backRight": -0.5
+            }
+          },
+          {
+            "atMs": 1200,
+            "motors": {
+              "frontLeft": 0.9,
+              "frontRight": -0.09999999999999998,
+              "backLeft": 0.9,
+              "backRight": -0.09999999999999998
+            }
+          },
+          {
+            "atMs": 2600,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

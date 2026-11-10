@@ -1051,6 +1051,9 @@ body[data-route='lesson'] .site-footer { display: none; }
 .kit-thumb.is-wrong .kit-thumb-route { stroke: var(--space-alert); }
 .kit-thumb-start { fill: none; stroke: var(--nb-text-3); stroke-width: 1; stroke-dasharray: 2 2; }
 .kit-thumb-robot { fill: var(--nb-raised-2); stroke: var(--nb-text); stroke-width: 1.4; }
+.kit-thumb-turn { stroke-width: 2.4; }
+.kit-thumb-ghost { fill: none; stroke: var(--nb-text-2); stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; }
+.kit-thumb-ghost-robot { fill: none; stroke: var(--nb-text-2); stroke-width: 1; stroke-dasharray: 2 2; }
 
 /* Tier emblems */
 .kit-emblem { display: block; overflow: visible; }
@@ -1509,15 +1512,22 @@ body[data-route='lesson'] .site-footer { display: none; }
    kept whole on one page. Any other page prints its main content the same way. */
 @media print {
   @page { margin: 16mm; }
-  html, body, #app, main, .prose-page, .mentor-page { background: var(--print-paper) !important; color: var(--print-ink) !important; }
-  .site-header, .site-footer, .skip-link, .tier-tabs, .mentor-tools, .mentor-pager, .display-panel, .site-footer { display: none !important; }
+  html, body, #app, main, .prose-page, .mentor-shell, .mentor-sheet { background: var(--print-paper) !important; color: var(--print-ink) !important; }
+  .site-header, .site-footer, .skip-link, .mentor-side, .mentor-print, .mentor-pager, .display-panel { display: none !important; }
   .prose-page { max-width: none; padding: 0; }
-  .mentor-page h1, .mentor-page h2, .mentor-page h3 { color: var(--print-ink); break-after: avoid; }
-  .mentor-page a { color: var(--print-ink); text-decoration: underline; }
-  .mentor-page table { width: 100%; border-collapse: collapse; font-size: 11pt; break-inside: avoid; }
-  .mentor-page th, .mentor-page td { border: 1px solid var(--print-rule); padding: 4pt 6pt; color: var(--print-ink); background: var(--print-paper); }
-  .mentor-page code { background: none; color: var(--print-ink); }
-  .mentor-page p, .mentor-page li { orphans: 3; widows: 3; }
+  .mentor-shell { display: block; padding: 0; }
+  .mentor-sheet, .mentor-rubric { padding: 0; box-shadow: none; rotate: none; margin: 0; }
+  .mentor-sheet::before, .mentor-rubric::before, .kit-pin { display: none; }
+  .mentor-sheet h1, .mentor-sheet h2, .mentor-sheet h3 { color: var(--print-ink); break-after: avoid; }
+  .mentor-sheet a { color: var(--print-ink); text-decoration: underline; }
+  .mentor-sheet code { background: none; box-shadow: none; color: var(--print-ink); }
+  .mentor-sheet p, .mentor-sheet li { orphans: 3; widows: 3; }
+  .mistake { break-inside: avoid; }
+  /* The rubric gets a page of its own, whole, so it can be handed over on its own. */
+  .mentor-section.is-rubric { break-before: page; padding-top: 0; }
+  .mentor-rubric .md-table { width: 100%; font-size: 11pt; }
+  .mentor-rubric .md-table th, .mentor-rubric .md-table td { border-bottom: 1px solid var(--print-rule); padding: 6pt 6pt 6pt 0; color: var(--print-ink); background: var(--print-paper); }
+  .mentor-rubric { break-inside: avoid; }
 }
 
 /* ---------------------------------------------------------------- console */
@@ -1751,9 +1761,100 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 
 /* ----------------------------------------------------------------- mentor */
 
-.mentor-page { max-width: 80ch; }
-.mentor-tools { display: flex; justify-content: flex-end; margin-top: var(--s4); }
-.mentor-pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); margin-top: var(--s7); padding-top: var(--s4); border-top: var(--seam-w) solid var(--line); }
+/* A guide on the desk: a sticky list of tiers on the left and one cream sheet, 760px, with a
+   single shadow and no tilt. The sheet uses the paper ink ramp throughout, so it reads the
+   same in the light and dark themes. */
+.mentor-shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 760px);
+  justify-content: center;
+  gap: var(--s7);
+  padding: var(--s6) var(--edge, var(--s5)) var(--s8);
+}
+.mentor-side { position: sticky; top: 96px; align-self: start; display: flex; flex-direction: column; gap: var(--s3); }
+.mentor-side-title { margin: 0; font-size: 1.125rem; }
+.mentor-side-title a { color: var(--ink); text-decoration: none; }
+.mentor-side-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-top: var(--seam-w) solid var(--line); padding-top: var(--s2); }
+.mentor-side-list li { max-width: none; }
+.mentor-side-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: var(--tap);
+  padding: 6px var(--s2);
+  border-radius: var(--radius);
+  color: var(--ink-mid);
+  text-decoration: none;
+}
+.mentor-side-link > span { display: flex; flex-direction: column; line-height: 1.2; white-space: nowrap; }
+.mentor-side-tier { font-family: var(--face-code); font-size: 14px; color: var(--ink-soft, var(--ink-mid)); }
+.mentor-side-name { font-family: var(--face-display); font-weight: 500; color: var(--ink); }
+.mentor-side-link[aria-current='page'] { background: var(--surface-soft); color: var(--primary); }
+.mentor-side-link[aria-current='page']::before { content: ''; position: absolute; left: -12px; top: 12px; bottom: 12px; width: 2px; background: var(--star); }
+@media (hover: hover) {
+  .mentor-side-link:hover:not([aria-current='page']) { background: var(--surface-soft); }
+}
+.mentor-side-peek { position: relative; height: 112px; overflow: hidden; margin-top: var(--s4); border-bottom: var(--seam-w) solid var(--line-strong); }
+.mentor-side-peek .kit-mascot { position: absolute; bottom: -60px; left: 20px; }
+
+.mentor-sheet { padding: 56px 64px 40px; }
+.mentor-sheet h1, .mentor-sheet h2, .mentor-sheet h3, .mentor-sheet strong { color: var(--paper-ink); }
+.mentor-sheet p, .mentor-sheet li { color: var(--paper-ink); line-height: 1.6; }
+.mentor-sheet a { color: var(--paper-ink); text-decoration-color: color-mix(in srgb, var(--paper-ink) 40%, transparent); }
+.mentor-sheet code { padding: 1px 6px; border-radius: var(--radius-xs); background: color-mix(in srgb, var(--paper-ink) 7%, var(--paper)); color: var(--paper-ink); box-shadow: inset 0 0 0 1px var(--paper-line); font-size: 0.875em; }
+.mentor-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s5); padding-bottom: var(--s5); border-bottom: var(--seam-w) solid var(--paper-line); }
+.mentor-head-text { min-width: 0; }
+.mentor-head h1 { margin: 0; font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem); line-height: 1.1; text-wrap: balance; }
+.mentor-lede { margin: var(--s2) 0 0; color: var(--paper-ink-2) !important; font-size: 1.0625rem; }
+.mentor-head-mark { position: relative; justify-self: start; width: fit-content; color: var(--paper-ink); }
+.mentor-head-mark .kit-circled { position: absolute; right: -14px; bottom: -10px; color: var(--paper-ink); background: var(--paper); border-radius: 50%; }
+/* On paper the circle is drawn in the ink; yellow is a light and does not read on cream. */
+.mentor-head-mark .kit-circle path { stroke: var(--paper-ink); stroke-width: 3; }
+.mentor-print { align-self: start; color: var(--paper-ink); border-color: var(--paper-line); }
+
+.mentor-body { padding-top: var(--s4); }
+.mentor-section { padding-top: var(--s5); }
+.mentor-section h3 { margin: 0 0 var(--s3); font-family: var(--face-display); font-size: 1.375rem; font-weight: 600; line-height: 1.2; }
+.mentor-section ul { padding-inline-start: 1.25em; }
+.mentor-note { color: var(--paper-ink-2) !important; }
+
+/* Common mistakes: a two-digit number in the margin, the text, and for the ones you can see on
+   the field, a picture of what the robot does when a kid makes that mistake. */
+.mistakes { list-style: none; margin: 0; padding: 0; }
+.mistake { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 var(--s4); max-width: none; padding: var(--s3) 0; border-top: var(--seam-w) solid var(--paper-line); }
+.mistake:first-child { border-top: 0; }
+.mistake.has-picture { grid-template-columns: 40px minmax(0, 1fr) 136px; }
+.mistake-num { padding-top: 3px; font-family: var(--face-code); font-size: 14px; color: var(--paper-ink-2); font-variant-numeric: tabular-nums; }
+.mistake-text p { margin: 0 0 var(--s2); }
+.mistake-text p:last-child { margin-bottom: 0; }
+.mistake-picture { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.mistake-picture figcaption { font-size: 14px; line-height: 1.35; color: var(--paper-ink-2); }
+
+/* The rubric is pinned to the sheet, a second, whiter card with hairline rows. */
+.mentor-section.is-rubric { padding-top: var(--s7); }
+.mentor-rubric { --paper: var(--print-paper); margin: 0 -24px; padding: 40px 32px 28px; }
+.mentor-rubric h3 { text-align: center; }
+.mentor-rubric .md-table-wrap { border: 0; border-radius: 0; margin: var(--s3) 0; }
+.mentor-rubric .md-table { font-size: 0.9375rem; }
+.mentor-rubric .md-table th, .mentor-rubric .md-table td { background: none; padding: 12px 12px 12px 0; border-bottom: var(--seam-w) solid var(--paper-line); color: var(--paper-ink); }
+.mentor-rubric .md-table thead th { background: none; font-family: var(--face-code); font-weight: 400; font-size: 14px; color: var(--paper-ink-2); }
+.mentor-rubric .md-table tbody th { width: 28%; }
+.mentor-rubric .md-table td { color: var(--paper-ink-2); }
+
+/* The guide index (no tier chosen). */
+.mentor-index { list-style: none; margin: var(--s5) 0 var(--s4); padding: 0; }
+.mentor-index li { max-width: none; border-top: var(--seam-w) solid var(--paper-line); }
+.mentor-index li:last-child { border-bottom: var(--seam-w) solid var(--paper-line); }
+.mentor-index-link { display: grid; grid-template-columns: 32px 72px 10rem minmax(0, 1fr); align-items: center; gap: var(--s4); min-height: 64px; color: var(--paper-ink); text-decoration: none; }
+.mentor-index-tier { font-family: var(--face-code); font-size: 14px; color: var(--paper-ink-2); }
+.mentor-index-name { font-family: var(--face-display); font-weight: 600; font-size: 1.125rem; }
+.mentor-index-sub { font-size: 1rem; color: var(--paper-ink-2); }
+@media (hover: hover) {
+  .mentor-index-link:hover .mentor-index-name { text-decoration: underline; text-underline-offset: 4px; }
+}
+
+.mentor-pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); margin-top: var(--s7); padding-top: var(--s4); border-top: var(--seam-w) solid var(--paper-line); }
 .mentor-pager-link {
   display: flex;
   align-items: center;
@@ -1761,43 +1862,39 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   min-height: var(--tap);
   padding: var(--s3);
   border-radius: var(--radius);
-  color: var(--link);
+  color: var(--paper-ink);
   text-decoration: none;
   font-weight: 500;
 }
 .mentor-pager-link.is-next { justify-content: flex-end; text-align: end; grid-column: 2; }
 .mentor-pager-link > span { display: flex; flex-direction: column; }
-.mentor-pager-dir { font-size: var(--size-label); color: var(--ink-mid); font-weight: 400; }
+.mentor-pager-dir { font-size: 14px; color: var(--paper-ink-2); font-weight: 400; }
 @media (hover: hover) {
-  .mentor-pager-link:hover { background: var(--surface-soft); }
+  .mentor-pager-link:hover { background: color-mix(in srgb, var(--paper-ink) 6%, var(--paper)); }
 }
-.mentor-body > h2:first-child { margin-top: var(--s6); }
+
+@media (max-width: 1000px) {
+  .mentor-shell { grid-template-columns: minmax(0, 1fr); gap: var(--s4); padding: var(--s4) var(--s4) var(--s7); }
+  .mentor-side { position: static; }
+  .mentor-side-list { flex-direction: row; overflow-x: auto; gap: var(--s1); }
+  .mentor-side-link[aria-current='page']::before { display: none; }
+  .mentor-side-link { flex: none; }
+  .mentor-side-peek { display: none; }
+}
+@media (max-width: 640px) {
+  .mentor-sheet { padding: 32px 20px 24px; }
+  .mentor-head { grid-template-columns: minmax(0, 1fr); gap: var(--s3); }
+  .mentor-head-mark .kit-emblem { width: 64px; height: 64px; }
+  .mentor-head-mark .kit-circled { right: -22px; bottom: -6px; }
+  .mistake.has-picture { grid-template-columns: 32px minmax(0, 1fr); }
+  .mistake-picture { grid-column: 2; margin-top: var(--s2); flex-direction: row; align-items: center; gap: var(--s3); }
+  .mentor-rubric { margin: 0 -8px; padding: 36px 16px 20px; rotate: 0deg; }
+  .mentor-index-link { grid-template-columns: 32px minmax(0, 1fr); gap: 2px var(--s3); padding: var(--s2) 0; }
+  .mentor-index-tier, .mentor-index-name, .mentor-index-sub { grid-column: 2; }
+  .mentor-index-link .kit-emblem { grid-row: 1 / span 3; }
+}
 
 .raw-error summary { display: inline-flex; align-items: center; cursor: pointer; font-weight: 600; color: var(--link); }
-.tier-tabs { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0; }
-
-.tier-tab {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: var(--tap);
-  padding: var(--s2) var(--s4);
-  border: var(--seam-w) solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  text-decoration: none;
-  font-family: var(--face-display);
-  font-weight: 600;
-  font-size: var(--size-label);
-}
-
-.tier-tab[aria-current='page'] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.tier-tab-name { font-weight: 400; font-size: max(14px, calc(var(--size-label) - 1px)); }
-
-@media (hover: hover) {
-  .tier-tab:hover:not([aria-current='page']) { border-color: var(--primary); }
-}
 
 /* --------------------------------------------------------------- progress */
 

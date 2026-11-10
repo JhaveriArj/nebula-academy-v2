@@ -1,0 +1,189 @@
+{
+  "_note": "Margin pictures for the mentor guide: the wrong robot behaviour for some of the common mistakes, by their number in the list.",
+  "mistakes": [
+    {
+      "mistake": 6,
+      "caption": "Copied the drive but not the turn: one long line up the field",
+      "watch": {
+        "robot": "tank",
+        "start": {
+          "x": 182.88,
+          "y": 30.48,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 4200,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 4000,
+            "motors": {
+              "leftDrive": 0,
+              "rightDrive": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 7,
+      "caption": "Each turn a little short, so the square does not close",
+      "watch": {
+        "robot": "tank",
+        "start": {
+          "x": 91.44,
+          "y": 60.96,
+          "headingDeg": -90
+        },
+        "withElements": false,
+        "durationMs": 10200,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 1800,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 2500,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 4300,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 5000,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 6800,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 7500,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 9300,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 10000,
+            "motors": {
+              "leftDrive": 0,
+              "rightDrive": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "robot": "tank",
+        "start": {
+          "x": 91.44,
+          "y": 60.96,
+          "headingDeg": -90
+        },
+        "withElements": false,
+        "durationMs": 10540,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 1800,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 2585,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 4385,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 5170,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 6970,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 7755,
+            "motors": {
+              "leftDrive": 0.6,
+              "rightDrive": 0.6
+            }
+          },
+          {
+            "atMs": 9555,
+            "motors": {
+              "leftDrive": -0.5,
+              "rightDrive": 0.5
+            }
+          },
+          {
+            "atMs": 10340,
+            "motors": {
+              "leftDrive": 0,
+              "rightDrive": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

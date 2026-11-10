@@ -1,0 +1,137 @@
+{
+  "_note": "Margin pictures for the mentor guide: the wrong robot behaviour for some of the common mistakes, by their number in the list.",
+  "mistakes": [
+    {
+      "mistake": 5,
+      "caption": "One motor alone: the robot swings round instead of driving ahead",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 2600,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.5,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          },
+          {
+            "atMs": 2400,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 6,
+      "caption": "No reversals: four equal powers spin the robot on the spot",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 91.44,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1700,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.5,
+              "frontRight": 0.5,
+              "backLeft": 0.5,
+              "backRight": 0.5
+            }
+          },
+          {
+            "atMs": 1500,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mistake": 7,
+      "caption": "The missing minus sign: the robot drives backwards",
+      "watch": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 182.88,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1400,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": -0.5,
+              "frontRight": 0.5,
+              "backLeft": -0.5,
+              "backRight": 0.5
+            }
+          },
+          {
+            "atMs": 1200,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      },
+      "expected": {
+        "robot": "mecanum",
+        "start": {
+          "x": 182.88,
+          "y": 182.88,
+          "headingDeg": 0
+        },
+        "withElements": false,
+        "durationMs": 1400,
+        "steps": [
+          {
+            "atMs": 0,
+            "motors": {
+              "frontLeft": 0.5,
+              "frontRight": -0.5,
+              "backLeft": 0.5,
+              "backRight": -0.5
+            }
+          },
+          {
+            "atMs": 1200,
+            "motors": {
+              "frontLeft": 0,
+              "frontRight": 0,
+              "backLeft": 0,
+              "backRight": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
