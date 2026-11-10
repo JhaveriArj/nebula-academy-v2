@@ -1,22 +1,41 @@
-import { svg } from '../dom';
-import { pathway } from '../../content/loader';
+import { svg, el } from '../dom';
+import { pathway, loadLesson } from '../../content/loader';
 import { isPassed, isTierUnlocked } from '../../progress/store';
 import { lessonHref } from '../router';
+import { ensureInk, fieldThumb, routeOf, tierEmblem } from '../kit';
+import { mascotHead } from '../mascot';
 
-/* The Level Map.
+/* The star chart.
 
-   docs/DESIGN.md spends the project's whole boldness budget here: a hand-inked
-   navigational star chart where tiers are stations and lessons are waypoints on a flown
-   route. Every other screen is flat paint and type.
+   Tiers are stations, drawn as nodes with their emblem; lessons are small stars along the
+   route. Every row runs left to right with its station and label at the left edge, so the
+   names line up in one column and read top to bottom like a contents page; the route drops
+   from the end of each row to the next station.
 
-   Two rules it keeps. Waypoint states are distinguishable by SHAPE as well as colour, so
-   the chart works in greyscale and for a colourblind kid. And the only animation is the
-   route extending when a lesson is completed, which is the whole celebration. */
+   States are carried by SHAPE as well as colour, so the chart works in greyscale and for a
+   colourblind kid: a flown lesson is a filled star, an open one an outlined star, a locked
+   one a small hollow dot. The flown route is inked in yellow with the kit's wobble; the
+   route still to fly is a dotted hairline.
+
+   Motion: on the first visit of a session the route draws itself station by station
+   (1.2 s, out-quart); the current lesson's star breathes between 0.7 and 1 opacity on a
+   2 s loop; hovering or focusing a station brightens its whole tier. Reduced motion gets
+   the finished chart and no loop. */
 
 const W = 1200;
-const H = 1040;
+const ROW_H = 150;
+const TOP = 96;
+const LABEL_X = 28;
+const NODE_X = 248;
+const FIRST_X = 352;
+const ROUTE_STEP = 108;
+const HIT_R = 30;
+const DRAW_MS = 1200;
+const OUT_QUART = 'cubic-bezier(0.25, 1, 0.5, 1)';
 
-/** A seeded generator, so the chart's hand-drawn wobble is the same every render. */
+let drawnThisSession = false;
+
+/** A seeded generator, so the chart's hand-drawn sway is the same every render. */
 function rng(seed: number): () => number {
   let state = seed | 0;
   return () => {
@@ -25,65 +44,45 @@ function rng(seed: number): () => number {
   };
 }
 
-interface Point {
-  x: number;
-  y: number;
-}
+interface Point { x: number; y: number }
 
-/** A straight line redrawn as a few wobbled segments, so it reads as inked by hand. */
-function wobbled(from: Point, to: Point, seed: number, amount = 5): string {
+/** A line as one gentle curve, so it reads as plotted by hand rather than ruled. */
+function curve(from: Point, to: Point, seed: number, bow = 10): string {
   const random = rng(seed);
-  const steps = 6;
-  const parts = [`M ${from.x.toFixed(1)} ${from.y.toFixed(1)}`];
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    const jitter = i === steps ? 0 : (random() - 0.5) * amount * 2;
-    const nx = from.x + (to.x - from.x) * t + jitter;
-    const ny = from.y + (to.y - from.y) * t + (i === steps ? 0 : (random() - 0.5) * amount * 2);
-    parts.push(`L ${nx.toFixed(1)} ${ny.toFixed(1)}`);
-  }
-  return parts.join(' ');
+  const mx = (from.x + to.x) / 2 + (random() - 0.5) * bow;
+  const my = (from.y + to.y) / 2 + (random() - 0.5) * bow;
+  return `M ${from.x.toFixed(1)} ${from.y.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
 }
 
-/** Waypoints run from just outside this tier's station towards the next one.
-
-    The span is capped at a little over half the distance to the next station so a long
-    tier never crowds into it, and at 30 px a waypoint so a short tier does not stretch
-    its handful of waypoints across the whole chart. */
-/* The layout. One tier per row, the route switching back at the end of each row like a
-   trail down a mountain: Tier 0 runs left to right, Tier 1 right to left, and so on. Every
-   waypoint sits ROUTE_STEP apart, which is what lets each one carry a full-size tap target
-   (HIT_R) without overlapping its neighbour, even on a 1024 px screen. The positions are
-   worked out here rather than read from content/pathway.json, so the chart can never be
-   laid out too tight by a content edit. */
-const ROW_H = 160;
-const TOP = 110;
-const ROUTE_STEP = 112;
-const HIT_R = 30;
+/** A four-point star, the lesson mark. */
+function starPath(c: Point, r: number): string {
+  const i = r * 0.38;
+  return `M ${c.x} ${c.y - r} Q ${c.x + i * 0.35} ${c.y - i * 0.35} ${c.x + r} ${c.y} Q ${c.x + i * 0.35} ${c.y + i * 0.35} ${c.x} ${c.y + r} Q ${c.x - i * 0.35} ${c.y + i * 0.35} ${c.x - r} ${c.y} Q ${c.x - i * 0.35} ${c.y - i * 0.35} ${c.x} ${c.y - r} Z`;
+}
 
 function stationAt(index: number): Point {
-  return { x: index % 2 === 0 ? 150 : W - 150, y: TOP + index * ROW_H };
+  return { x: NODE_X, y: TOP + index * ROW_H };
 }
 
-function waypointsFor(index: number, station: Point, count: number, seed: number): Point[] {
+function waypointsFor(station: Point, count: number, seed: number): Point[] {
   const random = rng(seed);
-  const dir = index % 2 === 0 ? 1 : -1;
   return Array.from({ length: count }, (_, i) => ({
-    x: station.x + dir * (170 + ROUTE_STEP * i),
-    // A gentle, seeded sway so the route reads as hand-plotted, not ruled.
-    y: station.y + Math.sin(i * 1.3 + seed) * 14 + (random() - 0.5) * 6,
+    x: FIRST_X + ROUTE_STEP * i,
+    y: station.y + Math.sin(i * 1.3 + seed) * 12 + (random() - 0.5) * 6,
   }));
 }
 
 export interface StarChart {
-  element: SVGElement;
+  element: HTMLElement;
   /** Plays the route-extension animation towards a lesson, then leaves it lit. */
   celebrate(lessonId: string): void;
 }
 
 export function createStarChart(options: { reducedMotion: boolean }): StarChart {
+  ensureInk();
   const tiers = pathway.tiers;
   const stations = tiers.map((_, i) => stationAt(i));
+  const H = TOP + (tiers.length - 1) * ROW_H + 90;
 
   const root = svg('svg', {
     viewBox: `0 0 ${W} ${H}`,
@@ -93,210 +92,250 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
     preserveAspectRatio: 'xMidYMid meet',
   });
 
-  // Stars. Scattered, seeded, three sizes, never animated.
+  // Background stars: scattered, seeded, three sizes, still.
   const stars = rng(80231);
   const starLayer = svg('g', { class: 'chart-stars', 'aria-hidden': 'true' });
-  for (let i = 0; i < 220; i++) {
+  for (let i = 0; i < 200; i++) {
     const x = stars() * W;
     const y = stars() * H;
-    const r = stars() < 0.08 ? 1.9 : stars() < 0.4 ? 1.2 : 0.7;
+    const r = stars() < 0.08 ? 1.7 : stars() < 0.4 ? 1.1 : 0.6;
     starLayer.appendChild(svg('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r, class: 'chart-star' }));
   }
   root.appendChild(starLayer);
 
-  // (The margin ticks and the "N 0 — 12 ft" scale were removed: a star chart has no scale a
-  // kid can use, so they read as noise. The field, which does, keeps its rulers.)
-
   const routeLayer = svg('g', { class: 'chart-routes' });
   const waypointLayer = svg('g', { class: 'chart-waypoints' });
   const stationLayer = svg('g', { class: 'chart-stations' });
-  root.appendChild(routeLayer);
-  root.appendChild(waypointLayer);
-  root.appendChild(stationLayer);
+  root.append(routeLayer, waypointLayer, stationLayer);
 
-  const routeToNext: (SVGElement | null)[] = [];
   const waypointNodes = new Map<string, SVGElement>();
+  const tierOfNode = new Map<Element, number>();
+  // The lesson a kid would open next: the first one not flown in the furthest open tier.
+  const currentId = (() => {
+    for (const t of [...tiers].reverse()) {
+      if (!isTierUnlocked(t.tier)) continue;
+      return t.lessons.find((l) => !isPassed(l.id))?.id ?? null;
+    }
+    return null;
+  })();
+
+  const frame = el('div', { class: 'chart-canvas' }, root);
+  const tooltip = el('div', { class: 'chart-tip', 'aria-hidden': 'true', hidden: true });
+  frame.append(tooltip);
 
   tiers.forEach((tier, index) => {
     const station = stations[index]!;
     const unlocked = isTierUnlocked(tier.tier);
-    const points = waypointsFor(index, station, tier.lessons.length, 1000 + tier.tier * 7);
+    const points = waypointsFor(station, tier.lessons.length, 1000 + tier.tier * 7);
+    const tierTag = { 'data-tier': String(tier.tier) };
 
-    // The route through this tier's waypoints.
-    const segments: Point[] = [station, ...points];
+    // The route through this tier's lessons: flown, open (to fly next) or locked.
+    const segments: Point[] = [{ x: station.x + 30, y: station.y }, ...points];
     for (let i = 0; i < segments.length - 1; i++) {
       const flown = isPassed(tier.lessons[i]!.id);
-      routeLayer.appendChild(
-        svg('path', {
-          d: wobbled(segments[i]!, segments[i + 1]!, 500 + tier.tier * 31 + i, 3),
-          class: `chart-route ${flown ? 'is-flown' : unlocked ? 'is-open' : 'is-locked'}`,
-        }),
-      );
+      const state = flown ? 'is-flown' : unlocked ? 'is-open' : 'is-locked';
+      routeLayer.appendChild(svg('path', {
+        d: curve(segments[i]!, segments[i + 1]!, 500 + tier.tier * 31 + i, 8),
+        class: `chart-route ${state}`,
+        ...tierTag,
+        ...(flown ? { filter: 'url(#kit-wobble)' } : {}),
+      }));
     }
 
-    // The hop to the next station, flown once this tier's checkpoint passes.
+    // The drop to the next station, flown once this tier's checkpoint passes.
     if (index < tiers.length - 1) {
       const done = isPassed(tier.checkpoint);
-      const hop = svg('path', {
-        d: wobbled(points[points.length - 1] ?? station, stations[index + 1]!, 900 + tier.tier, 7),
+      const from = points[points.length - 1] ?? station;
+      const to = { x: stations[index + 1]!.x + 22, y: stations[index + 1]!.y - 22 };
+      routeLayer.appendChild(svg('path', {
+        d: `M ${from.x} ${from.y} C ${from.x + 40} ${from.y + ROW_H * 0.55}, ${to.x + 260} ${to.y - ROW_H * 0.45}, ${to.x} ${to.y}`,
         class: `chart-hop ${done ? 'is-flown' : 'is-locked'}`,
-      });
-      routeLayer.appendChild(hop);
-      routeToNext.push(hop);
-    } else {
-      routeToNext.push(null);
+        ...tierTag,
+        ...(done ? { filter: 'url(#kit-wobble)' } : {}),
+      }));
     }
 
-    // Waypoints. Shape carries the state; amber only confirms it.
     tier.lessons.forEach((lesson, i) => {
       const point = points[i]!;
       const passed = isPassed(lesson.id);
       const open = unlocked && !passed;
-      const state = passed ? 'is-flown' : open ? 'is-open' : 'is-locked';
+      const current = lesson.id === currentId;
+      const state = `${passed ? 'is-flown' : open ? 'is-open' : 'is-locked'}${current ? ' is-current' : ''}`;
+      const label = `Tier ${tier.tier} lesson ${i + 1}: ${lesson.title}${passed ? ', flown' : unlocked ? '' : ', locked'}`;
 
-      const label = `Tier ${tier.tier} lesson ${i + 1}: ${lesson.title}${
-        passed ? ', flown' : unlocked ? '' : ', locked'
-      }`;
-
-      const group = svg('g', { class: `chart-waypoint ${state}` });
-      // A transparent circle around the mark is the tap target: 60 units across, about
-      // 49 px on a 1024 px screen, and never overlapping the next waypoint.
+      const group = svg('g', { class: `chart-waypoint ${state}`, ...tierTag });
       group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: HIT_R, class: 'chart-hit' }));
-      if (passed) {
-        group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 6.5, class: 'chart-dot' }));
-      } else if (open) {
-        group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 6.5, class: 'chart-ring' }));
-        group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 2.4, class: 'chart-dot' }));
+      if (passed || open) {
+        group.appendChild(svg('path', { d: starPath(point, current ? 11 : 9), class: 'chart-mark' }));
       } else {
-        group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 5.5, class: 'chart-hollow' }));
+        group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 4, class: 'chart-mark' }));
       }
-      group.appendChild(
-        svg('text', {
-          x: point.x,
-          y: point.y - 22,
-          class: 'chart-waypoint-label',
-          'text-anchor': 'middle',
-          'aria-hidden': 'true',
-          text: String(i + 1),
-        }),
-      );
+      if (current) {
+        // The mascot sits on the lesson you are up to, in place of its number.
+        const head = mascotHead(26);
+        head.setAttribute('x', String(point.x - 12));
+        head.setAttribute('y', String(point.y - 46));
+        head.classList.add('chart-you');
+        group.appendChild(head);
+      } else {
+        group.appendChild(svg('text', {
+          x: point.x, y: point.y - 20, class: 'chart-waypoint-label', 'text-anchor': 'middle', 'aria-hidden': 'true', text: String(i + 1),
+        }));
+      }
 
-      if (unlocked) {
-        const link = svg('a', { href: lessonHref(lesson.id), 'aria-label': label, class: 'chart-link' });
-        link.appendChild(group);
-        waypointLayer.appendChild(link);
-        waypointNodes.set(lesson.id, link);
-      } else {
-        // A labelled <g> needs a role, or the label is ignored (axe aria-prohibited-attr).
-        group.setAttribute('role', 'img');
-        group.setAttribute('aria-label', label);
-        waypointLayer.appendChild(group);
-        waypointNodes.set(lesson.id, group);
-      }
+      const node = unlocked
+        ? svg('a', { href: lessonHref(lesson.id), 'aria-label': label, class: 'chart-link', ...tierTag }, group)
+        : (() => {
+            // A labelled <g> needs a role, or the label is ignored (axe aria-prohibited-attr).
+            group.setAttribute('role', 'img');
+            group.setAttribute('aria-label', label);
+            return group;
+          })();
+      waypointLayer.appendChild(node);
+      waypointNodes.set(lesson.id, node);
+      tierOfNode.set(node, tier.tier);
+
+      const show = () => showTip(lesson.id, lesson.title, unlocked ? null : `Opens after the Tier ${tier.tier - 1} checkpoint`, point);
+      node.addEventListener('pointerenter', show);
+      node.addEventListener('focus', show);
+      node.addEventListener('pointerleave', hideTip);
+      node.addEventListener('blur', hideTip);
     });
 
-    // The station itself.
-    const { passed, total } = {
-      passed: tier.lessons.filter((l) => isPassed(l.id)).length,
-      total: tier.lessons.length,
-    };
-    const box = svg('g', { class: `chart-station ${unlocked ? 'is-open' : 'is-locked'}` });
-    // The badge grows with its name, so the name can be set large enough to read at 1024 px.
-    // Room for the tier's patch on the left, then the name.
-    const width = Math.max(150, Math.round(tier.name.length * 11.5 + 84));
-    const left = station.x - width / 2;
-    box.appendChild(
-      svg('path', {
-        d: stationOutline(station, 1700 + tier.tier * 13, width, 64),
-        class: 'chart-station-shell',
-      }),
-    );
-    box.appendChild(
-      svg('image', {
-        href: `${import.meta.env.BASE_URL}art/badge-t${tier.tier}.svg`,
-        x: left + 10,
-        y: station.y - 20,
-        width: 40,
-        height: 40,
-        class: 'chart-station-badge',
-        'aria-hidden': 'true',
-      }),
-    );
-    box.appendChild(
-      svg('text', {
-        x: station.x + 24,
-        y: station.y - 3,
-        'text-anchor': 'middle',
-        class: 'chart-station-name',
-        text: tier.name,
-      }),
-    );
-    box.appendChild(
-      svg('text', {
-        x: station.x + 24,
-        y: station.y + 20,
-        'text-anchor': 'middle',
-        class: 'chart-station-count',
-        text: unlocked ? `${passed} of ${total}` : 'locked',
-      }),
-    );
-    // An open station is the big target: it goes to the tier's next lesson.
+    // The station: a node with the tier's emblem, and its label in the left column.
+    const passedCount = tier.lessons.filter((l) => isPassed(l.id)).length;
+    const total = tier.lessons.length;
+    const box = svg('g', { class: `chart-station ${unlocked ? 'is-open' : 'is-locked'}`, ...tierTag });
+    box.appendChild(svg('rect', { x: LABEL_X - 12, y: station.y - 36, width: station.x + 44 - LABEL_X, height: 72, rx: 12, class: 'chart-station-hit' }));
+    box.appendChild(svg('circle', { cx: station.x, cy: station.y, r: 30, class: 'chart-station-node' }));
+    const emblem = tierEmblem(tier.tier, 32);
+    emblem.setAttribute('x', String(station.x - 16));
+    emblem.setAttribute('y', String(station.y - 16));
+    emblem.classList.add('chart-station-emblem');
+    box.appendChild(emblem);
+    box.appendChild(svg('text', { x: LABEL_X, y: station.y - 6, class: 'chart-station-tier', text: `Tier ${tier.tier}` }));
+    box.appendChild(svg('text', { x: LABEL_X, y: station.y + 18, class: 'chart-station-name', text: tier.name }));
+    box.appendChild(svg('text', {
+      x: LABEL_X, y: station.y + 40, class: 'chart-station-count',
+      text: unlocked ? `${passedCount} of ${total}` : 'locked',
+    }));
+
     const nextLesson = tier.lessons.find((l) => !isPassed(l.id)) ?? tier.lessons[0];
+    let stationNode: SVGElement;
     if (unlocked && nextLesson) {
       // Chrome names an SVG link from its <title>. The title starts with the badge's own
-      // words ("Launchpad 0 of 4"), so voice control can say what it sees (WCAG 2.5.3).
-      const link = svg('a', { href: lessonHref(nextLesson.id), class: 'chart-station-link' });
-      link.appendChild(svg('title', { text: `${tier.name} ${passed} of ${total}. Next lesson: ${nextLesson.title}` }));
-      link.appendChild(box);
-      stationLayer.appendChild(link);
+      // words ("Tier 0 Launchpad 0 of 4"), so voice control can say what it sees (WCAG 2.5.3).
+      stationNode = svg('a', { href: lessonHref(nextLesson.id), class: 'chart-station-link', ...tierTag },
+        svg('title', { text: `Tier ${tier.tier} ${tier.name} ${passedCount} of ${total}. Next lesson: ${nextLesson.title}` }),
+        box);
     } else {
       box.setAttribute('role', 'img');
-      box.setAttribute('aria-label', `${tier.name}, locked, tier ${tier.tier}`);
-      stationLayer.appendChild(box);
+      box.setAttribute('aria-label', `Tier ${tier.tier}, ${tier.name}, locked`);
+      stationNode = box;
     }
+    stationLayer.appendChild(stationNode);
+    const light = () => lightTier(tier.tier);
+    stationNode.addEventListener('pointerenter', light);
+    stationNode.addEventListener('focusin', light);
+    stationNode.addEventListener('pointerleave', unlight);
+    stationNode.addEventListener('focusout', unlight);
   });
 
-  // Margin annotations, in the chart's own handwriting.
-  const total = tiers.reduce((n, t) => n + t.lessons.length, 0);
-  const flown = tiers.reduce((n, t) => n + t.lessons.filter((l) => isPassed(l.id)).length, 0);
-  root.appendChild(
-    svg('text', { x: 24, y: H - 20, class: 'chart-note', text: `${flown} of ${total} waypoints logged` }),
-  );
+  /** Hovering a station brightens its own tier and dims the rest. */
+  function lightTier(tier: number): void {
+    root.classList.add('is-focusing');
+    for (const node of root.querySelectorAll('[data-tier]')) {
+      node.classList.toggle('is-lit', node.getAttribute('data-tier') === String(tier));
+    }
+  }
+  function unlight(): void {
+    root.classList.remove('is-focusing');
+  }
+
+  // The tooltip: the lesson's route as a field thumbnail, its name and how long it takes.
+  // It loads the lesson the first time it is needed; the link's own label already says
+  // everything a screen reader needs, so the tip is hidden from it.
+  const tipCache = new Map<string, Promise<{ thumb: SVGElement; minutes: number }>>();
+  let tipFor = '';
+  function showTip(id: string, title: string, lockedNote: string | null, point: Point): void {
+    tipFor = id;
+    const thumbSlot = el('div', { class: 'chart-tip-thumb' });
+    const minutes = el('span', { class: 'chart-tip-min', text: lockedNote ?? '' });
+    tooltip.replaceChildren(thumbSlot, el('div', { class: 'chart-tip-text' }, el('strong', { text: title }), minutes));
+    tooltip.hidden = false;
+    place(point);
+    if (!tipCache.has(id)) {
+      tipCache.set(id, loadLesson(id).then((lesson) => ({
+        thumb: fieldThumb(routeOf(lesson.watch), { size: 88, label: '' }),
+        minutes: lesson.frontmatter.minutes,
+      })));
+    }
+    void tipCache.get(id)!.then(({ thumb, minutes: min }) => {
+      if (tipFor !== id) return;
+      thumbSlot.replaceChildren(thumb.cloneNode(true));
+      if (!lockedNote) minutes.textContent = `${min} min`;
+      place(point);
+    }).catch(() => undefined);
+  }
+  function hideTip(): void {
+    tipFor = '';
+    tooltip.hidden = true;
+  }
+  function place(point: Point): void {
+    const box = root.getBoundingClientRect();
+    const host = frame.getBoundingClientRect();
+    const scale = box.width / W;
+    const x = box.left - host.left + frame.scrollLeft + point.x * scale;
+    const y = box.top - host.top + point.y * scale;
+    const w = tooltip.offsetWidth;
+    const left = Math.min(Math.max(8, x - w / 2), frame.scrollWidth - w - 8);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${y + 26}px`;
+  }
+
+  // The route draws itself station by station, once a session.
+  if (!options.reducedMotion && !drawnThisSession) {
+    drawnThisSession = true;
+    requestAnimationFrame(() => drawIn(root, tiers.length));
+  }
 
   return {
-    element: root,
+    element: frame,
     celebrate(lessonId: string) {
       const node = waypointNodes.get(lessonId);
       if (!node) return;
+      node.querySelector('.chart-waypoint')?.classList.add('is-flown');
       node.classList.add('is-flown');
       if (options.reducedMotion) return;
-      // The one piece of motion in the project: the route reaches the next waypoint.
-      const route = routeLayer.querySelectorAll('.chart-route');
-      for (const path of route) path.classList.add('is-extending');
-      setTimeout(() => {
-        for (const path of route) path.classList.remove('is-extending');
-      }, 1000);
+      const tier = tierOfNode.get(node);
+      const paths = root.querySelectorAll<SVGPathElement>(`.chart-route[data-tier='${tier}']`);
+      for (const path of paths) drawPath(path, 0, 700);
     },
   };
 }
 
-/** A station drawn as a wobbled rounded box, not a perfect rectangle. */
-function stationOutline(centre: Point, seed: number, w = 112, h = 54): string {
-  const random = rng(seed);
-  const jitter = () => (random() - 0.5) * 4;
-  const l = centre.x - w / 2;
-  const r = centre.x + w / 2;
-  const t = centre.y - h / 2;
-  const b = centre.y + h / 2;
-  return [
-    `M ${l + 10 + jitter()} ${t + jitter()}`,
-    `L ${r - 10 + jitter()} ${t + jitter()}`,
-    `L ${r + jitter()} ${t + 12 + jitter()}`,
-    `L ${r + jitter()} ${b - 12 + jitter()}`,
-    `L ${r - 10 + jitter()} ${b + jitter()}`,
-    `L ${l + 10 + jitter()} ${b + jitter()}`,
-    `L ${l + jitter()} ${b - 12 + jitter()}`,
-    `L ${l + jitter()} ${t + 12 + jitter()}`,
-    'Z',
-  ].join(' ');
+/** Each tier's route draws in turn, so the whole chart lands in 1.2 s; the locked dotted
+    lines and the stations fade in alongside rather than draw. Transform-free: dash offset on
+    pathLength 1 paths, and opacity. */
+function drawIn(root: SVGElement, tierCount: number): void {
+  const slot = DRAW_MS / tierCount;
+  for (let t = 0; t < tierCount; t++) {
+    const delay = t * slot * 0.8;
+    for (const path of root.querySelectorAll<SVGPathElement>(`.chart-route[data-tier='${t}']:not(.is-locked), .chart-hop.is-flown[data-tier='${t}']`)) {
+      drawPath(path, delay, slot * 1.4);
+    }
+    for (const node of root.querySelectorAll<SVGElement>(`.chart-station[data-tier='${t}'], .chart-waypoint[data-tier='${t}'], .chart-route.is-locked[data-tier='${t}'], .chart-hop.is-locked[data-tier='${t}']`)) {
+      node.animate([{ opacity: 0 }, { opacity: 1 }], { duration: slot * 1.4, delay, easing: OUT_QUART, fill: 'backwards' });
+    }
+  }
+}
+
+function drawPath(path: SVGPathElement, delay: number, duration: number): void {
+  path.setAttribute('pathLength', '1');
+  path.style.strokeDasharray = '1 1';
+  const anim = path.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration, delay, easing: OUT_QUART, fill: 'backwards' });
+  anim.finished.then(() => {
+    path.style.strokeDasharray = '';
+    path.removeAttribute('pathLength');
+  }).catch(() => undefined);
 }
