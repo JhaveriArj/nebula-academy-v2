@@ -82,7 +82,9 @@ export function mentorPage(tierParam: string | null): HTMLElement {
       : el('span'),
   );
 
-  const body = el('div', { class: 'mentor-body' }, el('p', { class: 'mentor-note', text: 'Loading the guide.' }));
+  // The guide arrives after first paint; holding a screen's height for it keeps the pager and
+  // the footer from jumping down when it lands (CLS).
+  const body = el('div', { class: 'mentor-body is-loading' }, el('p', { class: 'mentor-note', text: 'Loading the guide.' }));
   mount(sheet,
     el('header', { class: 'mentor-head' },
       el('div', { class: 'mentor-head-mark', 'aria-hidden': 'true' },
@@ -109,12 +111,14 @@ export function mentorPage(tierParam: string | null): HTMLElement {
     .then(([markdown, pictures]) => {
       // The sheet's header already names the tier, so the guide's own title line is dropped.
       const withoutTitle = markdown.replace(/^#\s[^\n]*\n/, '');
-      const fragment = renderMarkdown(withoutTitle, { headingOffset: 1 });
+      const fragment = renderMarkdown(withoutTitle);
       mount(body, ...shapeGuide(fragment, pictures));
+      body.classList.remove('is-loading');
       revealSections(body);
     })
     .catch(() => {
       mount(body, el('p', { class: 'fail', text: `The guide for tier ${tier} could not be loaded.` }));
+      body.classList.remove('is-loading');
     });
 
   return page;
@@ -128,7 +132,7 @@ function shapeGuide(fragment: DocumentFragment, pictures: MistakePicture[]): HTM
   let current = el('section', { class: 'mentor-section is-intro' });
   sections.push(current);
   for (const node of nodes) {
-    if (node instanceof HTMLHeadingElement && node.tagName === 'H3') {
+    if (node instanceof HTMLHeadingElement && node.tagName === 'H2') {
       current = el('section', { class: 'mentor-section' });
       sections.push(current);
     }
@@ -136,7 +140,7 @@ function shapeGuide(fragment: DocumentFragment, pictures: MistakePicture[]): HTM
   }
 
   for (const section of sections) {
-    const heading = section.querySelector('h3');
+    const heading = section.querySelector('h2');
     const title = heading?.textContent ?? '';
     if (/^Common mistakes/i.test(title)) numberMistakes(section, pictures);
     if (/^Checkpoint rubric/i.test(title)) {
@@ -151,7 +155,7 @@ function shapeGuide(fragment: DocumentFragment, pictures: MistakePicture[]): HTM
 }
 
 function numberMistakes(section: HTMLElement, pictures: MistakePicture[]): void {
-  const heading = section.querySelector('h3')!;
+  const heading = section.querySelector('h2')!;
   const rest = [...section.childNodes].filter((n) => n !== heading);
   const list = el('ol', { class: 'mistakes' });
   let item: HTMLElement | null = null;

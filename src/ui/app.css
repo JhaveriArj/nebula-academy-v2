@@ -1883,7 +1883,8 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 
 .mentor-body { padding-top: var(--s4); }
 .mentor-section { padding-top: var(--s5); }
-.mentor-section h3 { margin: 0 0 var(--s3); font-family: var(--face-display); font-size: 1.375rem; font-weight: 600; line-height: 1.2; }
+.mentor-body.is-loading { min-height: 100vh; }
+.mentor-section h2 { margin: 0 0 var(--s3); font-family: var(--face-display); font-size: 1.375rem; font-weight: 600; line-height: 1.2; }
 .mentor-section ul { padding-inline-start: 1.25em; }
 .mentor-note { color: var(--paper-ink-2) !important; }
 
@@ -1902,7 +1903,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 /* The rubric is pinned to the sheet, a second, whiter card with hairline rows. */
 .mentor-section.is-rubric { padding-top: var(--s7); }
 .mentor-rubric { --paper: var(--print-paper); margin: 0 -24px; padding: 40px 32px 28px; }
-.mentor-rubric h3 { text-align: center; }
+.mentor-rubric h2 { text-align: center; }
 .mentor-rubric .md-table-wrap { border: 0; border-radius: 0; margin: var(--s3) 0; }
 .mentor-rubric .md-table { font-size: 0.9375rem; }
 .mentor-rubric .md-table th, .mentor-rubric .md-table td { background: none; padding: 12px 12px 12px 0; border-bottom: var(--seam-w) solid var(--paper-line); color: var(--paper-ink); }

@@ -281,6 +281,15 @@ out with `cubic-bezier(0.16, 1, 0.3, 1)` or the page's `--ease-out`, and is list
 | "How a lesson works" pins; steps light up in order; 1000 becomes 2000 and the ink circle draws; the robot drives 100 cm; the checks pass | Scroll position (scrubbed) | Motion `scroll()` |
 | "The same file": two copies of Square.java slide into one, every line gets a tick | Scroll position (scrubbed) | Motion `scroll()` |
 | Tier rows rise in; each tier's line of Java types out | Once per row, as it reaches the screen | Web Animations API |
+| Lesson rail: the current step's disc fills yellow, a finished step's tick draws (300 ms), the track fills down the rail | Step change | CSS transitions + keyframes |
+| Lesson step content rises 16px into place (350 ms) | Entering a new step | Web Animations API |
+| Check results slide up under the editor; rows arrive 80 ms apart with drawn ticks; header antenna tips blink when all pass | Check it | Web Animations API + CSS |
+| Stuck? drawer slides in over the field | Stuck? | Web Animations API |
+| Star chart route draws station by station (1.2 s, out-quart); the current lesson breathes 0.7 to 1 opacity (2 s loop); hovering a station brightens its tier | First chart visit of a session; hover or focus | Web Animations API (dash offset), CSS |
+| Mentor sections rise 16px once as they scroll in | Intersection, once | Web Animations API |
+| Progress bar grows to its share (600 ms) | Page open | Web Animations API (transform) |
+| About: the small field drives the Tier 0 square at half speed | Time, loops; pauses off screen or hidden tab | requestAnimationFrame |
+| Route change crossfade (200 ms); Chart keeps its scroll position | Navigation | Web Animations API |
 
 Pinning and scrubbing run only at 1181px and wider (where the band is three columns); the lesson band pins for about 80vh of scroll and the file merge for 70vh, so neither traps the reader. Below
 that, and under `prefers-reduced-motion: reduce`, every scene is in its final state: the
@@ -382,6 +391,17 @@ followed the [unslop](https://github.com/heydamir/unslop) skill (CC BY 4.0, Dami
 where it and the brief disagreed: no nebula or grain, sentence-case mono labels at 14px rather
 than 13px uppercase, `<h1>` at weight 500. The tier colors and glow tokens were removed; the home
 page uses the `--nb-*` and `--paper-*` tokens in `theme.css` and stays navy in light and dark.
+
+## The 2026-11-10 inner pages pass
+
+Lesson, Mentor, Chart, Progress and About brought up to the home page with a shared graphic kit
+(`src/ui/kit.ts`, contact sheet at `#/kit` in development): mascot poses, field thumbnails drawn
+from watch specs (with turn arcs and a dashed ghost of the intended route), six tier emblems,
+paper (plain, torn, pinned), hand marks on one wobble filter, code chips and a nebula. The
+mentor guides' margin pictures come from `content/mentor/tier-N.mistakes.json`, checked by the
+content tests. Two places follow the brief over unslop: the chart's nebula and grain, and the
+About page's numbered section markers. Column headers on the rubric are mono rather than
+tracked small caps.
 
 ---
 
