@@ -109,7 +109,7 @@
   --space-wall:   #4C468F;
 
   /* --- Code colors, on space. ------------------------------------------- */
-  --syn-keyword:    #FEBC02;
+  --syn-keyword:    #C5BAE8;  /* lavender, as on the home page: yellow is kept for Run and the route */
   --syn-string:     #7FE0C4;
   --syn-number:     #A9BEFF;
   --syn-comment:    #9A93CF;

@@ -1,5 +1,7 @@
 import { el, mount } from './dom';
 import { applyMode, createHeader } from './header';
+import { siteFooter } from './footer';
+import { prefersReducedMotion } from './dom';
 import { parseHash, startRouter, type Route } from './router';
 import { homePage } from './pages/home';
 import { chartPage } from './pages/chart';
@@ -34,15 +36,26 @@ export function startApp(root: HTMLElement): void {
     }
   });
 
-  mount(root, header.element, outlet);
+  mount(root, header.element, outlet, siteFooter());
 
   let renderTicket = 0;
+  let lastRoute: Route['name'] | null = null;
+  /** Where the chart was scrolled to, so coming back to it lands in the same place. */
+  let chartScroll = 0;
 
   function render(route: Route): void {
     renderTicket++;
+    if (lastRoute === 'chart') chartScroll = scrollY;
     // Let the page it replaces release timers, workers and the editor.
     outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:leave', { bubbles: false }));
 
+    // The graphic kit's contact sheet, for review in development only; never in a build.
+    if (import.meta.env.DEV && location.hash.startsWith('#/kit')) {
+      document.title = `Graphic kit · Nebula Academy`;
+      document.body.dataset.route = 'kit';
+      void import('./pages/kitSheet').then(({ kitSheet }) => mount(outlet, kitSheet()));
+      return;
+    }
     document.title = titleFor(route);
     // The home page is always the navy notebook cover; the header matches it there.
     document.body.dataset.route = route.name;
@@ -90,7 +103,14 @@ export function startApp(root: HTMLElement): void {
     header.refresh();
     // Moving focus to the outlet is what makes a hash route usable with a keyboard.
     outlet.focus({ preventScroll: true });
-    scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    // Every page starts at the top, except the chart, which you come back to mid-scroll.
+    const restore = route.name === 'chart' && lastRoute !== null ? chartScroll : 0;
+    scrollTo({ top: restore, behavior: 'instant' as ScrollBehavior });
+    // A 200ms fade between pages (the first page appears as it is).
+    if (lastRoute !== null && !prefersReducedMotion()) {
+      outlet.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    }
+    lastRoute = route.name;
   }
 
   startRouter(render);

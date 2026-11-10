@@ -5,7 +5,7 @@ import {
 } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { java } from '@codemirror/lang-java';
-import { HighlightStyle, syntaxHighlighting, indentUnit, bracketMatching } from '@codemirror/language';
+import { HighlightStyle, syntaxHighlighting, indentUnit, bracketMatching, codeFolding, foldEffect } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 
 /* The code editor.
@@ -83,7 +83,8 @@ const nebulaTheme = EditorView.theme(
     '&.cm-focused': { outline: '3px solid var(--star)', outlineOffset: '-3px' },
     '.cm-line.cm-locked': { color: 'var(--space-mute)' },
     '.cm-line.cm-editable': { backgroundColor: 'color-mix(in srgb, var(--star) 10%, transparent)' },
-    '.cm-edit-gutter-col': { width: '6px' },
+    '.cm-edit-gutter-col': { width: '18px', display: 'flex', flexDirection: 'column', alignItems: 'center' },
+    '.cm-edit-gutter-col .cm-gutterElement': { display: 'flex', justifyContent: 'center', width: '18px' },
     '.cm-edit-mark': { display: 'block', width: '4px', height: '100%', minHeight: '1.2em', backgroundColor: 'var(--star)', borderRadius: 'var(--radius-pill)' },
     '.cm-line.cm-error-line': { backgroundColor: 'color-mix(in srgb, var(--space-alert) 22%, transparent)' },
     '.cm-scroller': { overflow: 'auto', lineHeight: '1.55' },
@@ -98,6 +99,31 @@ class EditMarker extends GutterMarker {
     span.setAttribute('aria-hidden', 'true');
     return span;
   }
+}
+
+/** Explorer's locked lines: a small padlock, with one line of explanation on hover. The same
+    explanation reaches every kid through the status line when they try to type there. */
+class LockMarker extends GutterMarker {
+  override toDOM() {
+    const span = document.createElement('span');
+    span.className = 'cm-lock-mark';
+    span.title = 'Locked in Explorer. Change the lines with the yellow bar.';
+    span.setAttribute('aria-hidden', 'true');
+    span.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 7.5h8v6H4z M5.75 7.5V5.5a2.25 2.25 0 0 1 4.5 0v2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return span;
+  }
+}
+
+/** The folded import block reads "4 imports"; a click, Enter or Space opens it. */
+function importsPlaceholder(view: EditorView, onclick: (event: Event) => void): HTMLElement {
+  const count = view.state.doc.toString().split('\n').filter((l) => /^\s*import\s/.test(l)).length;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'cm-imports-fold';
+  button.textContent = `▸ ${count} import${count === 1 ? '' : 's'}`;
+  button.setAttribute('aria-label', `Show the ${count} import lines`);
+  button.addEventListener('click', onclick);
+  return button;
 }
 
 class ErrorMarker extends GutterMarker {
@@ -193,7 +219,8 @@ export function createEditor(options: {
       if (!lockedRegion) return null;
       const n = view.state.doc.lineAt(lineBlock.from).number;
       const { from, to } = lockedLineNumbers(view.state.doc);
-      return n > from && n < to ? new EditMarker() : null;
+      if (n > from && n < to) return new EditMarker();
+      return lockedRegion ? new LockMarker() : null;
     },
     lineMarkerChange: () => true,
   });
@@ -238,6 +265,7 @@ export function createEditor(options: {
         ]),
         lockCompartment.of(lockFilter()),
         lockDecorations,
+        codeFolding({ placeholderDOM: importsPlaceholder }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) options.onChange?.(update.state.doc.toString());
         }),
@@ -251,6 +279,24 @@ export function createEditor(options: {
     }),
   });
 
+  // The imports start folded: they are the same in nearly every lesson, and the code that
+  // matters is below them. Builder kids open them when Android Studio asks for one.
+  const foldImports = () => {
+    const doc = view.state.doc;
+    let first = 0;
+    let last = 0;
+    for (let n = 1; n <= doc.lines; n++) {
+      if (/^\s*import\s/.test(doc.line(n).text)) {
+        if (!first) first = n;
+        last = n;
+      }
+    }
+    if (first && last) {
+      view.dispatch({ effects: foldEffect.of({ from: doc.line(first).from, to: doc.line(last).to }) });
+    }
+  };
+  foldImports();
+
   const redraw = () => {
     // Nudges the decoration plugin without changing the document.
     view.dispatch({ selection: view.state.selection });
@@ -261,6 +307,7 @@ export function createEditor(options: {
     getCode: () => view.state.doc.toString(),
     setCode: (code: string) => {
       view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: code } });
+      foldImports();
     },
     setLocked: (locked: LockedRegion | null) => {
       lockedRegion = locked;

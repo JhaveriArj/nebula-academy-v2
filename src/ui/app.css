@@ -81,18 +81,26 @@
   transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out);
 }
 
-/* The current page: full ink and a small electric light under the word. */
+/* The current page: full ink, and a 2px yellow line under the word that slides between items
+   (header.ts moves it with a transform). Yellow is a light, so it sits on the header, never
+   behind text. */
 .nav-link[aria-current='page'] { color: var(--ink); font-weight: 600; }
-.nav-link[aria-current='page']::after {
-  content: '';
+.site-nav { position: relative; }
+.nav-indicator {
   position: absolute;
-  left: 50%;
-  bottom: 4px;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
-  border-radius: 50%;
-  background: var(--electric-glow);
+  left: 0;
+  bottom: 2px;
+  width: 100px;
+  height: 2px;
+  background: var(--star);
+  transform-origin: 0 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 320ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+.nav-indicator.is-shown { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .nav-indicator { transition: none; }
 }
 
 @media (hover: hover) {
@@ -267,7 +275,7 @@ html { scrollbar-gutter: stable; }
   text-decoration: none;
 }
 
-.btn-next, .btn-check {
+.btn-next {
   background: var(--primary);
   color: var(--on-primary);
   border-color: var(--primary);
@@ -275,24 +283,22 @@ html { scrollbar-gutter: stable; }
 }
 .btn-quiet { background: transparent; border-color: var(--line-strong); }
 .btn-danger { border-color: var(--alert); color: var(--alert); }
-.btn-run { border-color: var(--primary); color: var(--primary); }
-.btn-run.is-live { background: var(--primary); color: var(--on-primary); }
+.btn-check { background: transparent; color: var(--primary); border-color: var(--line-strong); }
+/* Run is the one yellow button in a lesson: yellow is the antenna light, and Run is what
+   switches the robot on. Stop, Reset and Check it stay quiet beside it. */
+.btn-run { background: var(--star); color: var(--on-star); border-color: var(--star); }
+.btn-run.is-live { background: var(--star); color: var(--on-star); }
 
 /* One filled button per moment (HIG buttons.md: "one prominent, primary style per view").
    In Try the likely tap is Run; in Check it is Check it; once every check passes it is
    Next lesson, and Check it steps back. */
-.lesson-shell[data-step='try'] .btn-run { background: var(--primary); color: var(--on-primary); box-shadow: var(--shadow); }
-.lesson-shell[data-step='try'] .btn-check,
-.lesson-shell:has(.lesson-actions .btn-next) .btn-check {
-  background: var(--surface);
-  color: var(--primary);
-  border-color: var(--primary);
-  box-shadow: none;
-}
+.lesson-shell[data-step='try'] .btn-run { box-shadow: var(--shadow); }
 
 @media (hover: hover) {
   .btn:hover:not(:disabled) { border-color: var(--primary); }
-  .btn-next:hover, .btn-check:hover { background: var(--primary-press); box-shadow: var(--shadow-lift); }
+  .btn-next:hover { background: var(--primary-press); box-shadow: var(--shadow-lift); }
+  .btn-run:hover { background: color-mix(in srgb, var(--star) 85%, var(--ink)); }
+  .btn-check:hover { border-color: var(--primary); }
 }
 
 .button-row { display: flex; flex-wrap: wrap; gap: var(--s3); margin: var(--s4) 0; }
@@ -719,19 +725,6 @@ html { scrollbar-gutter: stable; }
   .nb-same-line:nth-child(-n + 3) { display: none; }
 }
 
-/* --- Footer: the brand, the same four links as the header, and the trademark note. */
-.nb-footer { padding: 48px var(--edge) 56px; border-top: var(--seam-w) solid var(--nb-line); }
-.nb-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
-.nb-footer-brand { display: inline-flex; align-items: baseline; gap: 10px; min-height: var(--tap); padding-block: 8px; color: var(--nb-text); text-decoration: none; font-family: var(--face-display); font-weight: 500; font-size: 1.25rem; }
-.nb-footer-brand .mascot-head { translate: 0 1px; }
-.nb-footer-nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-.nb-footer-link { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 12px; border-radius: var(--radius-sm); color: var(--nb-text-2); text-decoration: none; font-weight: 500; transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out); }
-@media (hover: hover) {
-  .nb-footer-link:hover { color: var(--nb-text); background: var(--nb-raised); }
-}
-.nb-footer-made { margin: 24px 0 0; color: var(--nb-text-2); font-size: 1rem; }
-.nb-footer-legal { margin: 8px 0 0; max-width: 72ch; color: var(--nb-text-3); font-size: 0.875rem; line-height: 1.5; }
-
 /* --- Scroll scenes (homeMotion.ts adds .nb-motion on wide screens without reduced motion).
    Everything above is the final state; these rules only set up where each scene starts. */
 .nb-window-field { transform-origin: 0 0; }
@@ -994,6 +987,29 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   .nb-same-panel.is-theirs { display: none; }
   .nb-rubric { rotate: 0deg; }
   .nb-mentors { padding-bottom: 96px; }
+}
+
+/* ---------------------------------------------------------------- footer */
+
+/* The same footer on every page but the lesson: night navy in both themes, like the home
+   page it came from. */
+.site-footer { padding: 48px max(32px, calc((100% - 1520px) / 2)) 56px; border-top: var(--seam-w) solid var(--nb-line); background: var(--nb-page); color: var(--nb-text); font-family: var(--face-ui); }
+body[data-route='lesson'] .site-footer { display: none; }
+.site-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
+.site-footer-brand { display: inline-flex; align-items: baseline; gap: 10px; min-height: var(--tap); padding-block: 8px; color: var(--nb-text); text-decoration: none; font-family: var(--face-display); font-weight: 500; font-size: 1.25rem; }
+.site-footer-brand .mascot-head { translate: 0 1px; }
+.site-footer-nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.site-footer-link { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 12px; border-radius: var(--radius-sm); color: var(--nb-text-2); text-decoration: none; font-weight: 500; transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out); }
+@media (hover: hover) {
+  .site-footer-link:hover { color: var(--nb-text); background: var(--nb-raised); }
+}
+.site-footer-body { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-top: 24px; }
+.site-footer-made { margin: 0; color: var(--nb-text-2); font-size: 1rem; max-width: none; }
+.site-footer-legal { margin: 8px 0 0; max-width: 72ch; color: var(--nb-text-3); font-size: 0.875rem; line-height: 1.5; }
+.site-footer-thumb { margin: 0; flex: none; }
+@media (max-width: 760px) {
+  .site-footer { padding-inline: 20px; }
+  .site-footer-thumb { display: none; }
 }
 
 /* ------------------------------------------------------------------- kit */
@@ -1285,18 +1301,43 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   cursor: pointer;
 }
 
+/* Each step has its drawn icon in a 32px disc. The current step's disc fills with yellow (a
+   light, behind dark ink); a finished step's icon gives way to a tick that draws in. A track
+   runs behind the discs and fills as the lesson goes on. */
+.step-rail { position: relative; }
+.step-track { position: absolute; left: 0; top: 0; height: 0; width: 2px; background: var(--line); pointer-events: none; }
+.step-track-fill { position: absolute; inset: 0; background: var(--primary); transform: scaleY(0); transform-origin: 50% 0; transition: transform 400ms var(--ease-out); }
 .step-mark {
+  position: relative;
+  z-index: 1;
   flex: none;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--line-strong);
   border-radius: 50%;
+  background: var(--bg);
+  color: var(--ink-mid);
+  transition: background-color 240ms var(--ease-out), border-color 240ms var(--ease-out), color 240ms var(--ease-out);
 }
+.step-mark > svg { grid-area: 1 / 1; }
+.kit-step-icon path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.step-mark .kit-check { display: none; }
+.step-mark .kit-check path { stroke-dasharray: 1 1; stroke-dashoffset: 1; }
 
 .step-button.is-done { color: var(--go); }
-.step-button.is-done .step-mark { background: var(--go); border-color: var(--go); }
+.step-button.is-done .step-mark { border-color: var(--go); color: var(--go); background: var(--surface); }
+.step-button.is-done .kit-step-icon { display: none; }
+.step-button.is-done .kit-check { display: block; }
+.step-button.is-done .kit-check path { animation: kit-draw 300ms var(--ease-out) forwards; }
 .step-button.is-current { color: var(--primary); background: var(--surface-soft); font-weight: 600; }
-.step-button.is-current .step-mark { border-color: var(--primary); border-width: 4px; }
+.step-button.is-current .step-mark { background: var(--star); border-color: var(--star); color: var(--on-star); }
+@keyframes kit-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .step-button.is-done .kit-check path { animation: none; stroke-dashoffset: 0; }
+  .step-track-fill { transition: none; }
+}
 
 @media (hover: hover) {
   .step-button:hover:not(.is-current) { background: var(--surface-soft); }
@@ -1312,7 +1353,10 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   padding: var(--s1) 2px;
   border-radius: var(--radius);
 }
-.lesson-shell[data-state='console'] .step-name { font-size: 14px; line-height: 1.1; }
+/* Here the label sits under its disc, on the track's line, so it gets the rail's own ground to
+   stand on and the line shows only between steps. */
+.lesson-shell[data-state='console'] .step-name { position: relative; z-index: 1; padding: 1px 3px; border-radius: var(--radius-xs); background: var(--bg); font-size: 14px; line-height: 1.1; }
+.lesson-shell[data-state='console'] .step-button.is-current .step-name { background: var(--surface-soft); }
 
 /* Focus lands here after a step change; the heading is a target, not a control. */
 .lesson-prose [tabindex='-1']:focus, .lesson-reminder:focus { outline: none; }
@@ -1398,7 +1442,8 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 }
 
 .field-box {
-  flex: 0 1 auto;
+  /* The field keeps its square; telemetry below it takes what is left and scrolls. */
+  flex: none;
   min-height: 200px;
   aspect-ratio: 1;
   display: grid;
@@ -1410,11 +1455,38 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   overflow: hidden;
 }
 
-.field-caption { flex: none; margin: 0; font-family: var(--face-code); font-weight: 400; font-size: var(--size-label); min-height: 1.5em; }
+/* The demo's caption is read out, not shown: under the field it read like a button. */
+.field-caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 /* The caption is a live region, so it stays in the tree; it only gives back its height while empty. */
 .field-caption:empty { min-height: 0; }
 
 .lesson-shell[data-step='mission'] .lesson-reading { display: flex; flex-direction: column; justify-content: center; }
+/* The mascot's head beside the lesson title: a hop when the checks pass, a tilt when not. */
+.lesson-mascot { display: inline-flex; align-items: flex-end; transform-origin: 50% 100%; }
+.lesson-mascot.is-happy { animation: lesson-hop 520ms var(--ease-out) 1; }
+.lesson-mascot.is-puzzled { animation: lesson-tilt 640ms var(--ease-out) 1; }
+@keyframes lesson-hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -5px; } 70% { translate: 0 1px; } }
+@keyframes lesson-tilt { 0%, 100% { rotate: 0deg; } 35% { rotate: -12deg; } 70% { rotate: 4deg; } }
+.mascot-head.is-blinking .mh-tip { animation: tip-blink 700ms var(--ease-out) 1; }
+@keyframes tip-blink { 0%, 100% { filter: none; } 35% { filter: brightness(1.6) saturate(0.7); } }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-mascot, .mascot-head .mh-tip { animation: none !important; }
+}
+
+.mission-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s5) var(--s6); align-items: start; }
+.mission-target { margin: var(--s2) 0 0; display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
+.mission-target figcaption { font-family: var(--face-code); font-size: var(--size-label); color: var(--ink-mid); }
+.mission-watch-title { margin-top: var(--s5); }
+.boost-layout { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: var(--s5); align-items: end; }
+.boost-peek { position: relative; height: 150px; overflow: hidden; border-bottom: 2px solid var(--line-strong); }
+.boost-peek .kit-mascot { position: absolute; bottom: -48px; left: 8px; }
+@media (max-width: 760px) {
+  .mission-layout, .boost-layout { grid-template-columns: minmax(0, 1fr); }
+  .boost-peek { display: none; }
+}
+.cm-imports-fold { margin: 0; padding: 0 6px; line-height: inherit; vertical-align: baseline; border: var(--seam-w) solid var(--space-line); border-radius: var(--radius-xs); background: var(--space-raised); color: var(--space-mute); font: inherit; cursor: pointer; }
+.cm-lock-mark { display: inline-flex; align-items: center; height: 100%; color: var(--space-mute); }
+
 .mission { font-size: calc(var(--size-prose) + 5px); line-height: 1.35; }
 
 .why-panel {
@@ -1438,7 +1510,7 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 @media print {
   @page { margin: 16mm; }
   html, body, #app, main, .prose-page, .mentor-page { background: var(--print-paper) !important; color: var(--print-ink) !important; }
-  .site-header, .site-footer, .skip-link, .tier-tabs, .mentor-tools, .mentor-pager, .display-panel, .nb-footer { display: none !important; }
+  .site-header, .site-footer, .skip-link, .tier-tabs, .mentor-tools, .mentor-pager, .display-panel, .site-footer { display: none !important; }
   .prose-page { max-width: none; padding: 0; }
   .mentor-page h1, .mentor-page h2, .mentor-page h3 { color: var(--print-ink); break-after: avoid; }
   .mentor-page a { color: var(--print-ink); text-decoration: underline; }
@@ -1490,7 +1562,7 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 
 /* -------------------------------------------------------------- telemetry */
 
-.telemetry { flex: 1 1 auto; min-height: 140px; overflow: auto; padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
+.telemetry { flex: 1 1 0; min-height: 140px; overflow: auto; padding: var(--s3) var(--s4); border-radius: var(--radius); font-size: var(--size-label); box-shadow: var(--shadow); }
 .telemetry-head { display: flex; justify-content: space-between; align-items: baseline; }
 .telemetry-toggle { display: none; }
 .telemetry-title { font-size: var(--size-label); letter-spacing: 0.02em; color: var(--space-mute); }
@@ -1583,7 +1655,14 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   max-width: none;
 }
 
-.check-item .icon { grid-row: span 2; }
+.check-item .icon, .check-item .kit-check { grid-row: span 2; }
+.check-item.pass { color: var(--go); }
+.check-item.pass .kit-check path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: kit-draw 320ms var(--ease-out) 120ms forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .check-item.pass .kit-check path { animation: none; stroke-dashoffset: 0; }
+}
+.check-results .kit-paper { margin: var(--s5) 0 var(--s2); padding: 26px var(--s4) var(--s3); }
+.pass-note { margin: 0; font-size: var(--size-h3); color: var(--paper-ink); }
 .check-label { font-family: var(--face-display); font-weight: 500; }
 .check-detail { font-size: var(--size-label); }
 .check-item.pass .check-label { color: var(--go); }
@@ -1592,13 +1671,25 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 
 .celebrate-line { margin: 0; font-size: var(--size-h2); color: var(--badge); }
 
-.hint-box {
-  margin-top: var(--s5);
-  padding: var(--s4) var(--s5);
-  background: var(--surface-soft);
+.lesson-side { position: relative; }
+.hint-drawer {
+  position: absolute;
+  inset: var(--s3);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: var(--s4) var(--s4) var(--s5);
+  background: var(--surface);
+  color: var(--ink);
   border: var(--seam-w) solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-lift);
 }
+.hint-drawer[hidden] { display: none; }
+.hint-drawer-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s3); }
+.hint-drawer-head .hint-title { margin: 0; }
+.hint-box { padding: 0; }
 
 .hint-title { margin: 0 0 var(--s2); font-size: var(--size-h3); }
 .hint { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: var(--s2); margin: 0 0 var(--s3); max-width: none; }

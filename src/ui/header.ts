@@ -87,6 +87,11 @@ export function createHeader(onModeChange: () => void): Header {
     'aria-label': 'Display',
   }, icon('contrast', 22), el('span', { class: 'display-button-label', text: 'Display' }));
 
+  const navLinks = [['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['About', '#/about']]
+    .map(([label, href]) => el('a', { href: href!, class: 'nav-link' }, el('span', { text: label! })));
+  const indicator = el('span', { class: 'nav-indicator', 'aria-hidden': 'true' });
+  const nav = el('nav', { class: 'site-nav', 'aria-label': 'Main' }, ...navLinks, indicator);
+
   const element = el('header', { class: 'site-header' },
     el('a', { href: '#/', class: 'wordmark', 'aria-label': 'Nebula Academy, home' },
       // Head and name share a baseline inside a box the link centres.
@@ -95,12 +100,7 @@ export function createHeader(onModeChange: () => void): Header {
         el('span', { class: 'wordmark-name', text: 'Nebula Academy' }),
       ),
     ),
-    el('nav', { class: 'site-nav', 'aria-label': 'Main' },
-      el('a', { href: '#/chart', class: 'nav-link' }, el('span', { text: 'Chart' })),
-      el('a', { href: '#/mentor', class: 'nav-link' }, el('span', { text: 'Mentor' })),
-      el('a', { href: '#/progress', class: 'nav-link' }, el('span', { text: 'Progress' })),
-      el('a', { href: '#/about', class: 'nav-link' }, el('span', { text: 'About' })),
-    ),
+    nav,
     el('div', { class: 'header-controls' },
       el('div', { class: 'mode-toggle', role: 'group', 'aria-label': 'Reading mode' },
         makeModeButton('explorer', 'Explorer', 'Explorer: ages 9 to 12, more help'),
@@ -111,7 +111,26 @@ export function createHeader(onModeChange: () => void): Header {
     panel,
   );
 
+  // The current page gets a 2px yellow underline that slides from item to item, moved with a
+  // transform so it never triggers layout.
+  function placeIndicator(): void {
+    const current = navLinks.find((a) => a.getAttribute('aria-current') === 'page');
+    indicator.classList.toggle('is-shown', !!current);
+    if (!current) return;
+    const span = current.querySelector('span') ?? current;
+    const navBox = nav.getBoundingClientRect();
+    const box = span.getBoundingClientRect();
+    indicator.style.transform = `translateX(${box.left - navBox.left}px) scaleX(${box.width / 100})`;
+  }
+  addEventListener('resize', () => placeIndicator());
+
   function refresh(): void {
+    const section = location.hash.replace(/^#\/?/, '').split('/')[0] ?? '';
+    for (const a of navLinks) {
+      if (a.getAttribute('href') === `#/${section}`) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    }
+    requestAnimationFrame(placeIndicator);
     for (const [mode, button] of modeButtons) {
       button.setAttribute('aria-pressed', String(getMode() === mode));
     }

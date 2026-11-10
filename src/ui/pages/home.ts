@@ -9,7 +9,6 @@ import { FIELD_CM } from '../../sim/field';
 import { lessonHref } from '../router';
 import { FIRST_LINE, HERO_CHECKS, HERO_JAVA, HERO_LINES, HERO_SPEC, LESSON_ONE_CHECKS, SIDES, TIER_LINES, demoStateAt } from '../heroDemo';
 import { startHomeMotion } from '../homeMotion';
-import { mascotHead } from '../mascot';
 
 /* The home page: an FTC team's engineering notebook, read at night.
 
@@ -175,21 +174,6 @@ export function homePage(): HTMLElement {
       rubricSheet(),
     ),
 
-    // ------------------------------------------------------------- footer
-    el('footer', { class: 'nb-footer' },
-      el('div', { class: 'nb-footer-top' },
-        el('a', { href: '#/', class: 'nb-footer-brand', 'aria-label': 'Nebula Academy, home' },
-          mascotHead(28),
-          el('span', { text: 'Nebula Academy' }),
-        ),
-        el('nav', { class: 'nb-footer-nav', 'aria-label': 'Footer' },
-          ...[['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['About', '#/about']].map(([label, href]) =>
-            el('a', { href: href!, class: 'nb-footer-link', text: label! })),
-        ),
-      ),
-      el('p', { class: 'nb-footer-made', text: 'Built by an FTC team. Free, with no accounts and no analytics; your progress stays in this browser.' }),
-      el('p', { class: 'nb-footer-legal', text: 'FIRST®, FIRST® Tech Challenge and FTC® are trademarks of FIRST (For Inspiration and Recognition of Science and Technology), which is not involved with, and does not endorse, Nebula Academy.' }),
-    ),
   );
 
   const stopMotion = startHomeMotion(page, demo);
@@ -599,7 +583,7 @@ function sameFile(): HTMLElement {
 /** The hand-drawn look: a little turbulence displacing a stroke, so ink is never ruled. */
 function inkDefs(): SVGElement {
   return svg('svg', { class: 'nb-defs', width: '0', height: '0', 'aria-hidden': 'true', focusable: 'false' },
-    svg('filter', { id: 'nb-wobble', x: '-5%', y: '-5%', width: '110%', height: '110%' },
+    svg('filter', { id: 'nb-wobble', filterUnits: 'userSpaceOnUse', x: '-1000', y: '-1000', width: '4000', height: '4000' },
       svg('feTurbulence', { type: 'fractalNoise', baseFrequency: '0.035', numOctaves: '2', seed: '7', result: 'n' }),
       svg('feDisplacementMap', { in: 'SourceGraphic', in2: 'n', scale: '4' }),
     ),

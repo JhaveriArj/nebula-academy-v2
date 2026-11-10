@@ -18,6 +18,8 @@ import { buildSim } from '../../runtime/testRunner';
 import { translateDiagnostic, translateLimit, translateThrow } from '../../runtime/errorTranslator';
 import { getDraft, getMode, isPassed, markPassed, setDraft } from '../../progress/store';
 import { lessonHref } from '../router';
+import { fieldThumb, inkCheck, mascot, paper, routeOf, stepIcon } from '../kit';
+import { mascotHead } from '../mascot';
 import type { SimSnapshot } from '../../sim/simulation';
 import type { CheckOutcome } from '../../runtime/messages';
 
@@ -35,6 +37,11 @@ const STEP_LABELS: Record<SectionName, string> = {
 };
 
 const CONSOLE_STEPS = new Set<SectionName>(['try', 'check']);
+
+/** The rail's steps. Watch is part of Mission now: the demo plays on the field while the
+    mission is read, so it is not a step of its own. */
+const RAIL_STEPS: SectionName[] = SECTION_ORDER.filter((s) => s !== 'watch');
+const EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 export interface LessonPageDeps {
   onPassed: (lessonId: string) => void;
@@ -96,7 +103,22 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   const prose = el('div', { class: 'lesson-prose' });
   const actions = el('div', { class: 'lesson-actions' });
   const checkList = el('div', { class: 'check-results' });
-  const hintBox = el('div', { class: 'hint-box', id: 'lesson-hints', hidden: true });
+  const hintBox = el('div', { class: 'hint-box' });
+  const closeHints = () => {
+    hintDrawer.hidden = true;
+    stuckButton.setAttribute('aria-expanded', 'false');
+    stuckButton.focus();
+  };
+  // Stuck? opens a drawer from the right, over the field, so the code it is about stays in
+  // view beside it.
+  const hintDrawer = el('aside', { class: 'hint-drawer', id: 'lesson-hints', hidden: true, 'aria-label': 'Hints' },
+    el('div', { class: 'hint-drawer-head' },
+      el('p', { class: 'hint-title display', text: 'Stuck?' }),
+      el('button', { type: 'button', class: 'btn btn-quiet hint-close', onclick: closeHints }, el('span', { text: 'Close' })),
+    ),
+    hintBox,
+  );
+  hintDrawer.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeHints(); });
 
   const runButton = el('button', { type: 'button', class: 'btn btn-run', onclick: () => void onRun() },
     icon('run', 20), el('span', { text: 'Run' }));
@@ -145,15 +167,17 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   /* ------------------------------------------------------------- the shell */
 
   const railButtons = new Map<SectionName, HTMLButtonElement>();
+  const railFill = el('span', { class: 'step-track-fill' });
   const rail = el('nav', { class: 'step-rail', 'aria-label': 'Parts of this lesson' },
-    ...SECTION_ORDER.map((name) => {
+    el('span', { class: 'step-track', 'aria-hidden': 'true' }, railFill),
+    ...RAIL_STEPS.map((name) => {
       const button = el('button', {
         type: 'button',
         class: 'step-button',
         'aria-current': 'false',
         onclick: () => goTo(name),
       },
-        el('span', { class: 'step-mark', 'aria-hidden': 'true' }),
+        el('span', { class: 'step-mark', 'aria-hidden': 'true' }, stepIcon(name, 18), inkCheck(18)),
         el('span', { class: 'step-name', text: STEP_LABELS[name] }),
       );
       railButtons.set(name, button);
@@ -169,9 +193,18 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     onclick: () => revealHint(),
   }, icon('hint', 20), el('span', { text: 'Stuck?' }));
 
+  const lessonMascot = el('span', { class: 'lesson-mascot', 'aria-hidden': 'true' }, mascotHead(28));
+  /** A hop when the checks pass, a puzzled tilt when they do not. Never under reduced motion. */
+  const react = (mood: 'happy' | 'puzzled') => {
+    if (prefersReducedMotion()) return;
+    lessonMascot.classList.remove('is-happy', 'is-puzzled');
+    void lessonMascot.offsetWidth;
+    lessonMascot.classList.add(`is-${mood}`);
+  };
   const bar = el('div', { class: 'lesson-bar' },
     el('a', { href: '#/chart', class: 'back-link' }, icon('back', 20), el('span', { text: 'Chart' })),
     el('div', { class: 'lesson-title' },
+      lessonMascot,
       el('span', { class: 'lesson-tag display', text: `T${lesson.frontmatter.tier}·${String(lessonNumber).padStart(2, '0')}` }),
       el('h1', { text: lesson.frontmatter.title }),
       el('span', { class: 'lesson-minutes muted', text: `${lesson.frontmatter.minutes} min` }),
@@ -182,7 +215,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   /* Check results, hints and the next-lesson button have to be visible in BOTH layouts.
      The reading column is hidden in the console state, so this slot is re-parented into
      whichever column is on screen rather than being duplicated. */
-  const resultsSlot = el('div', { class: 'results-slot' }, hintBox, checkList, actions);
+  const resultsSlot = el('div', { class: 'results-slot' }, checkList, actions);
 
   const readingColumn = el('div', { class: 'lesson-reading' }, prose, resultsSlot);
   const consoleColumn = el('div', { class: 'lesson-console' },
@@ -192,6 +225,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     console_.element,
   );
   const sideColumn = el('aside', { class: 'lesson-side' },
+    hintDrawer,
     fieldBox,
     caption,
     // Driving by hand needs the field and the gamepad on screen together, so the
@@ -402,27 +436,38 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       return;
     }
 
-    mount(checkList,
-      el('ul', { class: 'check-items' },
-        ...outcome.results.map((result) =>
-          el('li', { class: result.passed ? 'check-item pass' : 'check-item fail' },
-            icon(result.passed ? 'passed' : 'failed', 20),
-            el('span', { class: 'check-label', text: result.label }),
-            el('span', { class: 'check-detail muted', text: result.detail }),
-          ),
-        ),
-      ),
-    );
+    const rows = outcome.results.map((result) =>
+      el('li', { class: result.passed ? 'check-item pass' : 'check-item fail' },
+        result.passed ? inkCheck(20) : icon('failed', 20),
+        el('span', { class: 'check-label', text: result.label }),
+        el('span', { class: 'check-detail muted', text: result.detail }),
+      ));
+    mount(checkList, el('ul', { class: 'check-items' }, ...rows));
+    if (!prefersReducedMotion()) {
+      // The panel rises from under the editor, then each row lands 80ms after the last.
+      if (CONSOLE_STEPS.has(step)) resultsSlot.animate([{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 300, easing: EASE_OUT });
+      rows.forEach((row, i) => row.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 280, delay: i * 80, easing: EASE_OUT, fill: 'backwards' }));
+    }
 
     if (!outcome.passed) {
       const failed = outcome.results.filter((r) => !r.passed).length;
+      react('puzzled');
       checkList.prepend(
         el('p', { class: 'check-summary', text: `${failed} of ${outcome.results.length} ${new Intl.PluralRules('en').select(failed) === 'one' ? 'check is' : 'checks are'} not happy yet. Nothing is broken; have another go.` }),
       );
       return;
     }
 
-    checkList.prepend(el('p', { class: 'check-summary pass display', text: 'All checks passed.' }));
+    checkList.prepend(paper('pinned', el('p', { class: 'check-summary pass-note display', text: 'All checks passed.' })));
+    react('happy');
+    // The mascot in the site header blinks its antenna tips once.
+    if (!prefersReducedMotion()) {
+      for (const head of document.querySelectorAll<SVGElement>('.site-header .mascot-head')) {
+        head.classList.remove('is-blinking');
+        void head.getBoundingClientRect();
+        head.classList.add('is-blinking');
+      }
+    }
     void code;
     celebrate();
   }
@@ -455,14 +500,17 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   /* ----------------------------------------------------------------- hints */
 
   function revealHint(): void {
-    hintBox.hidden = false;
+    const opening = hintDrawer.hidden;
+    hintDrawer.hidden = false;
+    if (opening && !prefersReducedMotion()) {
+      hintDrawer.animate([{ transform: 'translateX(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: EASE_OUT });
+    }
     stuckButton.setAttribute('aria-expanded', 'true');
     const total = lesson.hints.hints.length;
     if (hintsShown < total) hintsShown++;
     else solutionShown = true;
 
     mount(hintBox,
-      el('p', { class: 'hint-title display', text: 'Stuck?' }),
       ...lesson.hints.hints.slice(0, hintsShown).map((hint, i) =>
         el('p', { class: 'hint' }, el('span', { class: 'hint-number display', text: `${i + 1}.` }), el('span', { text: hint })),
       ),
@@ -501,8 +549,10 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
 
   /* ----------------------------------------------------------------- steps */
 
-  function goTo(name: SectionName): void {
-    if (step === 'watch' && name !== 'watch' && watchTimer) {
+  function goTo(requested: SectionName): void {
+    const name: SectionName = requested === 'watch' ? 'mission' : requested;
+    const entering = name !== step;
+    if (step === 'mission' && name !== 'mission' && watchTimer) {
       cancelAnimationFrame(watchTimer);
       watchTimer = 0;
     }
@@ -514,15 +564,40 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     // Move the results, hints and next-lesson button to the column that is showing.
     if (consoleState) consoleColumn.insertBefore(resultsSlot, console_.element);
     else readingColumn.appendChild(resultsSlot);
+    placeTrack();
+    railFill.style.transform = `scaleY(${RAIL_STEPS.indexOf(name) / Math.max(1, RAIL_STEPS.length - 1)})`;
     for (const [key, button] of railButtons) {
-      const done = SECTION_ORDER.indexOf(key) < SECTION_ORDER.indexOf(name);
+      const done = RAIL_STEPS.indexOf(key) < RAIL_STEPS.indexOf(name);
       button.setAttribute('aria-current', key === name ? 'step' : 'false');
       button.classList.toggle('is-done', done);
       button.classList.toggle('is-current', key === name);
     }
     renderStep();
+    // Each step's content rises 16px into place once, as you arrive on it.
+    if (entering && !prefersReducedMotion()) {
+      for (const node of [prose, actions]) {
+        node.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 350, easing: EASE_OUT });
+      }
+    }
     keepFocus();
   }
+
+  /** The track runs from the first step's disc to the last one's, measured, so it fits the
+      wide rail, the narrow one and any text size. */
+  function placeTrack(): void {
+    const marks = [...rail.querySelectorAll<HTMLElement>('.step-mark')];
+    const first = marks[0];
+    const last = marks[marks.length - 1];
+    if (!first || !last) return;
+    const box = rail.getBoundingClientRect();
+    const a = first.getBoundingClientRect();
+    const b = last.getBoundingClientRect();
+    const track = railFill.parentElement as HTMLElement;
+    track.style.left = `${a.left - box.left + a.width / 2 - 1 + rail.scrollLeft}px`;
+    track.style.top = `${a.top - box.top + a.height / 2 + rail.scrollTop}px`;
+    track.style.height = `${Math.max(0, b.top - a.top)}px`;
+  }
+  addEventListener('resize', placeTrack);
 
   /** A next-step button is removed by the re-render, which drops focus on <body> and sends a
    *  keyboard user back to the top of the page. Put it on the new step's heading instead.
@@ -543,19 +618,6 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     mount(checkList);
     const reminder = consoleColumn.querySelector('.lesson-reminder');
     if (reminder) reminder.textContent = lesson.sections.mission;
-
-    if (step === 'watch') {
-      mount(prose,
-        el('h2', { text: 'Watch' }),
-        renderMarkdown(lesson.sections.watch, { headingOffset: 2 }),
-      );
-      mount(actions,
-        el('button', { type: 'button', class: 'btn', onclick: () => playTheDemo() }, icon('run', 20), el('span', { text: 'Play it again' })),
-        el('button', { type: 'button', class: 'btn btn-next', onclick: () => goTo('learn') }, el('span', { text: 'Learn why' }), icon('next', 20)),
-      );
-      playTheDemo();
-      return;
-    }
 
     if (step === 'learn') {
       mount(prose,
@@ -595,7 +657,16 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     }
 
     if (step === 'boost') {
-      mount(prose, el('h2', { text: 'Boost' }), renderMarkdown(lesson.sections.boost, { headingOffset: 2 }));
+      // The mascot leans in from behind the edge of the boost, looking at the extra challenge.
+      mount(prose,
+        el('div', { class: 'boost-layout' },
+          el('div', { class: 'boost-text' },
+            el('h2', { text: 'Boost' }),
+            renderMarkdown(lesson.sections.boost, { headingOffset: 2 }),
+          ),
+          el('div', { class: 'boost-peek', 'aria-hidden': 'true' }, mascot('peek', { height: 170, shadow: false })),
+        ),
+      );
       const next = nextLessonId(lesson.frontmatter.id);
       mount(actions,
         next ? el('a', { href: lessonHref(next), class: 'btn btn-next' }, el('span', { text: 'Next lesson' }), icon('next', 20)) : null,
@@ -604,15 +675,28 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       return;
     }
 
-    // Mission.
+    // Mission, with the demo: the robot plays its route on the field while you read, and a
+    // drawing of that route sits beside the mission so you know what you are aiming for.
     mount(prose,
-      el('p', { class: 'mission display', text: lesson.sections.mission }),
-      el('p', { class: 'muted', text: `Tier ${lesson.frontmatter.tier}, ${tier?.name ?? ''}. About ${lesson.frontmatter.minutes} minutes.` }),
-      el('p', { text: lesson.frontmatter.concept }),
+      el('div', { class: 'mission-layout' },
+        el('div', { class: 'mission-text' },
+          el('p', { class: 'mission display', text: lesson.sections.mission }),
+          el('p', { class: 'muted', text: `Tier ${lesson.frontmatter.tier}, ${tier?.name ?? ''}. About ${lesson.frontmatter.minutes} minutes.` }),
+          el('p', { text: lesson.frontmatter.concept }),
+          el('h2', { class: 'mission-watch-title', text: 'Watch' }),
+          renderMarkdown(lesson.sections.watch, { headingOffset: 2 }),
+        ),
+        el('figure', { class: 'mission-target' },
+          fieldThumb(routeOf(lesson.watch), { size: 140, label: 'The route the robot drives in this lesson' }),
+          el('figcaption', { text: 'The route to aim for' }),
+        ),
+      ),
     );
     mount(actions,
-      el('button', { type: 'button', class: 'btn btn-next', onclick: () => goTo('watch') }, el('span', { text: 'Watch the robot' }), icon('next', 20)),
+      el('button', { type: 'button', class: 'btn', onclick: () => playTheDemo() }, icon('run', 20), el('span', { text: 'Play it again' })),
+      el('button', { type: 'button', class: 'btn btn-next', onclick: () => goTo('learn') }, el('span', { text: 'Learn why' }), icon('next', 20)),
     );
+    playTheDemo();
   }
 
   /* ------------------------------------------------------------- the demo */
