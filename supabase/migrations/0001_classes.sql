@@ -46,12 +46,12 @@ revoke all on public.classes, public.members, public.passes from anon, authentic
 -- ---------------------------------------------------------------- helpers (not callable)
 
 create or replace function public._nebula_hash(secret text) returns text
-language sql immutable as $$
+language sql immutable set search_path = '' as $$
   select encode(extensions.digest(secret, 'sha256'), 'hex')
 $$;
 
 create or replace function public._nebula_secret() returns text
-language sql volatile as $$
+language sql volatile set search_path = '' as $$
   select encode(extensions.gen_random_bytes(18), 'hex')
 $$;
 
@@ -221,6 +221,8 @@ $$;
 
 -- ---------------------------------------------------------------- who may call what
 
+-- Only the anon role: the site never signs anyone in, so "authenticated" gets nothing.
+
 revoke all on function
   public._nebula_hash(text), public._nebula_secret(),
   public._nebula_mentor_ok(text, text), public._nebula_member_ok(uuid, text),
@@ -235,4 +237,4 @@ grant execute on function
   public.nebula_remove_member(text, text, uuid), public.nebula_delete_class(text, text),
   public.nebula_join_class(text, text), public.nebula_record_passes(uuid, text, json),
   public.nebula_member_status(uuid, text), public.nebula_leave_class(uuid, text)
-to anon, authenticated;
+to anon;
