@@ -73,6 +73,25 @@ Vetting: MIT, commit c1c8a8c (2026-09-14), 45 open issues. Loading it authorizes
 full workflow. Its two validator scripts read local JSON and make no network calls. Open issue
 #94 (output path escape in full-audit mode) is why we use guidance mode.
 
+### Blender MCP (ahujasid/mcp-for-blender, formerly blender-mcp)
+- **What:** an MCP server plus a Blender addon that let the agent read and drive a running
+  Blender: scene info, screenshots (`look`), and arbitrary Python inside Blender
+  (`execute_blender_code`), plus asset search and paid 3D generation.
+- **Why:** build-time only, to render art (robot sprites, badges, field, hero) into
+  `public/art/`. Nothing from Blender runs on the live site.
+- **Command:** `claude mcp add blender --scope project -e DISABLE_TELEMETRY=true -- uvx blender-mcp`
+
+Vetting (2026-11-12): MIT, repo renamed to `ahujasid/mcp-for-blender`, last commit 2e4b0bc
+(2026-11-04), 57 open issues; PyPI package now `mcp-for-blender` (2.2.7 in the repo), and
+`uvx blender-mcp` still runs it (2.0.0 here). Telemetry: a minimal anonymous usage record by
+default, content (prompts, code, screenshots) only if opted in inside Blender; the env var turns
+off both. Network, each only when its tool is used: Poly Haven, Sketchfab and Poly Pizza for asset
+search and download; fal, Tripo3D, Meshy and Hyper3D/Rodin for 3D generation (can cost credits);
+mcp-for-blender.com for telemetry. Rules here: no asset download without the owner approving each
+one, no 3D generation, `execute_blender_code` never touches files outside `art/` or the network,
+and the owner saves their .blend before it runs. A user-scope `blender` server also exists on this
+machine without the env var; the project entry above takes precedence in this repo.
+
 ## Rejected
 
 - **santmun/cloudflare-security-skill:** it turns on WAF, rate limiting, Turnstile and Access by
