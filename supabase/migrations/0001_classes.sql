@@ -34,6 +34,9 @@ create table if not exists public.members (
   joined_at   timestamptz not null default now(),
   unique (class_code, nickname)
 );
+-- Nicknames are unique ignoring case ("Sam" and "sam" are one kid to a mentor), here as well
+-- as in nebula_join_class, so two kids joining at the same moment cannot both get one.
+create unique index if not exists members_class_nickname_ci on public.members (class_code, lower(nickname));
 
 create table if not exists public.passes (
   member_id  uuid not null references public.members (id) on delete cascade,
@@ -190,9 +193,13 @@ begin
   if exists (select 1 from members where class_code = v_class.code and lower(nickname) = lower(v_nick)) then
     raise exception 'nickname_taken';
   end if;
-  insert into members (class_code, nickname, token_hash)
-    values (v_class.code, v_nick, _nebula_hash(v_token))
-    returning id into v_id;
+  begin
+    insert into members (class_code, nickname, token_hash)
+      values (v_class.code, v_nick, _nebula_hash(v_token))
+      returning id into v_id;
+  exception when unique_violation then
+    raise exception 'nickname_taken';  -- lost a race with another kid joining as the same name
+  end;
   return json_build_object('member_id', v_id, 'token', v_token, 'code', v_class.code, 'class_name', v_class.name, 'nickname', v_nick);
 end
 $$;
