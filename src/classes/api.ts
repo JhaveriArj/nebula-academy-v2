@@ -35,6 +35,8 @@ const MESSAGES: Record<string, string> = {
   class_full: 'This class is full. Ask your mentor about it.',
   not_your_class: 'That class code and key do not match. Check both and try again.',
   not_a_member: 'You are no longer in that class.',
+  wrong_passphrase: 'That mentor password is not right. Ask your lead mentor for it.',
+  classes_locked: 'Making classes is not switched on yet. Ask whoever set up Nebula for your team.',
   network: 'Nebula could not reach the class server. Your progress is safe here; it will try again later.',
 };
 
@@ -60,7 +62,7 @@ async function rpc<T>(fn: string, args: Record<string, unknown>, fetchImpl: type
 }
 
 export const api = {
-  createClass: (name: string) => rpc<Created>('nebula_create_class', { p_name: name }),
+  createClass: (name: string, passphrase: string) => rpc<Created>('nebula_create_class', { p_name: name, p_passphrase: passphrase }),
   classReport: (code: string, key: string) => rpc<ClassReport>('nebula_class_report', { p_code: code, p_key: key }),
   removeMember: (code: string, key: string, member: string) => rpc<null>('nebula_remove_member', { p_code: code, p_key: key, p_member: member }),
   deleteClass: (code: string, key: string) => rpc<null>('nebula_delete_class', { p_code: code, p_key: key }),

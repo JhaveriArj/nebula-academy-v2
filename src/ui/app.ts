@@ -119,6 +119,9 @@ export function startApp(root: HTMLElement): void {
     lastRoute = route.name;
   }
 
+  // A reload starts at the top too. Left on "auto", the browser puts the old scroll position
+  // back after the page is built, on top of the scrollTo in render().
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   startRouter(render);
 
   // Fetch the lesson code once the first page is up and the browser is idle, so opening a

@@ -94,8 +94,9 @@ export function syncPasses(): Promise<void> {
 
 export const mentorClasses = (): MentorClass[] => read<MentorClass[]>(MENTOR_KEY, []);
 
-export async function createClass(name: string): Promise<MentorClass> {
-  const created = await api.createClass(name.trim());
+/** Makes a class. The mentor password is sent once and never kept in this browser. */
+export async function createClass(name: string, passphrase: string): Promise<MentorClass> {
+  const created = await api.createClass(name.trim(), passphrase);
   const c: MentorClass = { code: created.code, name: created.name, key: created.mentor_key };
   write(MENTOR_KEY, [...mentorClasses().filter((x) => x.code !== c.code), c]);
   return c;

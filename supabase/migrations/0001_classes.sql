@@ -11,6 +11,10 @@
 -- the functions at the bottom, which run as the owner and check a secret first: the mentor's
 -- key for anything about a whole class, the kid's token for anything about one kid.
 --
+-- Making a class needs the mentor password. Only its bcrypt hash is stored, in nebula_settings,
+-- and it is never in this repo: set it after running this file (docs/CLASSES.md, "Setting it
+-- up"). Until it is set, nobody can make a class.
+--
 -- Run this once in the Supabase SQL editor (or `supabase db push`). It is safe to re-run.
 
 create extension if not exists pgcrypto with schema extensions;
@@ -40,8 +44,15 @@ create table if not exists public.passes (
 
 alter table public.classes enable row level security;
 alter table public.members enable row level security;
+-- One row: the hash of the password a mentor types to make a class.
+create table if not exists public.nebula_settings (
+  id                     boolean primary key default true check (id),
+  mentor_passphrase_hash text not null
+);
+
 alter table public.passes  enable row level security;
-revoke all on public.classes, public.members, public.passes from anon, authenticated, public;
+alter table public.nebula_settings enable row level security;
+revoke all on public.classes, public.members, public.passes, public.nebula_settings from anon, authenticated, public;
 
 -- ---------------------------------------------------------------- helpers (not callable)
 
@@ -73,16 +84,24 @@ $$;
 
 -- ---------------------------------------------------------------- mentor
 
--- Makes a class. Returns its code (to hand out) and the mentor key (shown once, kept in the
--- mentor's browser; only its hash is stored).
-create or replace function public.nebula_create_class(p_name text) returns json
+-- Makes a class, if the mentor password is right. Returns its code (to hand out) and the
+-- mentor key (shown once, kept in the mentor's browser; only its hash is stored).
+drop function if exists public.nebula_create_class(text);
+create or replace function public.nebula_create_class(p_name text, p_passphrase text) returns json
 language plpgsql security definer set search_path = public as $$
 declare
   alphabet constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   v_code text;
   v_key  text := _nebula_secret();
   v_name text := btrim(coalesce(p_name, ''));
+  v_hash text := (select mentor_passphrase_hash from nebula_settings where id);
 begin
+  if v_hash is null then
+    raise exception 'classes_locked';
+  end if;
+  if extensions.crypt(coalesce(p_passphrase, ''), v_hash) <> v_hash then
+    raise exception 'wrong_passphrase';
+  end if;
   if char_length(v_name) not between 1 and 60 then
     raise exception 'bad_name';
   end if;
@@ -226,14 +245,14 @@ $$;
 revoke all on function
   public._nebula_hash(text), public._nebula_secret(),
   public._nebula_mentor_ok(text, text), public._nebula_member_ok(uuid, text),
-  public.nebula_create_class(text), public.nebula_class_report(text, text),
+  public.nebula_create_class(text, text), public.nebula_class_report(text, text),
   public.nebula_remove_member(text, text, uuid), public.nebula_delete_class(text, text),
   public.nebula_join_class(text, text), public.nebula_record_passes(uuid, text, json),
   public.nebula_member_status(uuid, text), public.nebula_leave_class(uuid, text)
 from public, anon, authenticated;
 
 grant execute on function
-  public.nebula_create_class(text), public.nebula_class_report(text, text),
+  public.nebula_create_class(text, text), public.nebula_class_report(text, text),
   public.nebula_remove_member(text, text, uuid), public.nebula_delete_class(text, text),
   public.nebula_join_class(text, text), public.nebula_record_passes(uuid, text, json),
   public.nebula_member_status(uuid, text), public.nebula_leave_class(uuid, text)

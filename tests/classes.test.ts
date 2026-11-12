@@ -125,12 +125,24 @@ describe('classes switched on', () => {
   });
 
   it('keeps a made class and its key in this browser only', async () => {
-    const { fetchFn } = fakeServer({ nebula_create_class: () => ({ json: { code: 'XYZ789', mentor_key: 'k'.repeat(36), name: 'Tuesday' } }) });
+    const { fetchFn, calls } = fakeServer({ nebula_create_class: () => ({ json: { code: 'XYZ789', mentor_key: 'k'.repeat(36), name: 'Tuesday' } }) });
     vi.stubGlobal('fetch', fetchFn);
     const { createClass, mentorClasses } = await import('../src/classes/membership');
     const store = await import('../src/progress/store');
-    await createClass('Tuesday');
+    await createClass('Tuesday', 'pass-word');
+    expect(calls[0]!.body).toEqual({ p_name: 'Tuesday', p_passphrase: 'pass-word' });
     expect(mentorClasses()).toEqual([{ code: 'XYZ789', name: 'Tuesday', key: 'k'.repeat(36) }]);
     expect(store.exportJson()).not.toContain('k'.repeat(36));
+  });
+
+  it('needs the mentor password to make a class, and never keeps it', async () => {
+    const { fetchFn } = fakeServer({ nebula_create_class: () => ({ status: 400, json: { message: 'wrong_passphrase' } }) });
+    vi.stubGlobal('fetch', fetchFn);
+    const { createClass, mentorClasses } = await import('../src/classes/membership');
+    await expect(createClass('Tuesday', 'not-it')).rejects.toThrow('mentor password is not right');
+    expect(mentorClasses()).toEqual([]);
+    const store = await import('../src/progress/store');
+    const stored = [localStorage.getItem('nebula-mentor-classes-v1'), localStorage.getItem('nebula-class-v1'), store.exportJson()].join('');
+    expect(stored).not.toContain('not-it');
   });
 });

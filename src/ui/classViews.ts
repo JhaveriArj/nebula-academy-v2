@@ -111,6 +111,7 @@ export function mentorClassPanel(): HTMLElement | null {
   const render = () => {
     const classes = mentorClasses();
     const name = field('class-name', 'Class name', 'What you call the group, for example "Tuesday robotics".', { maxlength: '60' });
+    const password = field('class-password', 'Mentor password', 'From your lead mentor. Kids never need it.', { type: 'password', maxlength: '200', autocomplete: 'current-password' });
     const make = el('button', { type: 'submit', class: 'btn btn-quiet' }, el('span', { text: 'Make a class' }));
     const code = field('class-add-code', 'Class code', null, { maxlength: '6', autocapitalize: 'characters', class: 'class-input is-code' });
     const key = field('class-add-key', 'Mentor key', null, { maxlength: '64' });
@@ -136,9 +137,10 @@ export function mentorClassPanel(): HTMLElement | null {
         onsubmit: async (event: Event) => {
           event.preventDefault();
           if (!name.input.value.trim()) { mount(status, el('span', { class: 'fail', text: 'Give the class a name first.' })); return; }
+          if (!password.input.value) { mount(status, el('span', { class: 'fail', text: 'Type the mentor password first.' })); return; }
           make.setAttribute('disabled', '');
           try {
-            const c = await createClass(name.input.value);
+            const c = await createClass(name.input.value, password.input.value);
             justMade = { code: c.code, key: c.key };
             render();
             mount(status, `Made ${c.name}.`);
@@ -148,7 +150,7 @@ export function mentorClassPanel(): HTMLElement | null {
             make.removeAttribute('disabled');
           }
         },
-      }, name.row, el('div', { class: 'button-row' }, make)),
+      }, name.row, password.row, el('div', { class: 'button-row' }, make)),
       el('details', { class: 'class-elsewhere' },
         el('summary', { text: 'Open a class you made on another computer' }),
         el('form', {
