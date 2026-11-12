@@ -39,6 +39,8 @@ for (int side = 1; side <= 4; side++) {
 
 Three parts in the brackets: start at 1, keep going while `side` is at most 4, and add one each time round. The block runs four times, with `side` holding 1, then 2, then 3, then 4.
 
+:::figure loop-counter
+
 :::why
 A `for` loop is a `while` loop with its three moving parts written where you can see them, which is why FTC code uses `for` whenever the count is known and `while` whenever it depends on the world.
 
