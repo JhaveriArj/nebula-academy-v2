@@ -1,3 +1,9 @@
+/* Hallmark · checked: 2026-11-12 · genre: playful (inferred: kids, games)
+ * floor: 8 FAIL left, all kept on purpose or false (docs/SKILLS.md) · fixed: 19, 26a, 34, 40, F6, field fit at 1024, line 14, tap tip
+ * kept: 47a, the demo window is the real lesson screen, not a drawn OS window · 67, class codes are spaced so kids copy them right
+ * false: 26a chart, its ring is drawn on the SVG hit shape · 73, the ink circle and scrolled-off code lines
+ * built: the project · redesign: polish · v2.0.0 */
+
 /* Layout for Nebula Academy. Rules from docs/DESIGN.md that scripts/lint-design.mjs
    enforces: no color literal outside theme.css, every radius and shadow from a token,
    every hover paired with a focus state, and nothing touchable under 44x44. */
@@ -150,7 +156,8 @@
 }
 /* The second button's tip hangs from its right edge, so neither runs past the window. */
 .mode-button + .mode-button .mode-tip { left: auto; right: 0; }
-.mode-button:focus-visible .mode-tip { display: block; }
+.mode-button:focus-visible .mode-tip,
+.mode-button.is-tipping .mode-tip { display: block; }
 @media (hover: hover) {
   .mode-button:hover .mode-tip { display: block; }
 }
@@ -196,7 +203,7 @@
   position: fixed;
   inset: 72px var(--s4) auto auto;
   margin: 0;
-  width: min(320px, calc(100vw - 2 * var(--s4)));
+  width: min(320px, calc(100% - 2 * var(--s4)));
   padding: var(--s4);
   background: var(--surface);
   color: var(--ink);
@@ -487,7 +494,9 @@ html { scrollbar-gutter: stable; }
   background: var(--nb-raised);
   border-right: var(--seam-w) solid var(--nb-line);
 }
-.nb-demo-code { position: relative; flex: 1 1 0; min-height: 0; padding: 16px 0; font-size: 0.875rem; overflow: auto; scrollbar-width: thin; }
+.nb-demo-code { --pad: 16px; position: relative; flex: 1 1 0; min-height: 0; padding: var(--pad) 0; font-size: 0.875rem; overflow: auto; scrollbar-width: thin; }
+/* Scrolled lines would show through the padding (half of line 14 above the loop): keep it empty. */
+.nb-demo-code { mask-image: linear-gradient(transparent var(--pad), currentColor var(--pad), currentColor calc(100% - var(--pad)), transparent calc(100% - var(--pad))); }
 /* Lines outside the loop: one muted colour that still passes 4.5:1, instead of opacity. */
 .nb-demo-line.is-context,
 .nb-demo-line.is-context * { color: var(--nb-text-3); }
@@ -609,7 +618,7 @@ html { scrollbar-gutter: stable; }
    fit above the fold, so the field gives up 60px and the code panel gets denser. */
 @media (min-width: 1181px) and (max-height: 820px) {
   .nb-hero { --field: clamp(340px, calc(100vh - 428px), 880px); padding-top: 32px; gap: 36px; }
-  .nb-demo-code { line-height: 1.6; padding: 12px 0; }
+  .nb-demo-code { --pad: 12px; line-height: 1.6; }
   .nb-demo-checks { padding: 12px 16px 14px; }
   .nb-demo-checks-title { display: none; }
   .nb-demo-checks ul { gap: 4px; }
@@ -950,7 +959,14 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
 /* --- Narrower screens: the window moves under the copy and still runs off the edge, then
    on phones it fits the screen and the steps stack. */
 @media (max-width: 1180px) {
-  .nb-hero { --field: clamp(300px, 40vw, 480px); --code-w: 27rem; min-height: 0; padding-top: 48px; }
+  /* The window still bleeds off the edge, but the field never does: the mascot is 0.454x its
+     height (field + 88px), so edge + mascot + gap + code + field stays inside 100vw. */
+  .nb-hero {
+    --code-w: clamp(20rem, 42vw, 27rem);
+    --field: min(clamp(300px, 40vw, 480px), calc((100vw - var(--code-w) - 144px) / 1.46));
+    min-height: 0;
+    padding-top: 48px;
+  }
   .nb-hero-head { grid-template-columns: minmax(0, 1fr); }
   .nb-steps { grid-template-columns: minmax(0, 1fr); }
   .nb-step + .nb-step { border-left: 0; border-top: var(--seam-w) solid var(--nb-line); }
@@ -1069,6 +1085,8 @@ body[data-route='lesson'] .site-footer { display: none; }
   color: var(--paper-ink);
   box-shadow: var(--paper-shadow);
 }
+/* On cream the link-coloured ring is 1.7:1; the paper's own ink is about 14:1. */
+.kit-paper :focus-visible, .nb-rubric :focus-visible { outline-color: var(--paper-ink); }
 .kit-paper::before {
   content: '';
   position: absolute;
@@ -1270,7 +1288,7 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
 .class-input.is-code { font-family: var(--face-code); letter-spacing: 0.12em; text-transform: uppercase; max-width: 12rem; }
 .class-panel.is-paper .btn { color: var(--paper-ink); border-color: var(--paper-ink-2); }
 .class-panel.is-paper .btn:focus-visible { outline-color: var(--paper-ink); }
-.class-panel.is-paper .class-input { background: var(--print-paper); color: var(--paper-ink); border-color: var(--paper-line); }
+.class-panel.is-paper .class-input { background: var(--print-paper); color: var(--paper-ink); border-color: var(--paper-ink-2); }
 .class-hint { margin: 0; font-size: var(--size-label); color: var(--ink-mid); }
 .class-panel.is-paper .class-hint { color: var(--paper-ink-2); }
 .class-status { margin: var(--s3) 0 0; color: var(--ink-mid); }
@@ -2037,8 +2055,8 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
    its share. The bar is a transform, so it animates without layout. */
 .progress-summary { margin: var(--s6) 0 var(--s5); }
 .progress-count { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3); margin: 0; max-width: none; }
-.progress-count-num .kit-circled-n { font-size: 56px; color: var(--ink); }
-.progress-count-of { font-size: 56px; line-height: 1; color: var(--ink-mid); }
+.progress-count-num .kit-circled-n { font-size: 56px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.progress-count-of { font-size: 56px; line-height: 1; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
 .progress-count-label { margin-inline-start: var(--s2); color: var(--ink-mid); font-size: 1.125rem; }
 .progress-bar { position: relative; height: 10px; margin-top: var(--s4); border-radius: var(--radius-pill); background: var(--surface-soft); overflow: hidden; }
 .progress-bar-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--star); transform-origin: 0 50%; }
@@ -2068,7 +2086,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 .progress-danger { margin-top: var(--s7); padding: var(--s5); border: var(--seam-w) solid color-mix(in srgb, var(--alert) 55%, transparent); border-radius: var(--radius-lg); }
 .progress-danger p { margin: 0 0 var(--s4); }
 .panel-dialog {
-  width: min(520px, calc(100vw - 2 * var(--s4)));
+  width: min(520px, calc(100% - 2 * var(--s4)));
   padding: var(--s5);
   border: var(--seam-w) solid var(--line);
   border-radius: var(--radius-lg);

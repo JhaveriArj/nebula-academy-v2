@@ -317,9 +317,10 @@ button:disabled { color: var(--ink-mid); border-color: var(--line); background: 
   clip-path: inset(50%); white-space: nowrap;
 }
 
-.skip-link { position: absolute; left: -9999px; }
+/* Parked above the page, not far to the left, so it never widens the page on a phone. */
+.skip-link { position: absolute; left: var(--s4); top: var(--s4); translate: 0 -200%; }
 .skip-link:focus {
-  left: var(--s4); top: var(--s4); z-index: var(--z-skip);
+  translate: none; z-index: var(--z-skip);
   min-height: var(--tap); display: inline-flex; align-items: center;
   background: var(--surface); color: var(--ink); padding: var(--s3) var(--s4);
   border-radius: var(--radius-sm); box-shadow: var(--shadow);

@@ -7,3 +7,5 @@ ftc-stubs/out/
 
 # Agent skills (docs/SKILLS.md): installed copies are large; skills-lock.json pins them
 .claude/skills/
+# Hallmark audit output (screenshots and records)
+.hallmark/

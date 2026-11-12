@@ -19,8 +19,9 @@ export interface Header {
 export function createHeader(onModeChange: () => void): Header {
   const modeButtons = new Map<Mode, HTMLButtonElement>();
 
-  // Each mode button explains itself in a small tooltip that shows on hover and on keyboard
-  // focus alike (never hover only), and is read out as the button's description.
+  // Each mode button explains itself in a small tooltip that shows on hover, on keyboard focus
+  // and for a moment after a tap (never hover only), and is read out as its description.
+  let tipTimer = 0;
   const makeModeButton = (mode: Mode, label: string, hint: string) => {
     const tipId = `mode-tip-${mode}`;
     const button = el('button', {
@@ -28,6 +29,13 @@ export function createHeader(onModeChange: () => void): Header {
       class: 'mode-button',
       'aria-pressed': String(getMode() === mode),
       'aria-describedby': tipId,
+      onpointerup: (event: PointerEvent) => {
+        if (event.pointerType === 'mouse') return;
+        for (const b of modeButtons.values()) b.classList.remove('is-tipping');
+        button.classList.add('is-tipping');
+        clearTimeout(tipTimer);
+        tipTimer = window.setTimeout(() => button.classList.remove('is-tipping'), 2500);
+      },
       onclick: () => {
         if (getMode() === mode) return;
         setMode(mode);

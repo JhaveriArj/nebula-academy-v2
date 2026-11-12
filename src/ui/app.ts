@@ -145,6 +145,6 @@ function titleFor(route: Route): string {
     case 'about': return `About · ${base}`;
     case 'progress': return `Your progress · ${base}`;
     case 'class': return `Class ${route.param ?? ''} · ${base}`;
-    default: return `${base} — program a competition robot in real Java`;
+    default: return `${base}: program a competition robot in real Java`;
   }
 }
