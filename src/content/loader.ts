@@ -49,7 +49,8 @@ const cache = new Map<string, Promise<Lesson>>();
 export function loadLesson(lessonId: string): Promise<Lesson> {
   const existing = cache.get(lessonId);
   if (existing) return existing;
-  const promise = fetchLesson(lessonId);
+  // A failed load is not kept, so "try again" really tries again.
+  const promise = fetchLesson(lessonId).catch((error: unknown) => { cache.delete(lessonId); throw error; });
   cache.set(lessonId, promise);
   return promise;
 }

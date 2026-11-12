@@ -10,7 +10,10 @@ import { chartPage } from './pages/chart';
 // The lesson page carries CodeMirror and the Java runtime, which no other page needs, so it
 // is loaded on first use. That keeps them off the home page's first load.
 let lessonModule: Promise<typeof LessonPageModule> | null = null;
-const loadLesson = (): Promise<typeof LessonPageModule> => (lessonModule ??= import('./pages/lesson'));
+const loadLesson = (): Promise<typeof LessonPageModule> =>
+  // A failed download (flaky wifi, or a deploy that renamed the file) is forgotten, so the next
+  // try fetches again instead of failing forever.
+  (lessonModule ??= import('./pages/lesson').catch((error: unknown) => { lessonModule = null; throw error; }));
 import { mentorPage } from './pages/mentor';
 import { aboutPage } from './pages/about';
 import { privacyPage } from './pages/privacy';
@@ -88,6 +91,13 @@ export function startApp(root: HTMLElement): void {
             },
           }));
           outlet.focus({ preventScroll: true });
+        }).catch(() => {
+          if (ticket !== renderTicket) return;
+          mount(outlet, el('div', { class: 'prose-page' },
+            el('h1', { text: 'The lesson did not load' }),
+            el('p', { text: 'The connection may have dropped for a moment. Your progress is safe in this browser.' }),
+            el('p', {}, el('button', { type: 'button', class: 'btn btn-next', onclick: () => render(parseHash(location.hash)), text: 'Try again' })),
+          ));
         });
         break;
       }
