@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
@@ -48,7 +49,7 @@ export default defineConfig(({ mode }) => ({
   // and falls back to the SVG for the rest (docs/ART_PIPELINE.md). Read when the build starts.
   define: {
     __ART_RENDERS__: JSON.stringify(
-      readdirSync('public/art').filter((f) => /^[a-z0-9-]+\.webp$/.test(f)).map((f) => f.slice(0, -5)),
+      readdirSync(fileURLToPath(new URL('public/art', import.meta.url))).filter((f) => /^[a-z0-9-]+\.webp$/.test(f)).map((f) => f.slice(0, -5)),
     ),
   },
   build: {
