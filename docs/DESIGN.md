@@ -69,7 +69,9 @@ in, or it is the mascot.
 
 ## Type
 
-Three families from Google Fonts, plus the system monospace.
+Three families, self-hosted in `public/fonts/` (SIL Open Font License, licence files beside them;
+@font-face rules at the top of `src/ui/theme.css`), plus the system monospace. Never load a font
+from a CDN: the site makes no request to anyone else (docs/PRIVACY-AUDIT.md).
 
 **Fredoka** — headings, buttons, navigation, tier names, telemetry keys.
 `font-family: 'Fredoka', 'Nunito', 'Trebuchet MS', sans-serif`

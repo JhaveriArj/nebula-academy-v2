@@ -54,7 +54,7 @@ export function aboutPage(): HTMLElement {
         el('div', { class: 'about-credits' },
           paper('plain',
             el('p', { text: 'Built by and for an FTC team. The FIRST Tech Challenge SDK documentation is at ftc-docs.firstinspires.org, and the SDK itself is at github.com/FIRST-Tech-Challenge/FtcRobotController. Nebula Academy is not affiliated with or endorsed by FIRST.' }),
-            el('p', { text: 'Typefaces: Fredoka, Lexend and Atkinson Hyperlegible Next, all from Google Fonts. Atkinson Hyperlegible was designed by the Braille Institute to make letters easier to tell apart, which is why every lesson is set in it.' }),
+            el('p', { text: 'Typefaces: Fredoka, Lexend and Atkinson Hyperlegible Next, free under the SIL Open Font License and served from this site, not from a font service. Atkinson Hyperlegible was designed by the Braille Institute to make letters easier to tell apart, which is why every lesson is set in it.' }),
           ),
         ),
       ),
