@@ -93,7 +93,6 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 | `telemetryHasKey` `{ key }` | The code sent telemetry with that caption. |
 | `methodExists` `{ name, params?, className? }` | The code declares that method. |
 | `classExists` `{ name, extends? }` | The code declares that class. |
-| `noForbiddenCalls` `{ calls }` | The code never calls any of `calls`. |
 | `ranUnder` `{ ms }` | The whole run finished in under `ms` of robot time. |
 
 ### watch.json

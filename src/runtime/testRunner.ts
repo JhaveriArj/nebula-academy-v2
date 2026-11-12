@@ -19,7 +19,6 @@ export type Check =
   | { type: 'telemetryHasKey'; key: string; label?: string }
   | { type: 'methodExists'; name: string; params?: number; className?: string; label?: string }
   | { type: 'classExists'; name: string; extends?: string; label?: string }
-  | { type: 'noForbiddenCalls'; calls: string[]; label?: string }
   | { type: 'ranUnder'; ms: number; label?: string };
 
 export type CheckType = Check['type'];
@@ -110,7 +109,7 @@ export function runLessonTests(source: string, spec: TestSpec): TestRunResult {
   }
 
   const ast = parse(source).unit;
-  const results = spec.checks.map((c) => evaluate(c, sim, ast, source));
+  const results = spec.checks.map((c) => evaluate(c, sim, ast));
   return {
     compiled: true,
     error: null,
@@ -127,7 +126,6 @@ function evaluate(
   check: Check,
   sim: Simulation,
   ast: A.CompilationUnit,
-  source: string,
 ): CheckResult {
   const ok = (label: string, passed: boolean, detail: string): CheckResult => ({
     label: check.label ?? label,
@@ -249,15 +247,6 @@ function evaluate(
       );
     }
 
-    case 'noForbiddenCalls': {
-      const used = check.calls.filter((c) => new RegExp(`\\b${escapeRegExp(c)}\\s*\\(`).test(source));
-      return ok(
-        `This one is solved without ${check.calls.join(' or ')}`,
-        used.length === 0,
-        used.length ? `This still uses ${used.join(' and ')}.` : 'None of those were used.',
-      );
-    }
-
     case 'ranUnder':
       return ok(
         `The whole run finishes in under ${(check.ms / 1000).toFixed(0)} seconds`,
@@ -300,11 +289,9 @@ function countOccurrences(haystack: string, needle: string): number {
 const firstLines = (s: string, n = 3) =>
   s.trim().split('\n').slice(0, n).join(' / ') + (s.trim().split('\n').length > n ? ' ...' : '');
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 /** Every check type this runner implements. tests/content.test.ts validates against it. */
 export const CHECK_TYPES: CheckType[] = [
   'outputContains', 'outputMatches', 'robotMovedAtLeastCm', 'robotWithinCmOf',
   'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey',
-  'methodExists', 'classExists', 'noForbiddenCalls', 'ranUnder',
+  'methodExists', 'classExists', 'ranUnder',
 ];
