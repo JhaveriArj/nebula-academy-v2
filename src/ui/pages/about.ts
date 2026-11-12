@@ -147,10 +147,13 @@ function liveField(): HTMLElement {
       if (!figure.isConnected) io.disconnect();
     });
     queueMicrotask(() => io.observe(figure));
-    document.addEventListener('visibilitychange', () => {
+    // Removed once the page is gone, so each About visit does not leave its figure in memory.
+    const onVisibility = () => {
       cancelAnimationFrame(raf);
-      if (visible && !document.hidden && figure.isConnected) raf = requestAnimationFrame(tick);
-    });
+      if (!figure.isConnected) { document.removeEventListener('visibilitychange', onVisibility); io.disconnect(); return; }
+      if (visible && !document.hidden) raf = requestAnimationFrame(tick);
+    };
+    document.addEventListener('visibilitychange', onVisibility);
   }
   return figure;
 }

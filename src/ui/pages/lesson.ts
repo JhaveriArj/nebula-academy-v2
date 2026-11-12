@@ -749,6 +749,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     renderStep();
   });
   root.addEventListener('nebula:leave', () => {
+    removeEventListener('resize', placeTrack);
     stopFigures();
     stopEverything();
     editor.destroy();
