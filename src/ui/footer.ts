@@ -15,7 +15,7 @@ export function siteFooter(): HTMLElement {
         el('span', { text: 'Nebula Academy' }),
       ),
       el('nav', { class: 'site-footer-nav', 'aria-label': 'Footer' },
-        ...[['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['About', '#/about']].map(([label, href]) =>
+        ...[['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['About', '#/about'], ['Privacy', '#/privacy']].map(([label, href]) =>
           el('a', { href: href!, class: 'site-footer-link', text: label! })),
       ),
     ),

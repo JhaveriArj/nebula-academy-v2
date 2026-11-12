@@ -13,6 +13,7 @@ let lessonModule: Promise<typeof LessonPageModule> | null = null;
 const loadLesson = (): Promise<typeof LessonPageModule> => (lessonModule ??= import('./pages/lesson'));
 import { mentorPage } from './pages/mentor';
 import { aboutPage } from './pages/about';
+import { privacyPage } from './pages/privacy';
 import { progressPage } from './pages/progress';
 import { pathway } from '../content/loader';
 import type * as LessonPageModule from './pages/lesson';
@@ -96,6 +97,9 @@ export function startApp(root: HTMLElement): void {
       case 'about':
         mount(outlet, aboutPage());
         break;
+      case 'privacy':
+        mount(outlet, privacyPage());
+        break;
       case 'progress':
         mount(outlet, progressPage(() => { header.refresh(); void syncPasses(); }));
         break;
@@ -143,6 +147,7 @@ function titleFor(route: Route): string {
     }
     case 'mentor': return `Mentor guides · ${base}`;
     case 'about': return `About · ${base}`;
+    case 'privacy': return `Privacy · ${base}`;
     case 'progress': return `Your progress · ${base}`;
     case 'class': return `Class ${route.param ?? ''} · ${base}`;
     default: return `${base}: program a competition robot in real Java`;
