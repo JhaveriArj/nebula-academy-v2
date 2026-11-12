@@ -194,9 +194,25 @@ export function importJson(text: string): { ok: true } | { ok: false; reason: st
   if (typeof parsed !== 'object' || parsed === null || (parsed as { version?: number }).version !== 1) {
     return { ok: false, reason: 'That file came from a different version of Nebula.' };
   }
-  cache = normalise(parsed);
+  cache = mergeProgress(load(), normalise(parsed));
   save();
   return { ok: true };
+}
+
+/** Loading a file adds to what this browser has instead of replacing it, so loading Friday's
+    school file at home cannot delete a lesson passed since. A lesson passed in either stays
+    passed, with the earlier date; the file's code wins for lessons it has, and code for lessons
+    it does not mention stays; settings come from the file, as they always did. */
+export function mergeProgress(here: ProgressFile, file: ProgressFile): ProgressFile {
+  const lessons: Record<string, LessonProgress> = { ...here.lessons };
+  for (const [id, theirs] of Object.entries(file.lessons)) {
+    const ours = lessons[id];
+    if (!ours || (theirs.passed && !ours.passed)) { lessons[id] = theirs; continue; }
+    if (theirs.passed && ours.passed && theirs.passedAt && (!ours.passedAt || theirs.passedAt < ours.passedAt)) {
+      lessons[id] = { ...ours, passedAt: theirs.passedAt };
+    }
+  }
+  return { ...file, lessons, drafts: { ...here.drafts, ...file.drafts }, modeChosen: here.modeChosen || file.modeChosen };
 }
 
 export function reset(): void {
