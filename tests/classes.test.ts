@@ -75,6 +75,35 @@ describe('classes switched on', () => {
     await expect(joinClass('ABC234', 'Ada')).rejects.toThrow(/could not reach the class server/);
   });
 
+  it('sends a pass made while another send is still running, without waiting for a later one', async () => {
+    let release: () => void = () => {};
+    const { calls, fetchFn } = fakeServer({
+      nebula_join_class: () => ({ json: { member_id: 'm1', token: 't1', code: 'ABC234', class_name: 'Tuesday', nickname: 'Ada' } }),
+      nebula_record_passes: () => ({ json: null }),
+    });
+    // Hold the first record_passes call open until we say so.
+    const slow = vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith('nebula_record_passes') && !calls.some((c) => c.url.endsWith('nebula_record_passes'))) {
+        await new Promise<void>((r) => { release = r; });
+      }
+      return fetchFn(url, init);
+    });
+    vi.stubGlobal('fetch', slow);
+    const store = await import('../src/progress/store');
+    const { joinClass, syncPasses } = await import('../src/classes/membership');
+    store.markPassed(lessonA);
+    const joining = joinClass('ABC234', 'Ada'); // its own sync starts and waits on the server
+    await new Promise((r) => setTimeout(r, 0));
+    store.markPassed(lessonB);
+    void syncPasses(); // lands while the first send is running
+    release();
+    await joining;
+    for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 0)); // no further trigger
+    const sent = calls.filter((c) => c.url.endsWith('nebula_record_passes')).flatMap((c) => (c.body.p_passes as { lesson_id: string }[]).map((p) => p.lesson_id));
+    expect(sent).toContain(lessonA);
+    expect(sent).toContain(lessonB);
+  });
+
   it('joins with an upper-case code, then sends only lesson ids and times, once each', async () => {
     const { calls, fetchFn } = fakeServer({
       nebula_join_class: (b) => ({ json: { member_id: 'm1', token: 't1', code: String(b.p_code), class_name: 'Tuesday', nickname: String(b.p_nickname) } }),

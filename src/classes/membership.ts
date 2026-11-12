@@ -68,11 +68,13 @@ export async function refreshMembership(): Promise<Membership | null> {
 }
 
 let syncing: Promise<void> | null = null;
+let again = false;
 
 /** Sends every passed lesson the class has not heard about yet. Safe to call often; a
-    failure leaves them queued for the next call. Only lesson ids and times are sent. */
+    failure leaves them queued for the next call. Only lesson ids and times are sent. A call
+    that lands while a send is running is not lost: it runs once more when that one ends. */
 export function syncPasses(): Promise<void> {
-  if (syncing) return syncing;
+  if (syncing) { again = true; return syncing; }
   syncing = (async () => {
     const m = membership();
     if (!m || !classesEnabled()) return;
@@ -88,7 +90,10 @@ export function syncPasses(): Promise<void> {
     } catch (error) {
       if (error instanceof ClassError && error.reason === 'not_a_member') write(KID_KEY, null);
     }
-  })().finally(() => { syncing = null; });
+  })().finally(() => {
+    syncing = null;
+    if (again) { again = false; void syncPasses(); }
+  });
   return syncing;
 }
 
