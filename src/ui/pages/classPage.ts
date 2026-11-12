@@ -53,7 +53,7 @@ export function classPage(code: string): HTMLElement {
       el('h2', { id: 'class-danger', class: 'display', text: 'Close the class' }),
       el('p', { text: 'Deleting the class removes every nickname and pass in it from the server. Kids keep their progress in their own browsers.' }),
       el('div', { class: 'button-row' },
-        el('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { forgetClass(mine.code); location.hash = '#/mentor'; } }, el('span', { text: 'Forget it on this computer' })),
+        el('button', { type: 'button', class: 'btn btn-quiet', onclick: () => askFirst('Forget this class here?', `The class stays on the server, but this computer forgets ${mine.name} and its mentor key. Without the key nobody can open it again or delete its nicknames. Copy the key first if you might need it.`, 'Yes, forget it', async () => { forgetClass(mine.code); location.hash = '#/mentor'; }) }, el('span', { text: 'Forget it on this computer' })),
         el('button', { type: 'button', class: 'btn btn-danger', onclick: () => askFirst('Delete the class?', `Every nickname and pass in ${mine.name} is deleted. This cannot be undone.`, 'Yes, delete it', async () => { await deleteClass(mine); location.hash = '#/mentor'; }) }, el('span', { text: 'Delete the class' })),
       ),
     ),
