@@ -84,3 +84,13 @@ arm down with the claw open, arm down closed, arm raised open, arm raised closed
 its shadow fit at every heading. `src/ui/components/field.ts` picks the nearest heading, turns
 the last few degrees itself, and picks the row from `armMotor` and `clawServo`. If the sheet is
 missing, it draws the SVG robot and the claw lines instead, as before.
+
+## The field
+
+No season game is chosen, so the field art is one foam tile, `field-tile`, which the field view
+repeats 6 by 6 (the real 12 ft field) and then lays the seams, walls and painted alliance tiles
+over. Every game element is its own transparent file (`element-cube`, `element-ball`), so the
+sim can put it anywhere and move it; their starting places are in `src/sim/field.ts`. Element
+renders keep the SVG's box: the cube fills 69% of its frame and the ball 75%, so a render drops
+in at the same size. The tile uses the space palette rather than FTC grey, because the field is
+one of the site's dark screens; `TILE_COLOR` in `art/scenes/field.py` changes that.
