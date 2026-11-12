@@ -510,9 +510,10 @@ class Interpreter implements MockContext {
         if (!hasLoop || this.teleOpOver() || this.simExhausted() || this.cancelled() || this.stopRequested) {
           return false;
         }
-        // The wall-clock budget is per frame here, not per run: a TeleOp is meant to
-        // keep going, and only a runaway inside one loop() should be stopped.
+        // Both budgets are per loop() here, not per run: a TeleOp is meant to keep going,
+        // and only a runaway inside one loop() should be stopped.
         this.deadline = Date.now() + 250;
+        this.steps = 0;
         try {
           this.invokeUser(self, cls, 'loop', []);
           this.tick();

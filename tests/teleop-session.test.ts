@@ -66,6 +66,17 @@ describe('a TeleOp driven one loop at a time', () => {
     expect(sim.telemetryKeysSeen.has('drive')).toBe(true);
   });
 
+  it('keeps driving long past one loop budget: the step limit is per loop(), not per drive', () => {
+    const sim = new Simulation({ robot: 'mecanum', start: { x: 182.88, y: 91.44, headingDeg: 0 } });
+    // A budget a few loops wide: before the fix the 400,000-step TeleOp budget ran out after
+    // about 5,400 loops (30 seconds at 60 fps) and blamed a loop that does finish.
+    const session = asSession(startTeleOp(TELEOP, { sim, teleOpForMs: 600_000, maxSteps: 2_000 }));
+    let ran = 0;
+    for (let i = 0; i < 3_000 && session.step(); i++) ran++;
+    expect(ran).toBe(3_000);
+    expect(session.finish().ok).toBe(true);
+  });
+
   it('advances the sim exactly one tick per step', () => {
     const sim = new Simulation();
     const session = asSession(startTeleOp(TELEOP, { sim, teleOpForMs: 60_000 }));
