@@ -23,19 +23,14 @@ const SPRITE_FILES = {
 } as const;
 type SpriteName = keyof typeof SPRITE_FILES;
 const repaintOnLoad = new Set<() => void>();
-let sprites: Record<SpriteName, HTMLImageElement> | null = null;
 /** The robot sheet's layout: 8 headings across, 4 poses down, each cell 1.6 footprints wide. */
 const SHEET_COLS = 8;
 const SHEET_CELL = 1.6;
+const sprites: Partial<Record<SpriteName, HTMLImageElement>> = {};
 
-function loadSprites(): Record<SpriteName, HTMLImageElement> {
-  if (sprites) return sprites;
-  const out = {} as Record<SpriteName, HTMLImageElement>;
-  for (const [name, file] of Object.entries(SPRITE_FILES) as [SpriteName, string][]) {
-    out[name] = artImage(file, () => repaintOnLoad.forEach((repaint) => repaint()));
-  }
-  sprites = out;
-  return out;
+/** Loaded on first use, so a page only fetches the robot it drives (each sheet is ~100 KB). */
+function sprite(name: SpriteName): HTMLImageElement {
+  return (sprites[name] ??= artImage(SPRITE_FILES[name], () => repaintOnLoad.forEach((repaint) => repaint())));
 }
 
 const ready = (img: HTMLImageElement | undefined): img is HTMLImageElement =>
@@ -81,7 +76,6 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
   let last: SimSnapshot | null = null;
   let side = 0;
   let colors = readPalette();
-  const art = loadSprites();
 
   const resize = (): void => {
     const box = canvas.parentElement;
@@ -112,10 +106,10 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
     // Tiles: the foam-tile art where it has loaded, then the painted alliance tiles over it.
     ctx.fillStyle = colors.ground;
     ctx.fillRect(0, 0, side, side);
-    if (ready(art.tile)) {
+    if (ready(sprite('tile'))) {
       for (let col = 0; col < TILES; col++) {
         for (let row = 0; row < TILES; row++) {
-          ctx.drawImage(art.tile, px(col * TILE_CM), py((row + 1) * TILE_CM), px(TILE_CM), px(TILE_CM));
+          ctx.drawImage(sprite('tile'), px(col * TILE_CM), py((row + 1) * TILE_CM), px(TILE_CM), px(TILE_CM));
         }
       }
     }
@@ -164,10 +158,10 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
 
     // Game elements.
     for (const element of snapshot.elements) {
-      const sprite = element.kind === 'ball' ? art.ball : art.cube;
-      if (ready(sprite)) {
+      const art = sprite(element.kind === 'ball' ? 'ball' : 'cube');
+      if (ready(art)) {
         const s = element.kind === 'ball' ? px(element.r * 2) : px(element.r * 1.9);
-        ctx.drawImage(sprite, px(element.x) - s / 2, py(element.y) - s / 2, s, s);
+        ctx.drawImage(art, px(element.x) - s / 2, py(element.y) - s / 2, s, s);
         continue;
       }
       ctx.strokeStyle = colors.line;
@@ -182,7 +176,7 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
       }
     }
 
-    drawRobot(ctx, snapshot, px, py, scale, colors, snapshot.kind === 'tank' ? art.tank : art.mecanum);
+    drawRobot(ctx, snapshot, px, py, scale, colors, sprite(snapshot.kind === 'tank' ? 'tank' : 'mecanum'));
   }
 
   resize();
