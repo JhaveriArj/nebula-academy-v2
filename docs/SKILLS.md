@@ -99,5 +99,13 @@ full workflow. Its two validator scripts read local JSON and make no network cal
   figures are kept to one idea a 10-year-old can operate: big tap targets (44×44 px minimum), no
   hover-only controls, and the robot hardware names fixed in CLAUDE.md.
 - **anatomy, community gallery:** never publish figures; they live in `src/figures/` only.
+- **anatomy, interaction:** its examples steer by hover (`pointermove`). Ours are driven by real
+  buttons under the card (44 px), with keyboard and touch the same as mouse; hover is never the
+  only way in.
+- **anatomy, how it is wired in:** the kit's core (`kit/iso-kit.ts`, MIT, 38 KB of source) is
+  vendored in `src/figures/kit/` minus its standalone-page code, under `@ts-nocheck` because it
+  was written for a looser tsconfig. Its CSS is `src/figures/figures.css` with every colour moved
+  to `--anatomy-*` tokens in theme.css (the space palette) and corner text raised to 14 px. A
+  lesson embeds a figure with a `:::figure <id>` line; `tests/figures.test.ts` checks every id.
 - **ponytail:** "never add a dependency for a few lines" matches CLAUDE.md. Where ponytail says to
   cut, the touch-target, contrast, accessibility and error-translation rules are never cut.

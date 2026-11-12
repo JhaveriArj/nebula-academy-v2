@@ -161,6 +161,39 @@
   --space-route:  #5A54A8;  /* chart routes and ticks: line work, not text */
   --space-wall:   #4C468F;
 
+  /* --- Figures (src/figures/): the anatomy kit's tones, on space. ----------
+     Solids are paper-filled and shaded by facing: shade-0 darkest, top lightest. One part is
+     lit (--star, the one glow on space); hi/mid/lo/faint are the line tones. */
+  --anatomy-page:  var(--space);
+  --anatomy-card:  var(--space);
+  --anatomy-paper: var(--space);
+  --anatomy-text:  var(--space-mute);
+  --anatomy-strong: var(--space-ink);
+  --anatomy-muted: var(--space-mute);
+  --anatomy-face:  color-mix(in srgb, var(--space) 72%, var(--space-raised));
+  --anatomy-top:   color-mix(in srgb, var(--space) 55%, var(--space-raised));
+  --anatomy-shade-0: color-mix(in srgb, var(--space) 78%, #000);
+  --anatomy-shade-1: color-mix(in srgb, var(--space) 90%, #000);
+  --anatomy-shade-2: color-mix(in srgb, var(--space) 88%, var(--space-raised));
+  --anatomy-shade-3: color-mix(in srgb, var(--space) 76%, var(--space-raised));
+  --anatomy-lit-top:   color-mix(in srgb, var(--star) 34%, var(--space));
+  --anatomy-lit-shade: color-mix(in srgb, var(--star) 20%, var(--space));
+  --anatomy-hi:    var(--space-ink);
+  --anatomy-mid:   var(--space-dim);
+  --anatomy-lo:    var(--space-route);
+  --anatomy-faint: var(--space-line);
+  --anatomy-lit:   var(--star);
+  --anatomy-halo:  #000;
+  --anatomy-halo-opacity: 0.85;
+  --anatomy-dot:   var(--space-ink);
+  --anatomy-red:   var(--space-alert);
+  --anatomy-green: var(--space-go);
+  --anatomy-blue:  var(--syn-keyword);
+  --anatomy-weight: 0.6px;
+  --anatomy-ease:  cubic-bezier(0.32, 0.72, 0, 1);
+  --anatomy-mono:  var(--face-code);
+  --anatomy-lift:  var(--shadow);
+
   /* --- Code colors, on space. ------------------------------------------- */
   --syn-keyword:    #C5BAE8;  /* lavender, as on the home page: yellow is kept for Run and the route */
   --syn-string:     #7FE0C4;

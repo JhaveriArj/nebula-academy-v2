@@ -22,6 +22,8 @@ Every move so far has been timed. Timed moves drift: a fresh battery drives furt
 
 An **encoder** counts how far a motor has actually turned, in **tick**s. On this robot one centimetre is about 17.8 ticks, so a metre is about 1780.
 
+:::figure encoder-bench
+
 Four steps:
 
 ```

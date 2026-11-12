@@ -5,6 +5,7 @@
 export function plainWords(markdown: string): string[] {
   const text = markdown
     .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/^:::figure\s+\S+\s*$/gm, ' ') // a figure slot, not words a kid reads
     .replace(/`[^`]*`/g, ' ')
     .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/[*_>#|]/g, ' ')

@@ -4,6 +4,7 @@ import { missingImports } from '../../runtime/java/imports';
 import { translateMissingImport } from '../../runtime/errorTranslator';
 import { frameIndex } from '../frames';
 import { renderMarkdown } from '../markdown';
+import { mountFigures } from '../../figures';
 import { loadLesson, nextLessonId, tierOf } from '../../content/loader';
 import { SECTION_ORDER, type Lesson, type SectionName } from '../../content/types';
 import { createEditor, lockedRegionFrom, type CodeEditor } from '../components/editor';
@@ -612,7 +613,12 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     target.focus({ preventScroll: true });
   }
 
+  // Figures (:::figure in the Markdown) start once a step's prose is on the page and stop when
+  // the kid moves to another step or leaves the lesson.
+  let stopFigures = () => {};
   function renderStep(): void {
+    stopFigures();
+    queueMicrotask(() => { stopFigures = mountFigures(prose); });
     const mode = getMode();
     mount(checkList);
     const reminder = consoleColumn.querySelector('.lesson-reminder');
@@ -740,6 +746,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     renderStep();
   });
   root.addEventListener('nebula:leave', () => {
+    stopFigures();
     stopEverything();
     editor.destroy();
     field.destroy();

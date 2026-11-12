@@ -39,6 +39,15 @@ export function renderMarkdown(markdown: string, options: { headingOffset?: numb
       continue;
     }
 
+    // An interactive figure from src/figures/: an empty slot the lesson page fills.
+    const figure = /^:::figure\s+([a-z0-9-]+)\s*$/.exec(line);
+    if (figure) {
+      flush();
+      fragment.appendChild(el('div', { class: 'figure-slot', 'data-figure': figure[1]! }));
+      i++;
+      continue;
+    }
+
     // Heading.
     const heading = /^(#{1,6})\s+(.*)$/.exec(line);
     if (heading) {
