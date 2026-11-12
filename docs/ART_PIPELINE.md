@@ -75,3 +75,12 @@ fails if one of them is no longer in `theme.css`, so change both together.
 - An SVG fallback beside every render, and alt text in `content/art-alt.json` (also tested).
 - Check it against both page themes. The field is always dark (the space palette), so field
   art is checked on `--space`; anything that sits on the page is checked on `--bg` light and dark.
+## The robot sprite sheet
+
+`robot-mecanum.webp` is not one picture but 32: eight columns by four rows of square cells.
+Column `k` is the robot turned `k x 45` degrees counter-clockwise from facing up. The rows are
+arm down with the claw open, arm down closed, arm raised open, arm raised closed. Each cell is
+1.6 times the robot's 18 inch footprint, with the robot's centre in the middle, so the arm and
+its shadow fit at every heading. `src/ui/components/field.ts` picks the nearest heading, turns
+the last few degrees itself, and picks the row from `armMotor` and `clawServo`. If the sheet is
+missing, it draws the SVG robot and the claw lines instead, as before.

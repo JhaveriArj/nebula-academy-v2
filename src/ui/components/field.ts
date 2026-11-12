@@ -1,5 +1,5 @@
 import { FIELD_CM, ROBOT_CM, TILE_CM, TILES, TILE_RGB, tileColorAt } from '../../sim/field';
-import type { SimSnapshot } from '../../sim/simulation';
+import { ARM_MAX_TICKS, type SimSnapshot } from '../../sim/simulation';
 import { artImage } from '../art';
 
 /* The field view: a top-down canvas of the 12 ft field with the robot on it.
@@ -24,6 +24,9 @@ const SPRITE_FILES = {
 type SpriteName = keyof typeof SPRITE_FILES;
 const repaintOnLoad = new Set<() => void>();
 let sprites: Record<SpriteName, HTMLImageElement> | null = null;
+/** The robot sheet's layout: 8 headings across, 4 poses down, each cell 1.6 footprints wide. */
+const SHEET_COLS = 8;
+const SHEET_CELL = 1.6;
 
 function loadSprites(): Record<SpriteName, HTMLImageElement> {
   if (sprites) return sprites;
@@ -223,6 +226,23 @@ function drawRobot(
 
   ctx.save();
   ctx.translate(px(x), py(y));
+
+  // A Blender render is a sprite sheet (docs/ART_PIPELINE.md): eight headings 45 degrees
+  // apart, lit from one fixed sun, and four arm and claw poses. Draw the nearest heading and
+  // turn the last few degrees here, so the light stays put and the pose reads at a glance.
+  if (ready(sprite) && sprite.dataset.art === 'render') {
+    const step = Math.round(headingDeg / 45);
+    ctx.rotate(-((headingDeg - step * 45) * Math.PI) / 180);
+    const armUp = (snapshot.motors['armMotor']?.ticks ?? 0) > ARM_MAX_TICKS / 2;
+    const clawClosed = (snapshot.servos['clawServo'] ?? 0) > 0.5;
+    const cell = sprite.naturalWidth / SHEET_COLS;
+    const drawn = size * SHEET_CELL;
+    ctx.drawImage(sprite, (((step % SHEET_COLS) + SHEET_COLS) % SHEET_COLS) * cell, ((armUp ? 2 : 0) + (clawClosed ? 1 : 0)) * cell,
+      cell, cell, -drawn / 2, -drawn / 2, drawn, drawn);
+    ctx.restore();
+    return;
+  }
+
   // Field heading is counter-clockwise from +y; canvas rotation is clockwise from +x.
   ctx.rotate(-(headingDeg * Math.PI) / 180);
 

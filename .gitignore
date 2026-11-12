@@ -12,3 +12,4 @@ ftc-stubs/out/
 .claude/worktrees/
 # Raw Blender renders: rebuilt by rendering art/blend/*.blend; public/art holds the exported WebP
 art/renders/*.png
+art/scenes/__pycache__/
