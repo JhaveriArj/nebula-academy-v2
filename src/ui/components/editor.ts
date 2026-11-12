@@ -148,6 +148,33 @@ export interface CodeEditor {
   destroy(): void;
 }
 
+/** The last locked line at the top and the first locked line at the bottom (1-based). */
+export function lockedLinesOf(doc: EditorState['doc'], region: LockedRegion | null | undefined): { from: number; to: number } {
+  if (!region) return { from: 0, to: 0 };
+  return { from: region.prefix, to: doc.lines - region.suffix + 1 };
+}
+
+/** Rejects any change the kid makes that would touch a locked line. Changes made by the code
+    itself (Reset, Undo, the solution) pass `filter: false` and are not the kid's to make. */
+export function lockFilterFor(region: LockedRegion | null | undefined, onLockedEdit?: () => void): Extension {
+  return EditorState.transactionFilter.of((tr: Transaction) => {
+    if (!tr.docChanged || !region) return tr;
+    const { from, to } = lockedLinesOf(tr.startState.doc, region);
+    let blocked = false;
+    tr.changes.iterChangedRanges((fromA, toA) => {
+      const first = tr.startState.doc.lineAt(fromA).number;
+      const last = tr.startState.doc.lineAt(Math.min(toA, tr.startState.doc.length)).number;
+      if (first <= from || last >= to) blocked = true;
+    });
+    if (blocked) onLockedEdit?.();
+    return blocked ? [] : tr;
+  });
+}
+
+/** Replaces the whole text from code, past the lock: the lock guards the kid's edits only. */
+export const replaceAllSpec = (state: EditorState, code: string) =>
+  ({ changes: { from: 0, to: state.doc.length, insert: code }, filter: false });
+
 export function createEditor(options: {
   code: string;
   locked: LockedRegion | null;
@@ -163,26 +190,8 @@ export function createEditor(options: {
   let errorLine: number | null = null;
   let lockedRegion = options.locked;
 
-  const lockedLineNumbers = (doc: EditorState['doc']): { from: number; to: number } => {
-    const lines = doc.lines;
-    if (!lockedRegion) return { from: 0, to: 0 };
-    return { from: lockedRegion.prefix, to: lines - lockedRegion.suffix + 1 };
-  };
-
-  /** Rejects any change that would touch a locked line. */
-  const lockFilter = (): Extension =>
-    EditorState.transactionFilter.of((tr: Transaction) => {
-      if (!tr.docChanged || !lockedRegion) return tr;
-      const { from, to } = lockedLineNumbers(tr.startState.doc);
-      let blocked = false;
-      tr.changes.iterChangedRanges((fromA, toA) => {
-        const first = tr.startState.doc.lineAt(fromA).number;
-        const last = tr.startState.doc.lineAt(Math.min(toA, tr.startState.doc.length)).number;
-        if (first <= from || last >= to) blocked = true;
-      });
-      if (blocked) options.onLockedEdit?.();
-      return blocked ? [] : tr;
-    });
+  const lockedLineNumbers = (doc: EditorState['doc']) => lockedLinesOf(doc, lockedRegion);
+  const lockFilter = (): Extension => lockFilterFor(lockedRegion, options.onLockedEdit);
 
   const lockDecorations = ViewPlugin.fromClass(
     class {
@@ -306,7 +315,7 @@ export function createEditor(options: {
     element,
     getCode: () => view.state.doc.toString(),
     setCode: (code: string) => {
-      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: code } });
+      view.dispatch(replaceAllSpec(view.state, code));
       foldImports();
     },
     setLocked: (locked: LockedRegion | null) => {

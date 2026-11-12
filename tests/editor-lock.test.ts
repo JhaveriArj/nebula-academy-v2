@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { lockedRegionFrom } from '../src/ui/components/editor';
+import { EditorState } from '@codemirror/state';
+import { lockedRegionFrom, lockFilterFor, replaceAllSpec } from '../src/ui/components/editor';
 import { loadAllLessons } from './helpers/content';
 
 /* Explorer mode must lock what the frontmatter says and leave the TODO editable. Getting
@@ -39,5 +40,31 @@ describe('Explorer locked regions', () => {
       const region = lockedRegionFrom(lesson.frontmatter.explorerLockedRanges, lines);
       expect(region.prefix + region.suffix, `${lesson.dir} locks everything`).toBeLessThan(lines);
     }
+  });
+});
+
+/* Reset, Undo and "Put it in the editor" replace the whole text, which always touches the
+   locked first line. They used to be filtered out in Explorer, so the buttons did nothing. */
+describe('replacing the code past an Explorer lock', () => {
+  const start = 'line 1\nline 2\nline 3\nline 4\n';
+  const locked = () => EditorState.create({ doc: start, extensions: lockFilterFor({ prefix: 2, suffix: 0 }) });
+
+  it('lets the code replace everything', () => {
+    const next = locked().update(replaceAllSpec(locked(), 'new 1\nnew 2\n')).state;
+    expect(next.doc.toString()).toBe('new 1\nnew 2\n');
+  });
+
+  it('still stops a kid editing a locked line', () => {
+    let warned = false;
+    const state = EditorState.create({ doc: start, extensions: lockFilterFor({ prefix: 2, suffix: 0 }, () => { warned = true; }) });
+    const next = state.update({ changes: { from: 0, to: 4, insert: 'oops' } }).state;
+    expect(next.doc.toString()).toBe(start);
+    expect(warned).toBe(true);
+  });
+
+  it('still lets a kid edit an open line', () => {
+    const state = locked();
+    const at = state.doc.line(3).from;
+    expect(state.update({ changes: { from: at, insert: 'x' } }).state.doc.line(3).text).toBe('xline 3');
   });
 });
