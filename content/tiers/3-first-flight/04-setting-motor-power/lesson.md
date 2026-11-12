@@ -26,6 +26,8 @@ You met `setPower` in Tier 0. Here it is again on the real robot:
 
 Now watch what one wheel does. On a **mecanum** drivetrain, each wheel pushes the robot in its own direction, and the robot goes wherever the four pushes add up to. One wheel on its own pushes the robot forwards a bit, sideways a bit, and round a bit, all at once.
 
+:::figure mecanum-strafe
+
 That is why the robot slews instead of driving. It is not broken, and your line is not wrong. Three wheels are doing nothing.
 
 Next lesson you give all four a power and find out that is not enough either.
