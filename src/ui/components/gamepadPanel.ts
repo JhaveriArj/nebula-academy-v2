@@ -51,7 +51,6 @@ export function createGamepadPanel(): GamepadPanel {
   const held = new Set<keyof GamepadState>();
   const left: StickState = { x: 0, y: 0 };
   const right: StickState = { x: 0, y: 0 };
-  let realPad: number | null = null;
   let polling = false;
 
   const stick = (state: StickState, label: string, cls: string) => {
@@ -162,18 +161,12 @@ export function createGamepadPanel(): GamepadPanel {
     ),
   );
 
-  addEventListener('gamepadconnected', (event) => {
-    realPad = (event as GamepadEvent).gamepad.index;
-    connected.textContent = 'controller connected';
-  });
-  addEventListener('gamepaddisconnected', () => {
-    realPad = null;
-    connected.textContent = '';
-  });
-
+  // Asked every frame, not told by 'gamepadconnected': the browser fires that once per page,
+  // so a controller woken on another page or in the last lesson would never be heard here.
   const readReal = (target: GamepadState): boolean => {
-    if (realPad === null || typeof navigator.getGamepads !== 'function') return false;
-    const pad = navigator.getGamepads()[realPad];
+    const pad = typeof navigator.getGamepads === 'function' ? [...navigator.getGamepads()].find(Boolean) ?? null : null;
+    const label = pad ? 'controller connected' : '';
+    if (connected.textContent !== label) connected.textContent = label;
     if (!pad) return false;
     const axis = (i: number) => {
       const v = pad.axes[i] ?? 0;
