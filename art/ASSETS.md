@@ -11,6 +11,6 @@ meshes. How to re-render: `docs/ART_PIPELINE.md`.
 | `logo.png` | The mascot as supplied by the team | — | The team's own |
 | `mascot-*.webp`, `mascot-*.png` | Resized from `art-source/mascot-4x.png`, which is `logo.png` upscaled with Real-ESRGAN (`realesrgan-x4plus-anime`, BSD-3-Clause), run locally | — | The team's own |
 | `icons/*` | Drawn for this project from the mascot | — | Same as the repo |
-| `robot-mecanum.webp`, `robot-mecanum@2x.webp` | `art/scenes/robot.py`, saved as `art/blend/robot-mecanum.blend` | Blender 5.2, Cycles, primitives | Same as the repo |
+| `robot-mecanum`, `robot-tank` `.webp`, `@2x.webp` | `art/scenes/robot.py`, saved as `art/blend/robot-mecanum.blend` and `robot-tank.blend` | Blender 5.2, Cycles, primitives | Same as the repo |
 | `badge-t0` … `badge-t5` `.webp`, `@2x.webp` | `art/scenes/badges.py`, saved as `art/blend/badges.blend` | Blender 5.2, Cycles, primitives | Same as the repo |
 | `field-tile`, `element-cube`, `element-ball` `.webp`, `@2x.webp` | `art/scenes/field.py`, saved as `art/blend/field.blend` | Blender 5.2, Cycles, primitives and procedural noise | Same as the repo |

@@ -41,7 +41,7 @@ You need Blender (5.2 or newer) and, for the export step, `cwebp` (on a Mac:
 3. Wait. The robot takes about a minute. When it is done, the raw picture is in `art/renders/`
    and the scene is saved to `art/blend/`.
 4. In a terminal in the project folder, run
-   `node scripts/export-art.mjs robot-mecanum` (the picture's name, no extension).
+   `node scripts/export-art.mjs robot-mecanum robot-tank` (the pictures' names, no extension).
    It writes both `.webp` files into `public/art/` and prints their sizes. It lowers the
    quality step by step until each file is under 150 KB.
 5. Run `npm run check`, then look at the page in the browser, in light and dark mode.
@@ -75,15 +75,24 @@ fails if one of them is no longer in `theme.css`, so change both together.
 - An SVG fallback beside every render, and alt text in `content/art-alt.json` (also tested).
 - Check it against both page themes. The field is always dark (the space palette), so field
   art is checked on `--space`; anything that sits on the page is checked on `--bg` light and dark.
-## The robot sprite sheet
+## The robot sprite sheets
 
-`robot-mecanum.webp` is not one picture but 32: eight columns by four rows of square cells.
+`robot-mecanum.webp` and `robot-tank.webp` (both made by `art/scenes/robot.py`) are not one
+picture each but 32: eight columns by four rows of square cells.
 Column `k` is the robot turned `k x 45` degrees counter-clockwise from facing up. The rows are
 arm down with the claw open, arm down closed, arm raised open, arm raised closed. Each cell is
 1.6 times the robot's 18 inch footprint, with the robot's centre in the middle, so the arm and
 its shadow fit at every heading. `src/ui/components/field.ts` picks the nearest heading, turns
 the last few degrees itself, and picks the row from `armMotor` and `clawServo`. If the sheet is
-missing, it draws the SVG robot and the claw lines instead, as before.
+missing, it draws the SVG robot and the claw lines instead, as before. A render of any robot
+must use this layout, because the field view reads every robot render as a sheet.
+
+## The home page hero
+
+The hero has no rendered picture, on purpose. It is the product working: a live copy of the
+lesson screen whose robot drives the square, beside the mascot. A still render would replace
+the one thing that proves the product, so the hero gets the new art through its field instead
+(the tank robot, the tiles), and the mascot stays the supplied artwork.
 
 ## The field
 

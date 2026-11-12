@@ -1,4 +1,6 @@
-"""The mecanum robot, top down, as a sprite sheet: public/art/robot-mecanum(@2x).webp.
+"""The two robots, top down, as sprite sheets: public/art/robot-mecanum and robot-tank
+(.webp, @2x.webp). The mecanum robot drives Tiers 3 to 5, the tank robot Tiers 0 to 2 and the
+home page demo; they share the chassis, arm, claw and sensors and differ in the drive.
 
 Sheet: 8 columns x 4 rows of square cells.
   Column k: heading k * 45 degrees, counter-clockwise from forward (= image up), like the sim.
@@ -108,9 +110,25 @@ def wheel(coll, m, name, x, y, hand):
     return root
 
 
-def build_robot(scene, parent_coll, arm_up, claw_closed):
+def tank_wheel(coll, m, name, x, y):
+    """A plain traction wheel: a tyre with ribs straight across it, so from above it reads
+    as "rolls forwards only", where the mecanum rollers read as diagonal."""
+    r, width = 0.05, 0.032
+    root = bpy.data.objects.new(name, None)
+    coll.objects.link(root)
+    root.location = (x, y, r)
+    cyl(coll, f"{name}_tyre", r, width, (0, 0, 0), (0, math.pi / 2, 0), m["roller"], verts=48, bev=0.006, parent=root)
+    cyl(coll, f"{name}_hub", 0.022, width + 0.006, (0, 0, 0), (0, math.pi / 2, 0), m["hub"], parent=root)
+    for i in range(16):
+        t = 2 * math.pi * i / 16
+        rib = box(coll, f"{name}_rib", (width * 0.9, 0.008, 0.004), (0, r * math.cos(t), r * math.sin(t)), m["hub"], bev=0, parent=root)
+        rib.rotation_euler = (t - math.pi / 2, 0, 0)
+    return root
+
+
+def build_robot(scene, parent_coll, arm_up, claw_closed, kind="mecanum"):
     m = mats()
-    coll = C.collection(scene, f"robot_arm{'Up' if arm_up else 'Down'}_claw{'Closed' if claw_closed else 'Open'}", parent_coll)
+    coll = C.collection(scene, f"{kind}_arm{'Up' if arm_up else 'Down'}_claw{'Closed' if claw_closed else 'Open'}", parent_coll)
     half = FOOT / 2
 
     # Chassis: two side rails, a deck plate, a rear battery and the Control Hub (with the imu).
@@ -125,11 +143,16 @@ def build_robot(scene, parent_coll, arm_up, claw_closed):
 
     # Drive: a motor behind each wheel, named as the code names it.
     wx, wy = half - 0.026, half - 0.085
-    for name, x, y, hand in (("frontLeft", -wx, wy, 1), ("frontRight", wx, wy, -1),
-                             ("backLeft", -wx, -wy, -1), ("backRight", wx, -wy, 1)):
-        wheel(coll, m, f"{name}_wheel", x, y, hand)
-        side = -1 if x < 0 else 1
-        cyl(coll, name, 0.018, 0.075, (side * 0.105, y, 0.048), (0, math.pi / 2, 0), m["motor"])
+    if kind == "tank":
+        for name, x in (("leftDrive", -wx), ("rightDrive", wx)):
+            tank_wheel(coll, m, f"{name}_wheel", x, 0)
+            cyl(coll, name, 0.018, 0.075, ((-1 if x < 0 else 1) * 0.105, 0, 0.05), (0, math.pi / 2, 0), m["motor"])
+    else:
+        for name, x, y, hand in (("frontLeft", -wx, wy, 1), ("frontRight", wx, wy, -1),
+                                 ("backLeft", -wx, -wy, -1), ("backRight", wx, -wy, 1)):
+            wheel(coll, m, f"{name}_wheel", x, y, hand)
+            side = -1 if x < 0 else 1
+            cyl(coll, name, 0.018, 0.075, (side * 0.105, y, 0.048), (0, math.pi / 2, 0), m["motor"])
 
     # Sensors: distanceSensor on the front bumper, colorSensor under the front right corner.
     box(coll, "distanceSensor", (0.04, 0.014, 0.02), (-0.07, half - 0.015, 0.075), m["dark"], bev=0.002)
@@ -172,28 +195,29 @@ def build_robot(scene, parent_coll, arm_up, claw_closed):
     return coll
 
 
-def main(render=True):
-    scene = C.fresh_scene("nebula_robot")
-    C.setup_render(scene, CELL_PX * 8, CELL_PX * 4, samples=64)
-    C.soft_light(scene)
-    C.top_camera(scene, CELL * 8)
-    C.shadow_catcher(scene, size=30)
+def main(render=True, kinds=("mecanum", "tank")):
+    for kind in kinds:
+        scene = C.fresh_scene(f"nebula_robot_{kind}")
+        C.setup_render(scene, CELL_PX * 8, CELL_PX * 4, samples=64)
+        C.soft_light(scene)
+        C.top_camera(scene, CELL * 8)
+        C.shadow_catcher(scene, size=30)
 
-    parts = C.collection(scene, "robot_parts")
-    for row, (arm_up, claw_closed) in enumerate(STATES):
-        src = build_robot(scene, parts, arm_up, claw_closed)
-        for k in range(8):
-            inst = bpy.data.objects.new(f"cell_r{row}_h{k * 45}", None)
-            inst.instance_type = "COLLECTION"
-            inst.instance_collection = src
-            inst.location = ((k - 3.5) * CELL, (1.5 - row) * CELL, 0)
-            inst.rotation_euler = (0, 0, math.radians(k * 45))
-            scene.collection.objects.link(inst)
-    scene.view_layers[0].layer_collection.children["robot_parts"].exclude = True
+        parts = C.collection(scene, f"{kind}_parts")
+        for row, (arm_up, claw_closed) in enumerate(STATES):
+            src = build_robot(scene, parts, arm_up, claw_closed, kind)
+            for k in range(8):
+                inst = bpy.data.objects.new(f"{kind}_r{row}_h{k * 45}", None)
+                inst.instance_type = "COLLECTION"
+                inst.instance_collection = src
+                inst.location = ((k - 3.5) * CELL, (1.5 - row) * CELL, 0)
+                inst.rotation_euler = (0, 0, math.radians(k * 45))
+                scene.collection.objects.link(inst)
+        scene.view_layers[0].layer_collection.children[f"{kind}_parts"].exclude = True
 
-    if render:
-        C.render(scene, "robot-mecanum")
-        C.save_blend(scene, "robot-mecanum")
+        if render:
+            C.render(scene, f"robot-{kind}")
+            C.save_blend(scene, f"robot-{kind}")
 
 
 if __name__ == "__main__":
