@@ -24,6 +24,8 @@ When the code is wrong, the robot does not run. Instead you get an **error messa
 
 The line number is the useful part. Go to that line and look at it. Quite often the real problem is on the line right above it.
 
+:::figure program-reader
+
 Reading errors is the one skill that smooths out every other lesson. So in this lesson you are going to break the code on purpose, three times, and read what comes back each time. Nothing you break can hurt anything. Put it back and press Run again.
 
 :::why

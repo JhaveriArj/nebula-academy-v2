@@ -105,3 +105,11 @@
 @container (max-width:560px){.iso-plate{padding-bottom:70px}
 .iso-plate-corner[data-corner="hint"]{bottom:22px}
 }
+/* A figure that shows a program lists it under the card, the running line marked (aria-current)
+   with the lit accent, so each line of code can be matched to its part of the drawing. */
+.figure-code{list-style:none;overflow-x:auto;margin:var(--s3) 0 0;padding:var(--s2) 0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-faint);font-family:var(--face-code);font-size:var(--size-code);line-height:1.5}
+.figure-code li{display:flex;gap:var(--s3);padding:1px var(--s3);border-left:3px solid transparent;color:var(--anatomy-muted)}
+.figure-code li[aria-current]{border-left-color:var(--anatomy-lit);background:color-mix(in srgb,var(--anatomy-lit) 14%,transparent);color:var(--anatomy-strong)}
+.figure-code-n{flex:none;min-width:2ch;text-align:right;color:var(--anatomy-mid)}
+.figure-code li[aria-current] .figure-code-n{color:var(--anatomy-lit)}
+.figure-slot .figure-code code{padding:0;background:none;border:0;font-size:inherit;color:inherit;white-space:pre}
