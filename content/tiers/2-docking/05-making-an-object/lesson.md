@@ -43,6 +43,8 @@ MissionPlan triangle = new MissionPlan("Triangle", 3, 1.4);
 
 Two **object**s from one class. `square.sides` is 4 and `triangle.sides` is 3, and neither knows about the other.
 
+:::figure object-press
+
 :::why
 `this` looks like clutter and is doing something precise. Inside a constructor there are two things called `name`: the field and the parameter. Java picks the nearest, which is the parameter, so writing `name = name;` copies the parameter onto itself and leaves the field empty. The compiler does not stop you. The field quietly stays `null`, and your robot has a plan with no name.
 
