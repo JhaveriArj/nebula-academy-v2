@@ -13,6 +13,9 @@ import {
    That is what lets tests use a 2 cm tolerance instead of a 20 cm one. */
 
 export const TICK_MS = 20;
+/** System.out limits: lessons check a few lines; a runaway loop must not freeze the tab. */
+export const MAX_LINES = 2_000;
+export const MAX_LINE = 1_000;
 export const TICKS_PER_REV = 537.7; // goBILDA 5203 312 rpm, the common FTC choice
 export const WHEEL_CIRC_CM = 30.16; // 96 mm wheel
 export const TICKS_PER_CM = TICKS_PER_REV / WHEEL_CIRC_CM;
@@ -144,6 +147,7 @@ export class Simulation {
 
   /** System.out lines. */
   output: string[] = [];
+  private droppedLines = 0;
   /** Current Driver Station panel contents, replaced on each update(). */
   telemetry: TelemetryLine[] = [];
   /** Every key ever shown, for telemetryHasKey. */
@@ -289,9 +293,16 @@ export class Simulation {
   print(text: string): void {
     const last = this.output.length - 1;
     if (last >= 0 && !this.output[last]!.endsWith('\n')) {
-      this.output[last] += text;
+      // A print() in a loop grows one line forever; past MAX_LINE it keeps only its ending.
+      const line = this.output[last]! + text;
+      this.output[last] = line.length > MAX_LINE ? line.slice(0, MAX_LINE) + (line.endsWith('\n') ? '\n' : '') : line;
     } else {
-      this.output.push(text);
+      this.output.push(text.length > MAX_LINE ? text.slice(0, MAX_LINE) + (text.endsWith('\n') ? '\n' : '') : text);
+    }
+    // A println() in a runaway loop made 570,000 lines (19 MB) for the console; keep the newest.
+    if (this.output.length > MAX_LINES) {
+      this.droppedLines += this.output.length - MAX_LINES;
+      this.output.splice(0, this.output.length - MAX_LINES);
     }
   }
 
@@ -301,6 +312,7 @@ export class Simulation {
 
   /** The text of everything System.out has produced. */
   outputText(): string {
+    if (this.droppedLines) return `(${this.droppedLines} older lines were dropped to keep the console small)\n` + this.output.join('');
     return this.output.join('');
   }
 

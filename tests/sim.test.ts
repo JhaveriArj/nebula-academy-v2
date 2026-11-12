@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Simulation, TICKS_PER_CM, normalizeDeg } from '../src/sim/simulation';
+import { Simulation, TICKS_PER_CM, normalizeDeg, MAX_LINES, MAX_LINE } from '../src/sim/simulation';
 import { FIELD_CM, ROBOT_HALF, TILE_CM } from '../src/sim/field';
 
 const tank = () => new Simulation({ robot: 'tank', start: { x: 182.88, y: 30.48, headingDeg: 0 } });
@@ -228,5 +228,30 @@ describe('angle helpers', () => {
     expect(normalizeDeg(-190)).toBeCloseTo(170, 6);
     expect(normalizeDeg(180)).toBeCloseTo(180, 6);
     expect(normalizeDeg(360)).toBeCloseTo(0, 6);
+  });
+});
+
+describe('System.out in a runaway loop', () => {
+  it('keeps the newest 2,000 lines and says older ones were dropped', () => {
+    const sim = new Simulation();
+    for (let i = 0; i < 10_000; i++) sim.println(`line ${i}`);
+    expect(sim.output.length).toBe(MAX_LINES);
+    const text = sim.outputText();
+    expect(text.startsWith('(8000 older lines were dropped')).toBe(true);
+    expect(text).toContain('line 9999\n');
+    expect(text).not.toContain('line 7999\n');
+  });
+
+  it('cuts one line that print() grows forever', () => {
+    const sim = new Simulation();
+    for (let i = 0; i < 50_000; i++) sim.print('x');
+    expect(sim.outputText().length).toBe(MAX_LINE);
+  });
+
+  it('leaves short output exactly as printed', () => {
+    const sim = new Simulation();
+    sim.print('Hello, ');
+    sim.println('robot');
+    expect(sim.outputText()).toBe('Hello, robot\n');
   });
 });
