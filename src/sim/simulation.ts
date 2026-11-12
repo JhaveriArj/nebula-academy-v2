@@ -43,7 +43,7 @@ export const MECANUM_MOTORS = ['frontLeft', 'frontRight', 'backLeft', 'backRight
 
 export const ARM_MIN_TICKS = 0;
 export const ARM_MAX_TICKS = 1200;
-const ARM_TICKS_PER_S = 900;
+export const ARM_TICKS_PER_S = 900;
 
 export type RunMode =
   | 'RUN_WITHOUT_ENCODER'

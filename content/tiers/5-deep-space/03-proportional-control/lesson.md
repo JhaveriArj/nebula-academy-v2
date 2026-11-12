@@ -29,6 +29,8 @@ double power = error * kP;
 
 `error` is the distance to the target. `kP` is a number you tune: large enough to move, small enough not to overshoot. Far away, the error is big and so is the power. Close in, the error is small and the robot creeps the last degree.
 
+:::figure proportional-arm
+
 Two guards. Hold the power inside `-0.4` and `0.4`, because an error of 90 times `0.012` asks for more than full power. And do not let it fall below about `0.08`, because below that the motors cannot overcome friction and the robot stops short, humming.
 
 Stop when the error is small enough rather than exactly zero. `Math.abs(error) < 1.0` is close enough and will actually happen.
