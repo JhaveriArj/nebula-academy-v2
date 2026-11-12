@@ -24,6 +24,8 @@ Two methods, two different jobs, and putting something in the wrong one is the m
 
 **loop** happens over and over, about fifty times a second. It is where watching goes: reading the sticks, reading a sensor, deciding, and telling motors what to do.
 
+:::figure opmode-lifecycle
+
 The test is to ask how often a thing should happen. Fetching a motor once is setting up. Reading a stick is watching.
 
 Put setting up in `loop` and it happens fifty times a second, which at best wastes time and at worst undoes itself constantly.

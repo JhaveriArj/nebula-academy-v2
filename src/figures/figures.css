@@ -99,3 +99,9 @@
 .figure-slot .iso-figure{margin:0}
 .figure-controls{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
 .figure-button{min-height:var(--tap);min-width:var(--tap);font-family:var(--face-code)}
+/* A figure in a narrow lesson column (the 1024 px layout) has no room for the hint and a long
+   readout side by side, so the hint moves up a row, as it does on a phone. */
+.figure-slot{container-type:inline-size}
+@container (max-width:560px){.iso-plate{padding-bottom:70px}
+.iso-plate-corner[data-corner="hint"]{bottom:22px}
+}

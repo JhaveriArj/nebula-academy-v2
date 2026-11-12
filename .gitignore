@@ -9,3 +9,4 @@ ftc-stubs/out/
 .claude/skills/
 # Hallmark audit output (screenshots and records)
 .hallmark/
+.claude/worktrees/
