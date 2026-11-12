@@ -62,10 +62,6 @@ export function findNativeClass(name: string): NativeClass | undefined {
   return undefined;
 }
 
-export function isNativeClassName(name: string): boolean {
-  return findNativeClass(name) !== undefined;
-}
-
 /** Methods including everything inherited, nearest declaration winning. */
 export function nativeMethods(cls: NativeClass): NativeMethod[] {
   const chain: NativeClass[] = [];

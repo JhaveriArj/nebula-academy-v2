@@ -29,36 +29,13 @@ export function parseHash(hash: string): Route {
   }
 }
 
-export const hrefFor = (route: Route): string => {
-  switch (route.name) {
-    case 'home': return '#/';
-    case 'chart': return '#/chart';
-    case 'lesson': return `#/lesson/${route.param ?? ''}`;
-    case 'mentor': return route.param ? `#/mentor/${route.param}` : '#/mentor';
-    case 'about': return '#/about';
-    case 'progress': return '#/progress';
-    case 'class': return `#/class/${route.param ?? ''}`;
-  }
-};
-
 export const lessonHref = (lessonId: string) => `#/lesson/${lessonId}`;
 
 type Handler = (route: Route) => void;
 
-let current: Route = { name: 'home', param: null };
-
 export function startRouter(handler: Handler): void {
-  const go = () => {
-    current = parseHash(location.hash);
-    handler(current);
-  };
+  const go = () => handler(parseHash(location.hash));
   addEventListener('hashchange', go);
   go();
 }
 
-export const currentRoute = (): Route => current;
-
-export function navigate(href: string): void {
-  if (location.hash === href) return;
-  location.hash = href;
-}

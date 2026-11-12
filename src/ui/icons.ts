@@ -49,4 +49,3 @@ export function icon(name: IconName, size = 24): SVGElement {
   );
 }
 
-export const ICON_NAMES = Object.keys(PATHS);

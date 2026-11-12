@@ -209,4 +209,3 @@ export type Expr =
   | InstanceOfExpr
   | ClassLitExpr;
 
-export const spanOf = (n: Span): Span => ({ line: n.line, column: n.column, length: n.length });

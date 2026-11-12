@@ -21,13 +21,6 @@ export interface FriendlyError {
   raw: string;
 }
 
-const BANNED = /\b(simply|just|easy|easily|obviously|of course)\b/i;
-
-/** Guards the voice rules in CLAUDE.md at test time rather than at review time. */
-export function violatesVoice(text: string): boolean {
-  return BANNED.test(text);
-}
-
 export function translateDiagnostic(d: Diagnostic, source: string): FriendlyError {
   const raw = formatDiagnostic(d, 'Main.java', source);
   const at = d.line;

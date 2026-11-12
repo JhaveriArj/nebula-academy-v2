@@ -1,5 +1,5 @@
 import { lex, type Token } from './lexer';
-import { diag, CompileFailure, type Diagnostic, type DiagnosticCode } from './diagnostics';
+import { diag, type Diagnostic, type DiagnosticCode } from './diagnostics';
 import type * as A from './ast';
 
 const MODIFIERS = new Set([
@@ -31,12 +31,6 @@ export function parse(source: string): ParseResult {
   const p = new Parser(lexed.tokens, lexed.diagnostics);
   const unit = p.parseCompilationUnit();
   return { unit, diagnostics: p.diagnostics };
-}
-
-export function parseOrThrow(source: string): A.CompilationUnit {
-  const { unit, diagnostics } = parse(source);
-  if (diagnostics.some((d) => d.severity === 'error')) throw new CompileFailure(diagnostics);
-  return unit;
 }
 
 /** Flattens a name/field-access chain back into a dotted type name, for `Foo.Bar.class`. */

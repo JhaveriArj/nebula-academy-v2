@@ -1,6 +1,6 @@
 import { parse } from './java/parser';
 import { runJava, type RunResult } from './java/interpreter';
-import { Simulation, type GamepadState, type RobotPose, type RobotKind } from '../sim/simulation';
+import { Simulation, normalizeDeg, type GamepadState, type RobotPose, type RobotKind } from '../sim/simulation';
 import { translateDiagnostic, translateLimit, translateThrow, type FriendlyError } from './errorTranslator';
 import type * as A from './java/ast';
 
@@ -189,7 +189,7 @@ function evaluate(
 
     case 'robotHeadingWithin': {
       const actual = check.relative ? sim.headingChangeDeg : sim.pose.headingDeg;
-      const off = Math.abs(shortestAngle(actual - check.degrees));
+      const off = Math.abs(normalizeDeg(actual - check.degrees));
       return ok(
         check.relative
           ? `The robot turns ${check.degrees} degrees`
@@ -306,13 +306,6 @@ function countOccurrences(haystack: string, needle: string): number {
     i = haystack.indexOf(needle, i + needle.length);
   }
   return count;
-}
-
-function shortestAngle(deg: number): number {
-  let d = deg % 360;
-  if (d > 180) d -= 360;
-  if (d <= -180) d += 360;
-  return d;
 }
 
 const firstLines = (s: string, n = 3) =>

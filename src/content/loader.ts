@@ -44,12 +44,6 @@ export function nextLessonId(lessonId: string): string | null {
   return i >= 0 && i + 1 < ids.length ? ids[i + 1]! : null;
 }
 
-export function previousLessonId(lessonId: string): string | null {
-  const ids = allLessonIds();
-  const i = ids.indexOf(lessonId);
-  return i > 0 ? ids[i - 1]! : null;
-}
-
 const cache = new Map<string, Promise<Lesson>>();
 
 export function loadLesson(lessonId: string): Promise<Lesson> {

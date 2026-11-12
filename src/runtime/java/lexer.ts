@@ -1,4 +1,4 @@
-import { diag, CompileFailure, type Diagnostic } from './diagnostics';
+import { diag, type Diagnostic } from './diagnostics';
 
 export type TokenKind =
   | 'ident'
@@ -293,9 +293,3 @@ function unescape(c: string): string {
   }
 }
 
-/** Convenience for callers that want lexing to be fatal. */
-export function lexOrThrow(source: string): Token[] {
-  const { tokens, diagnostics } = lex(source);
-  if (diagnostics.length) throw new CompileFailure(diagnostics);
-  return tokens;
-}

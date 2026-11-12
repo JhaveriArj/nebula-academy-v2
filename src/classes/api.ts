@@ -72,6 +72,3 @@ export const api = {
   memberStatus: (member: string, token: string) => rpc<MemberStatus | null>('nebula_member_status', { p_member: member, p_token: token }),
   leaveClass: (member: string, token: string) => rpc<null>('nebula_leave_class', { p_member: member, p_token: token }),
 };
-
-/** For tests: the same call with a stand-in fetch. */
-export const rpcForTest = rpc;

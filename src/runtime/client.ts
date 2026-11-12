@@ -12,15 +12,8 @@ import type { SimSnapshot } from '../sim/simulation';
 export interface RunHandle<T> {
   /** Resolves when the program finishes, is stopped, or hits a guard rail. */
   done: Promise<T>;
-  /** Terminates the worker. The promise rejects with StoppedByUser. */
+  /** Terminates the worker. `done` is left unsettled; the caller resets its own UI. */
   stop(): void;
-}
-
-export class StoppedByUser extends Error {
-  constructor() {
-    super('stopped');
-    this.name = 'StoppedByUser';
-  }
 }
 
 let workersAvailable = typeof Worker !== 'undefined';

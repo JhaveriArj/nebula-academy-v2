@@ -155,21 +155,11 @@ export function setDraft(lessonId: string, code: string): void {
   save();
 }
 
-export function clearDraft(lessonId: string): void {
-  delete load().drafts[lessonId];
-  save();
-}
-
 /** A tier opens when the previous tier's checkpoint passes. Tier 0 is never locked. */
 export function isTierUnlocked(tier: number): boolean {
   if (tier <= 0) return true;
   const previous = pathway.tiers.find((t) => t.tier === tier - 1);
   return previous ? isPassed(previous.checkpoint) : true;
-}
-
-export function isLessonUnlocked(lessonId: string): boolean {
-  const tier = pathway.tiers.find((t) => t.lessons.some((l) => l.id === lessonId));
-  return tier ? isTierUnlocked(tier.tier) : true;
 }
 
 export function counts(): { passed: number; total: number } {
@@ -212,9 +202,4 @@ export function importJson(text: string): { ok: true } | { ok: false; reason: st
 export function reset(): void {
   cache = empty();
   save();
-}
-
-/** Only for tests. */
-export function _resetCache(): void {
-  cache = null;
 }

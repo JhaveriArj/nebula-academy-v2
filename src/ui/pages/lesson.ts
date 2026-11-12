@@ -417,7 +417,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       field.draw(outcome.snapshot);
       telemetry.update(outcome.snapshot);
       console_.setOutput(outcome.snapshot.output);
-      showCheckOutcome(outcome, code);
+      showCheckOutcome(outcome);
     } catch (error) {
       workerHandle = null;
       mount(checkList, el('p', { class: 'fail', text: error instanceof Error ? error.message : 'The checks stopped.' }));
@@ -426,7 +426,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     }
   }
 
-  function showCheckOutcome(outcome: CheckOutcome, code: string): void {
+  function showCheckOutcome(outcome: CheckOutcome): void {
     if (outcome.error) {
       console_.showError(outcome.error);
       if (outcome.error.line) editor.markError(outcome.error.line);
@@ -468,7 +468,6 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
         head.classList.add('is-blinking');
       }
     }
-    void code;
     celebrate();
   }
 
