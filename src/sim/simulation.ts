@@ -13,6 +13,15 @@ import {
    That is what lets tests use a 2 cm tolerance instead of a 20 cm one. */
 
 export const TICK_MS = 20;
+
+/** How many TICK_MS steps a live TeleOp owes after elapsedMs of real time, plus the leftover
+    to carry into the next frame, so the robot runs at 50 Hz whatever the screen's refresh
+    rate. At most `max` a frame, so a stalled tab does not try to catch up all at once. */
+export function ticksDue(carryMs: number, elapsedMs: number, max = 5): { ticks: number; carryMs: number } {
+  const total = carryMs + Math.max(0, elapsedMs);
+  const ticks = Math.min(max, Math.floor(total / TICK_MS));
+  return { ticks, carryMs: ticks === max ? 0 : total - ticks * TICK_MS };
+}
 /** System.out limits: lessons check a few lines; a runaway loop must not freeze the tab. */
 export const MAX_LINES = 2_000;
 export const MAX_LINE = 1_000;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Simulation, TICKS_PER_CM, normalizeDeg, MAX_LINES, MAX_LINE } from '../src/sim/simulation';
+import { Simulation, TICKS_PER_CM, normalizeDeg, MAX_LINES, MAX_LINE, ticksDue } from '../src/sim/simulation';
 import { FIELD_CM, ROBOT_HALF, TILE_CM } from '../src/sim/field';
 
 const tank = () => new Simulation({ robot: 'tank', start: { x: 182.88, y: 30.48, headingDeg: 0 } });
@@ -253,5 +253,23 @@ describe('System.out in a runaway loop', () => {
     sim.print('Hello, ');
     sim.println('robot');
     expect(sim.outputText()).toBe('Hello, robot\n');
+  });
+});
+
+describe('live TeleOp pacing', () => {
+  const run = (frameMs: number, seconds: number) => {
+    let carry = 0, ticks = 0;
+    for (let t = 0; t < seconds * 1000; t += frameMs) { const d = ticksDue(carry, frameMs); carry = d.carryMs; ticks += d.ticks; }
+    return ticks;
+  };
+  it('runs 50 loops a second on a 60 Hz screen and on a 120 Hz screen', () => {
+    expect(run(1000 / 60, 10)).toBeGreaterThanOrEqual(499);
+    expect(run(1000 / 60, 10)).toBeLessThanOrEqual(501);
+    expect(run(1000 / 120, 10)).toBeGreaterThanOrEqual(499);
+    expect(run(1000 / 120, 10)).toBeLessThanOrEqual(501);
+  });
+  it('does not try to catch up after the tab was hidden', () => {
+    expect(ticksDue(0, 5_000).ticks).toBe(5);
+    expect(ticksDue(0, 5_000).carryMs).toBe(0);
   });
 });

@@ -21,7 +21,7 @@ import { getDraft, getMode, isPassed, markPassed, setDraft } from '../../progres
 import { lessonHref } from '../router';
 import { fieldThumb, inkCheck, mascot, paper, routeOf, stepIcon } from '../kit';
 import { mascotHead } from '../mascot';
-import type { SimSnapshot } from '../../sim/simulation';
+import { ticksDue, type SimSnapshot } from '../../sim/simulation';
 import type { CheckOutcome } from '../../runtime/messages';
 
 /* The lesson page. Two layouts from docs/DESIGN.md behind one shell: a reading state
@@ -350,14 +350,17 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     gamepad.start();
     console_.setStatus('Driving. Use the controller below, or a real one.');
 
-    /* About three steps a frame gets close to the 50 Hz a real robot runs at, while
-       leaving the page responsive between frames. */
-    const STEPS_PER_FRAME = 3;
-    const tick = () => {
+    /* One loop() per 20 ms of real time, the 50 Hz a real robot runs at, on a 60 Hz or a
+       120 Hz screen alike; the first frame runs one loop. */
+    let lastFrame = 0, carryMs = 0;
+    const tick = (now: number) => {
       if (!liveSession) return;
       gamepad.apply(sim.gamepad1);
+      const due = lastFrame ? ticksDue(carryMs, now - lastFrame) : { ticks: 1, carryMs: 0 };
+      lastFrame = now;
+      carryMs = due.carryMs;
       let alive = true;
-      for (let i = 0; i < STEPS_PER_FRAME && alive; i++) alive = liveSession.step();
+      for (let i = 0; i < due.ticks && alive; i++) alive = liveSession.step();
       const snapshot = sim.snapshot();
       field.draw(snapshot);
       telemetry.update(snapshot);
