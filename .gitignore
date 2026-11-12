@@ -4,3 +4,6 @@ dist/
 *.local
 ftc-stubs/out/
 .vite/
+
+# Agent skills (docs/SKILLS.md): installed copies are large; skills-lock.json pins them
+.claude/skills/

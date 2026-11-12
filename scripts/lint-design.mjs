@@ -9,7 +9,7 @@ const problems = [];
 
 const walk = (dir, out = []) => {
   for (const name of readdirSync(dir)) {
-    if (name === 'node_modules' || name === '.git' || name === 'dist') continue;
+    if (name === 'node_modules' || name === '.git' || name === 'dist' || name === '.claude') continue;
     const p = join(dir, name);
     if (statSync(p).isDirectory()) walk(p, out);
     else out.push(p);
