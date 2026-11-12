@@ -68,56 +68,45 @@ export function buildSim(spec: TestSpec): Simulation {
   });
 }
 
+/** Applies a lesson's scripted controller input as the sim reaches each time. */
+export function scriptedInput(spec: TestSpec): (s: Simulation) => void {
+  const input = [...(spec.input ?? [])].sort((a, b) => a.atMs - b.atMs);
+  let next = 0;
+  return (s) => {
+    while (next < input.length && input[next]!.atMs <= s.timeMs) {
+      Object.assign(s.gamepad1, input[next]!.set);
+      next++;
+    }
+  };
+}
+
+/** What went wrong with a Run or a Check, in the order a kid should hear it: a compile error,
+    then a crash, then a loop that never ended. Null when the program ran to its end. (A live
+    TeleOp ending on sim time is a normal end, so lesson.ts keeps its own short version.) */
+export function firstProblem(run: RunResult, sim: Simulation, source: string): FriendlyError | null {
+  const firstError = run.diagnostics.find((d) => d.severity === 'error');
+  if (firstError) return translateDiagnostic(firstError, source);
+  if (run.thrown) return translateThrow(run.thrown, source);
+  if (run.stopReason === 'steps' || run.stopReason === 'time' || run.stopReason === 'simTime') {
+    return translateLimit(run.stopReason, sim.timeMs, run.stopLine);
+  }
+  return null;
+}
+
 export function runLessonTests(source: string, spec: TestSpec): TestRunResult {
   const sim = buildSim(spec);
-  const input = [...(spec.input ?? [])].sort((a, b) => a.atMs - b.atMs);
-  let nextInput = 0;
-
   const run = runJava(source, {
     sim,
     ...(spec.teleOpForMs !== undefined ? { teleOpForMs: spec.teleOpForMs } : {}),
     ...(spec.maxSimMs !== undefined ? { maxSimMs: spec.maxSimMs } : {}),
-    onTick: (s) => {
-      // Apply every scripted controller change that is due.
-      while (nextInput < input.length && input[nextInput]!.atMs <= s.timeMs) {
-        Object.assign(s.gamepad1, input[nextInput]!.set);
-        nextInput++;
-      }
-    },
+    onTick: scriptedInput(spec),
   });
 
-  // A compile error or a crash means the checks cannot say anything useful.
-  const firstError = run.diagnostics.find((d) => d.severity === 'error');
-  if (firstError) {
-    return {
-      compiled: false,
-      error: translateDiagnostic(firstError, source),
-      results: [],
-      passed: false,
-      sim,
-      run,
-    };
-  }
-  if (run.thrown) {
-    return {
-      compiled: true,
-      error: translateThrow(run.thrown, source),
-      results: [],
-      passed: false,
-      sim,
-      run,
-    };
-  }
-  // A loop that never ends means the checks cannot say anything about the robot.
-  if (run.stopReason === 'steps' || run.stopReason === 'time' || run.stopReason === 'simTime') {
-    return {
-      compiled: true,
-      error: translateLimit(run.stopReason, sim.timeMs, run.stopLine),
-      results: [],
-      passed: false,
-      sim,
-      run,
-    };
+  // A compile error, a crash or a loop that never ends: the checks cannot say anything useful.
+  const error = firstProblem(run, sim, source);
+  if (error) {
+    const compiled = !run.diagnostics.some((d) => d.severity === 'error');
+    return { compiled, error, results: [], passed: false, sim, run };
   }
 
   const ast = parse(source).unit;

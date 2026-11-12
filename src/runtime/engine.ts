@@ -1,6 +1,5 @@
 import { runJava } from './java/interpreter';
-import { buildSim, runLessonTests, type TestSpec } from './testRunner';
-import { translateDiagnostic, translateLimit, translateThrow } from './errorTranslator';
+import { buildSim, firstProblem, runLessonTests, scriptedInput, type TestSpec } from './testRunner';
 import { FRAME_EVERY_TICKS, type CheckOutcome, type RunOutcome } from './messages';
 import type { SimSnapshot } from '../sim/simulation';
 
@@ -13,8 +12,7 @@ export function runProgram(
   onFrame?: (snapshot: SimSnapshot) => void,
 ): RunOutcome {
   const sim = buildSim(spec);
-  const input = [...(spec.input ?? [])].sort((a, b) => a.atMs - b.atMs);
-  let nextInput = 0;
+  const applyInput = scriptedInput(spec);
   let ticks = 0;
 
   const run = runJava(source, {
@@ -22,22 +20,12 @@ export function runProgram(
     ...(spec.teleOpForMs !== undefined ? { teleOpForMs: spec.teleOpForMs } : {}),
     ...(spec.maxSimMs !== undefined ? { maxSimMs: spec.maxSimMs } : {}),
     onTick: (s) => {
-      while (nextInput < input.length && input[nextInput]!.atMs <= s.timeMs) {
-        Object.assign(s.gamepad1, input[nextInput]!.set);
-        nextInput++;
-      }
+      applyInput(s);
       if (onFrame && ticks++ % FRAME_EVERY_TICKS === 0) onFrame(s.snapshot());
     },
   });
 
-  const firstError = run.diagnostics.find((d) => d.severity === 'error');
-  const error = firstError
-    ? translateDiagnostic(firstError, source)
-    : run.thrown
-      ? translateThrow(run.thrown, source)
-      : run.stopReason === 'steps' || run.stopReason === 'time' || run.stopReason === 'simTime'
-        ? translateLimit(run.stopReason, sim.timeMs, run.stopLine)
-        : null;
+  const error = firstProblem(run, sim, source);
 
   return {
     diagnostics: run.diagnostics,

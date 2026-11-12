@@ -372,6 +372,8 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
         gamepad.stop();
         setBusy(false);
         liveFrame = 0;
+        // Not testRunner's firstProblem: a live TeleOp that runs out of sim time has finished
+        // normally, so 'simTime' is not an error here.
         if (result.thrown) {
           console_.showError(translateThrow(result.thrown, code));
           editor.markError(result.thrown.line);
