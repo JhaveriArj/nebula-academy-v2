@@ -185,7 +185,8 @@ src/
   progress/         localStorage + export/import
   classes/          optional mentor class codes over Supabase REST (docs/CLASSES.md)
 ftc-stubs/          generated real .java stubs, for the CI javac gate only
-public/art/         all SVG art + README
+public/art/         all SVG art + exported Blender renders + README
+art/                Blender scene scripts, .blend files, raw renders (docs/ART_PIPELINE.md)
 docs/               PATHWAY, DESIGN, ARCHITECTURE, FTC_MOCK_COVERAGE, ADDING_A_LESSON
 scripts/            new-lesson, gen-stubs, gen-coverage, check-contrast
 ```
@@ -232,7 +233,9 @@ CLAUDE.md requires a note here for anything over 100 KB. Current list:
 | `codemirror` 6 + `@codemirror/lang-java` | ~380 KB min | Over budget, and justified: a real editor with read-only ranges, accessible keyboard handling and a Java grammar is the core of the product, and writing one is not a reasonable alternative. Loaded lazily — the Level Map and Home never pull it. |
 | `motion` (only `scroll` is imported) | 8.8 KB min, 3.9 KB gzip | Under budget. Supplies scroll progress for the home page's scrubbed scenes (`src/ui/homeMotion.ts`) and uses the browser's ScrollTimeline where it can. Its `animate()` is not imported (it would add about 25 KB gzip); one-shot animations use the Web Animations API instead. |
 
-Everything else (`vite`, `typescript`, `vitest`, `eslint`) is dev-only and ships nothing. The
+Everything else (`vite`, `typescript`, `vitest`, `eslint`) is dev-only and ships nothing. The art
+pipeline adds no package: `scripts/export-art.mjs` calls `cwebp` (Homebrew `webp`, a native tool
+on the mentor's machine, never shipped), and Blender is only used to make the pictures. The
 runtime bundle is first-party apart from Motion's `scroll`: interpreter, sim and UI. No framework, no CheerpJ CDN, no polyfills.
 
 ## Mentor class codes (optional backend)

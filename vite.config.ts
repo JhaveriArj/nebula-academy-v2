@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readdirSync } from 'node:fs';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
@@ -43,6 +44,13 @@ function securityMeta(supabaseUrl: string | undefined) {
 export default defineConfig(({ mode }) => ({
   base,
   plugins: [securityMeta(loadEnv(mode, process.cwd(), 'VITE_').VITE_SUPABASE_URL)],
+  // The Blender renders present in public/art, so src/ui/art.ts asks only for files that exist
+  // and falls back to the SVG for the rest (docs/ART_PIPELINE.md). Read when the build starts.
+  define: {
+    __ART_RENDERS__: JSON.stringify(
+      readdirSync('public/art').filter((f) => /^[a-z0-9-]+\.webp$/.test(f)).map((f) => f.slice(0, -5)),
+    ),
+  },
   build: {
     target: 'es2022',
     outDir: 'dist',

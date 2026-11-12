@@ -16,7 +16,7 @@ viewBox and a documented anchor point; keep both and a replacement drops straigh
 | `element-ball.svg` | Generic game element | Field view | Centre |
 | `goal-zone.svg` | Corner scoring zone | Field view | Top-left |
 | `loading.svg` | A horizon line sweeping, not a spinner | Loading states | — |
-| `badge-t0.svg` … `badge-t5.svg` | Six tier mission patches | Star chart stations, home tier list | Centre |
+| `badge-t0.svg` … `badge-t5.svg` | Six tier mission patches | Not loaded yet (the chart and home use the drawn emblems in `src/ui/kit.ts`) | Centre |
 | `icons/favicon.svg` | Browser tab icon | `index.html` | — |
 
 ## The mascot master
@@ -41,8 +41,7 @@ surfaces, so they use it freely. See `docs/DESIGN.md`.
 The sprites and badges use the mascot palette's hex values (they are image files, so they
 cannot read `theme.css`; keep them in step with its `--space-*` and `--star` tokens). The field
 canvas draws the robots, the foam tile and the game elements from these files, falling back to
-drawn shapes until they load. The tier badges appear on the home tier list and the star-chart
-stations.
+drawn shapes until they load.
 
 ## The UI icons are not here
 
@@ -51,9 +50,15 @@ so they inherit `currentColor` and change with the surface they sit on. They are
 the same rules: 24×24, 1.75 px stroke, square cap, no fill. Add a new one by adding a path
 to that file.
 
+## Renders and the swap-in rule
+
+Any SVG here can be replaced by a Blender render with no code change: put `<name>.webp` and
+`<name>@2x.webp` beside `<name>.svg`. `src/ui/art.ts` loads the render when it exists and the
+SVG when it does not (or when the render fails to load). How to make one, and the sources of
+each: `docs/ART_PIPELINE.md` and `art/ASSETS.md`. Alt text for every file: `content/art-alt.json`.
+
 ## Current wiring
 
-The field view in `src/ui/components/field.ts` currently draws the robot, tiles and
-elements procedurally in canvas using the same shapes and palette as these sprites. The
-sprites are the reference art and the replacement target; swapping the renderer over to
-`drawImage` is a contained change, noted in `HANDOFF.md`.
+The field view in `src/ui/components/field.ts` draws the robot, the tiles and the game elements
+from these files through `src/ui/art.ts`, and falls back to shapes drawn on the canvas until
+they load. The tier badges are reference art and not loaded by the app yet.

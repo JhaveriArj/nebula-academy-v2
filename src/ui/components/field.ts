@@ -1,5 +1,6 @@
 import { FIELD_CM, ROBOT_CM, TILE_CM, TILES, TILE_RGB, tileColorAt } from '../../sim/field';
 import type { SimSnapshot } from '../../sim/simulation';
+import { artImage } from '../art';
 
 /* The field view: a top-down canvas of the 12 ft field with the robot on it.
 
@@ -10,16 +11,15 @@ import type { SimSnapshot } from '../../sim/simulation';
    Canvas cannot read var(--token), so the colors are read from theme.css once per view
    (and again on resize). theme.css stays the only place a color is written down. */
 
-/* The reference art in public/art, drawn onto the canvas once loaded. Until an image has
-   arrived (or if it never does), the field falls back to the shapes drawn below, so the
-   first frame is never blank. */
-const BASE = import.meta.env.BASE_URL;
+/* The art in public/art, drawn onto the canvas once loaded: the Blender render where there is
+   one, else the hand-drawn SVG (src/ui/art.ts). Until an image has arrived (or if neither
+   does), the field falls back to the shapes drawn below, so the first frame is never blank. */
 const SPRITE_FILES = {
-  tank: 'robot-tank.svg',
-  mecanum: 'robot-mecanum.svg',
-  tile: 'field-tile.svg',
-  cube: 'element-cube.svg',
-  ball: 'element-ball.svg',
+  tank: 'robot-tank',
+  mecanum: 'robot-mecanum',
+  tile: 'field-tile',
+  cube: 'element-cube',
+  ball: 'element-ball',
 } as const;
 type SpriteName = keyof typeof SPRITE_FILES;
 const repaintOnLoad = new Set<() => void>();
@@ -29,11 +29,7 @@ function loadSprites(): Record<SpriteName, HTMLImageElement> {
   if (sprites) return sprites;
   const out = {} as Record<SpriteName, HTMLImageElement>;
   for (const [name, file] of Object.entries(SPRITE_FILES) as [SpriteName, string][]) {
-    const img = new Image();
-    img.decoding = 'async';
-    img.onload = () => repaintOnLoad.forEach((repaint) => repaint());
-    img.src = `${BASE}art/${file}`;
-    out[name] = img;
+    out[name] = artImage(file, () => repaintOnLoad.forEach((repaint) => repaint()));
   }
   sprites = out;
   return out;

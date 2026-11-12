@@ -10,3 +10,5 @@ ftc-stubs/out/
 # Hallmark audit output (screenshots and records)
 .hallmark/
 .claude/worktrees/
+# Raw Blender renders: rebuilt by rendering art/blend/*.blend; public/art holds the exported WebP
+art/renders/*.png
