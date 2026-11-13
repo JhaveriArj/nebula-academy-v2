@@ -20,9 +20,9 @@ public class RobotMath extends LinearOpMode {
         // TODO 1: work out driveMs. At power 0.6 the robot goes 60 cm every second,
         //         so driveMs is cm times 1000, divided by 60.
 
-        // TODO 2: print "whole seconds: " joined to cm / 60
+        // TODO 2: show cm / 60 on the Driver Station, labelled "whole seconds"
 
-        // TODO 3: print "left over: " joined to cm % 60
+        // TODO 3: show cm % 60, labelled "left over", then telemetry.update()
 
         // TODO 4: use driveMs in the sleep line below instead of 500.
 

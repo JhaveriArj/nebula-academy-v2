@@ -24,11 +24,11 @@ public class GitCommands extends LinearOpMode {
 
         waitForStart();
 
-        System.out.println("git clone");
-        System.out.println("git status");
-        System.out.println("git add");
-        System.out.println("git commit");
-        System.out.println("git push");
+        telemetry.addLine("git clone");
+        telemetry.addLine("git status");
+        telemetry.addLine("git add");
+        telemetry.addLine("git commit");
+        telemetry.addLine("git push");
 
         telemetry.addData("status", "nothing to drive here");
         telemetry.update();

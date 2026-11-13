@@ -37,7 +37,7 @@ statement` if they add the return, or complains about the return if they do not.
 the fix is the word before the method name.
 
 **`name = name;` in the constructor.** Lesson 05, and it compiles. The field stays `null`,
-the robot prints `null`, and nothing says why. This is the single best `this.` lesson
+the Driver Station shows `null`, and nothing says why. This is the single best `this.` lesson
 available and it is worth letting them hit it.
 
 **They expect two objects to share values.** Lesson 05. `square.sides` and
@@ -56,7 +56,7 @@ available and it is worth letting them hit it.
 
 ## What this tier does not cover
 
-The FTC SDK, telemetry, the gamepad, sensors. Lesson 06 deliberately points at
+The FTC SDK (beyond the few `telemetry` lines that show an answer), the gamepad, sensors. Lesson 06 deliberately points at
 `hardwareMap.get` and says "next tier". If a kid asks what it means, that is a good sign.
 
 ## Checkpoint rubric: Robot helper class

@@ -8,13 +8,13 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputMatches",
-      "pattern": "10\\s*9\\s*8\\s*7\\s*6\\s*5\\s*4\\s*3\\s*2\\s*1",
+      "type": "telemetryInOrder",
+      "texts": ["countdown : 10", "countdown : 9", "countdown : 8", "countdown : 7", "countdown : 6", "countdown : 5", "countdown : 4", "countdown : 3", "countdown : 2", "countdown : 1"],
       "label": "The countdown runs from 10 down to 1, in order"
     },
     {
-      "type": "outputContains",
-      "text": "Launch",
+      "type": "telemetryInOrder",
+      "texts": ["countdown : 1", "Launch"],
       "label": "It says Launch at the end of the countdown"
     },
     {

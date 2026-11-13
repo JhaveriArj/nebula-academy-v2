@@ -2,6 +2,6 @@
   "hints": [
     "A constructor has the same name as the class and no return kind in front of it, not even void.",
     "Its first line is MissionPlan(String name, int sides, double sideSeconds) { and inside go three lines starting with this.",
-    "Build one with new: MissionPlan square = new MissionPlan(\"Square\", 4, 1.0); and reach a field with square.name"
+    "Build one with new: MissionPlan square = new MissionPlan(\"Square\", 4, 1.0); and show a field with telemetry.addData(\"first plan\", square.name);"
   ]
 }

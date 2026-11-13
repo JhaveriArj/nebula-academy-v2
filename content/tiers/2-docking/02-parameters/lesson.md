@@ -41,7 +41,7 @@ That runs the method with `seconds` holding `1.5`. One method, any distance.
 `(long)` in front of the sum is a **cast**. `sleep` wants a whole number of milliseconds, and `seconds * 1000` is a double, so the cast cuts off the decimal part.
 
 :::why
-The parameter name belongs to the method, and nothing outside can see it. Writing `System.out.println(seconds);` in `runOpMode` gives you `cannot find symbol`, which is the scope idea from Tier 0 lesson 03 arriving properly.
+The parameter name belongs to the method, and nothing outside can see it. Writing `telemetry.addData("seconds", seconds);` in `runOpMode` gives you `cannot find symbol`, which is the scope idea from Tier 0 lesson 03 arriving properly.
 
 What gets passed is a copy of the value. Changing `seconds` inside the method does not touch the variable you called it with. That is worth knowing because it is the opposite of what happens with objects in lesson 05, where what you pass is a way of reaching the thing rather than the thing itself.
 

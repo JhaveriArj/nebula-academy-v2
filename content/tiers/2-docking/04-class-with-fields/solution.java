@@ -19,9 +19,10 @@ public class ClassWithFields extends LinearOpMode {
 
         MissionPlan plan = new MissionPlan();
 
-        System.out.println(plan.name);
-        System.out.println(plan.sides);
-        System.out.println(plan.sideSeconds);
+        telemetry.addData("name", plan.name);
+        telemetry.addData("sides", plan.sides);
+        telemetry.addData("sideSeconds", plan.sideSeconds);
+        telemetry.update();
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);

@@ -9,8 +9,8 @@
   "teleOpForMs": 2000,
   "checks": [
     {
-      "type": "outputContains",
-      "text": "50 loops",
+      "type": "telemetryContains",
+      "text": "message : 50 loops",
       "label": "The fiftieth pass spoke up"
     },
     {

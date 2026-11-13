@@ -2,6 +2,6 @@
   "hints": [
     "The method promises to hand back a whole number, so it says int where the others said void.",
     "The first line is private int msForCm(int cm) { and inside it one line: return cm * 1000 / 60;",
-    "Then use it where a number would go: sleep(msForCm(cm)); and print it with System.out.println(\"driving for \" + msForCm(cm) + \" ms\");"
+    "Then use it where a number would go: sleep(msForCm(cm)); and show it with telemetry.addData(\"driving for\", msForCm(cm) + \" ms\"); then telemetry.update();"
   ]
 }

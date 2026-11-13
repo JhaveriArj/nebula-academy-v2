@@ -19,7 +19,7 @@ public class MakingAnObject extends LinearOpMode {
 
         // TODO 2: build two plans. One named "Square" with 4 sides and 1.0 seconds,
         //         one named "Triangle" with 3 sides and 1.4 seconds.
-        //         Print both names, then drive one side of the square.
+        //         Show both names on the Driver Station, then drive one side of the square.
 
     }
 

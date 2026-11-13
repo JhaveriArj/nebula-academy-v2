@@ -15,7 +15,8 @@ public class Loops extends LinearOpMode {
         waitForStart();
 
         for (int side = 1; side <= 4; side++) {
-            System.out.println("side " + side);
+            telemetry.addData("side", side);
+            telemetry.update();
 
             leftDrive.setPower(0.6);
             rightDrive.setPower(0.6);

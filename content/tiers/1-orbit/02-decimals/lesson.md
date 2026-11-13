@@ -40,13 +40,13 @@ That sounds alarming and almost never matters here, because nothing in FTC needs
 
 ## Try
 
-Make a `double` called `speed` holding `0.6`, print it, and use it in both `setPower` lines in place of `0.0`.
+Make a `double` called `speed` holding `0.6`, show it on the Driver Station with `telemetry.addData("speed", speed);` and `telemetry.update();`, and use it in both `setPower` lines in place of `0.0`.
 
 Press Run. A power of `0.0` means stopped, so right now the robot goes nowhere.
 
 ## Check
 
-The checks want a number with a decimal point in the console, and the robot driving at least 60 cm.
+The checks want a number with a decimal point on the Driver Station, and the robot driving at least 60 cm.
 
 ## Boost
 

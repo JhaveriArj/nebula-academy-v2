@@ -48,13 +48,13 @@ Nebula itself lives in a git repository, and every lesson you have done was save
 
 ## Try
 
-Print the five commands, one per line, in the order you would use them for a first push.
+Show the five commands on the Driver Station, one `telemetry.addLine` each, in the order you would use them for a first push.
 
 Then do the real thing. Ask your mentor for your team's repository address, and try `git clone`, `git status`, `git add`, `git commit` and `git push` on your own computer. This lesson's checks only look at the order, because the real work happens off this website.
 
 ## Check
 
-The checks want the five commands printed in the right order.
+The checks want the five commands on the Driver Station in the right order.
 
 ## Boost
 

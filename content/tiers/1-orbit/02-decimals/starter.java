@@ -16,7 +16,7 @@ public class Decimals extends LinearOpMode {
 
         // TODO 1: make a double called speed and set it to 0.6.
 
-        // TODO 2: print speed.
+        // TODO 2: show speed on the Driver Station, then telemetry.update().
 
         // TODO 3: use speed in both setPower lines below instead of 0.0.
 

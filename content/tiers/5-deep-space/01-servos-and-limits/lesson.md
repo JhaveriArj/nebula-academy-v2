@@ -5,7 +5,7 @@ tier: 5
 minutes: 25
 concept: Software limits stop a mechanism destroying itself when a driver holds the wrong trigger.
 robot: mecanum
-explorerLockedRanges: [[1, 27]]
+explorerLockedRanges: [[1, 25]]
 ---
 
 ## Mission
@@ -50,11 +50,11 @@ Worth knowing too: `setPosition` is a request. A servo asked for `1.0` with some
 
 ## Try
 
-Two TODOs. Clamp `armPower` at both ends, printing `arm at limit` the first time the top is reached, and put the claw on A and B.
+Two TODOs. Clamp `armPower` at both ends, showing `arm at limit` on telemetry while the arm is held at the top, and put the claw on A and B.
 
 ## Check
 
-The checks want `arm at limit` printed, the claw closed at the end, and the tick count on telemetry.
+The checks want `arm at limit` on the Driver Station, the claw closed at the end, and the tick count on telemetry.
 
 ## Boost
 

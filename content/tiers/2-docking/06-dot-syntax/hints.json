@@ -2,6 +2,6 @@
   "hints": [
     "describe hands back text, so it says String where a void method would say void, and it needs a return.",
     "Inside Reporter: String describe() { return \"team \" + team; }",
-    "Then the three printing lines are System.out.println(reporter.describe()); then System.out.println(\"Nebula\".toUpperCase()); then System.out.println(\"power was \" + leftDrive.getPower());"
+    "Then the three telemetry lines are telemetry.addLine(reporter.describe()); then telemetry.addLine(\"Nebula\".toUpperCase()); then telemetry.addData(\"power was\", leftDrive.getPower()); and telemetry.update(); sends them."
   ]
 }

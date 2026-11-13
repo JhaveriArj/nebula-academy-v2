@@ -14,8 +14,8 @@
       "label": "msForCm takes one value"
     },
     {
-      "type": "outputContains",
-      "text": "driving for 1500 ms",
+      "type": "telemetryMatches",
+      "pattern": "driving for( :)? 1500 ms",
       "label": "The method works out 1500 for 90 cm"
     },
     {

@@ -49,7 +49,8 @@ If a kid wants it perfect, that is Tier 4 and you can tell them so.
 
 ## What this tier does not cover
 
-Variables beyond one `int`, loops, methods, telemetry, the gamepad. If a kid asks why they
+Variables beyond one `int`, loops, methods, the gamepad, and telemetry beyond the
+`addData` and `update` lines that put an answer on the Driver Station. If a kid asks why they
 are copying eleven lines four times in lesson 04, the honest answer is "because loops are
 the next tier and you are about to be very pleased about them".
 
@@ -61,7 +62,7 @@ talking to a kid about their work.
 | | Not yet | Got it | Going further |
 |---|---|---|---|
 | **The robot drives a square** | Drives, but not four sides | Four sides, four corners, finishes near the start | Square is tight enough to drive twice and still close |
-| **The name prints** | Prints once, or prints different text each time | The same name on three lines | Printed with something extra, like a count |
+| **The signature** | No name, or the name is missing its `telemetry.update()` | Their name on the Driver Station after the last corner | Shows something extra, like how many sides it drove |
 | **Reading errors** | Waits to be told what is wrong | Finds the line number and looks there | Predicts the error before pressing Run |
 | **Owning the keyboard** | Watches someone else type | Types and tries things | Changes numbers just to see what happens |
 

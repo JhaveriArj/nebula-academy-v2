@@ -19,7 +19,8 @@ public class ReturnValues extends LinearOpMode {
 
         int cm = 90;
 
-        System.out.println("driving for " + msForCm(cm) + " ms");
+        telemetry.addData("driving for", msForCm(cm) + " ms");
+        telemetry.update();
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);

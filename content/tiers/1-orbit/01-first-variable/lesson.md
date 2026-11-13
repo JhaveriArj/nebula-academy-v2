@@ -40,13 +40,13 @@ One name, one place to change it, is the first version of an idea this whole tie
 
 ## Try
 
-Write the two TODO lines. Make `driveTime` hold `1500`, print it, then use `driveTime` in both `sleep` lines instead of `1000`.
+Write the two TODO lines. Make `driveTime` hold `1500`. Show it on the Driver Station with `telemetry.addData("driveTime", driveTime);` and then `telemetry.update();`, which sends it. Then use `driveTime` in both `sleep` lines instead of `1000`.
 
 Press Run. Both moves should be longer than before.
 
 ## Check
 
-The checks want `1500` in the console and the robot travelling at least 140 cm in total. Two moves of 1500 milliseconds at half power is about 150 cm.
+The checks want `1500` on the Driver Station and the robot travelling at least 140 cm in total. Two moves of 1500 milliseconds at half power is about 150 cm.
 
 ## Boost
 

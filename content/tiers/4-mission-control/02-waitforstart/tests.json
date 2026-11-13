@@ -8,8 +8,9 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputContains",
-      "text": "Started",
+      "type": "telemetryMatches",
+      "pattern": "started",
+      "flags": "i",
       "label": "The program carries on after PLAY"
     },
     {

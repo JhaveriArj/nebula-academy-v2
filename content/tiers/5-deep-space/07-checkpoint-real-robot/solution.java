@@ -114,12 +114,12 @@ public class NebulaAuto extends LinearOpMode {
 
         robot.closeClaw();
 
-        System.out.println("Pre-run checklist");
-        System.out.println("1. Battery charged and clipped in");
-        System.out.println("2. Configuration names match the code");
-        System.out.println("3. Arm at the bottom before power on");
-        System.out.println("4. Field clear of people and tools");
-        System.out.println("5. Driver knows which OpMode to pick");
+        telemetry.addLine("Pre-run checklist");
+        telemetry.addLine("1. Battery charged and clipped in");
+        telemetry.addLine("2. Configuration names match the code");
+        telemetry.addLine("3. Arm at the bottom before power on");
+        telemetry.addLine("4. Field clear of people and tools");
+        telemetry.addLine("5. Driver knows which OpMode to pick");
 
         telemetry.addData("step", "parked");
         telemetry.update();

@@ -14,7 +14,7 @@ The robot asks three different things a question, all with the same shape of lin
 
 ## Watch
 
-The robot drives one short move. Everything else in this lesson is in the console.
+The robot drives one short move. Everything else in this lesson is on the Driver Station.
 
 ## Learn
 
@@ -48,11 +48,11 @@ And `leftDrive.getPower()` asks the motor what it is doing right now. Methods ar
 
 ## Try
 
-Four TODOs. Write the `describe` method on `Reporter`, then print three things: what the reporter says, the team name in capitals, and the motor's power while it is driving.
+Four TODOs. Write the `describe` method on `Reporter`, then show three things on the Driver Station: what the reporter says, the team name in capitals, and the motor's power while it is driving.
 
 ## Check
 
-The checks want `team Nebula`, `NEBULA`, and the motor's power in the console, plus the robot moving.
+The checks want `team Nebula`, `NEBULA`, and the motor's power on the Driver Station, plus the robot moving.
 
 ## Boost
 

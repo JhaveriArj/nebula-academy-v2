@@ -10,14 +10,12 @@ public class ArmLimits extends OpMode {
 
     private DcMotor armMotor;
     private Servo clawServo;
-    private boolean warned;
 
     @Override
     public void init() {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         clawServo.setPosition(0.0);
-        warned = false;
     }
 
     @Override
@@ -27,11 +25,7 @@ public class ArmLimits extends OpMode {
 
         if (armPower > 0 && ticks >= 1100) {
             armPower = 0;
-
-            if (!warned) {
-                System.out.println("arm at limit");
-                warned = true;
-            }
+            telemetry.addLine("arm at limit");
         } else if (armPower < 0 && ticks <= 50) {
             armPower = 0;
         }

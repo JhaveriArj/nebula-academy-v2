@@ -14,7 +14,7 @@ Five programs were broken, and you fix all five by reading what the robot said.
 
 ## Watch
 
-Nothing drives in this one. The robot is parked while you work on five short programs that only print.
+Nothing drives in this one. The robot is parked while you work on five short programs that only show text on the Driver Station.
 
 ## Learn
 
@@ -42,12 +42,12 @@ It is also why the error says `symbol: variable cont` rather than only pointing 
 
 There are five TODO comments. Above each one is the broken code and the real error message it produced. Write the fixed line where the TODO is.
 
-Work down the list and press Run after each one. The console fills up as you go.
+Each fixed line goes above the `telemetry.update();` at the bottom, which sends them all to the Driver Station. Work down the list and press Run after each one. The Driver Station fills up as you go.
 
 ## Check
 
-The checks look for five lines in the console: `One`, `Two 2`, `Three`, `Four 4` and `FIVE`.
+The checks look for five lines on the Driver Station: `One`, `Two 2`, `Three`, `Four 4` and `FIVE`.
 
 ## Boost
 
-Break program 2 a different way. Change `int count = 2;` to `int Count = 2;` but leave the println alone. Which error do you get, and why that one?
+Break program 2 a different way. Change `int count = 2;` to `int Count = 2;` but leave the telemetry line alone. Which error do you get, and why that one?

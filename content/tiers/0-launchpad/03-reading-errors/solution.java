@@ -11,27 +11,30 @@ public class ReadingErrors extends LinearOpMode {
         waitForStart();
 
         // Broken program 1 said:  ';' expected
-        //     System.out.println("One")
-        System.out.println("One");
+        //     telemetry.addLine("One")
+        telemetry.addLine("One");
 
         // Broken program 2 said:  cannot find symbol   symbol: variable cont
         //     int count = 2;
-        //     System.out.println("Two " + cont);
+        //     telemetry.addLine("Two " + cont);
         int count = 2;
-        System.out.println("Two " + count);
+        telemetry.addLine("Two " + count);
 
         // Broken program 3 said:  reached end of file while parsing
-        //     System.out.println("Three");
+        //     telemetry.addLine("Three");
         //   (the file was missing its last brace)
-        System.out.println("Three");
+        telemetry.addLine("Three");
 
         // Broken program 4 said:  incompatible types: String cannot be converted to int
         //     int four = "4";
         int four = 4;
-        System.out.println("Four " + four);
+        telemetry.addLine("Four " + four);
 
         // Broken program 5 said:  cannot find symbol   symbol: method toUpperCse()
-        //     System.out.println("Five".toUpperCse());
-        System.out.println("Five".toUpperCase());
+        //     telemetry.addLine("Five".toUpperCse());
+        telemetry.addLine("Five".toUpperCase());
+
+        // This sends every line above to the Driver Station.
+        telemetry.update();
     }
 }

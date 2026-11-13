@@ -60,4 +60,4 @@ The checks want the robot driving at least 100 cm, telemetry showing a key calle
 
 ## Boost
 
-Add `&& timer.seconds() < 1.0` as a second condition on the same loop and watch it stop early. Then try printing `timer.milliseconds()` instead.
+Add `&& timer.seconds() < 1.0` as a second condition on the same loop and watch it stop early. Then try showing `timer.milliseconds()` on telemetry instead.

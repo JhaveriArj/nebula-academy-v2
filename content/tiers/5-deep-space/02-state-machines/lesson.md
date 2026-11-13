@@ -63,7 +63,7 @@ Write the `switch`. Four cases, each doing its bit and deciding when to move on.
 
 ## Check
 
-The checks want `DRIVE`, `TURN` and `DONE` printed in order, the robot moving, and the state on telemetry.
+The checks want `DRIVE`, `TURN` and `DONE` on telemetry in that order, the robot moving, and the state on telemetry.
 
 ## Boost
 

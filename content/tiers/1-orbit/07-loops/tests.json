@@ -27,8 +27,8 @@
       "label": "It finishes back where it started"
     },
     {
-      "type": "outputContains",
-      "text": "side 4",
+      "type": "telemetryMatches",
+      "pattern": "side( :)? 4$",
       "label": "The loop counted up to side 4"
     },
     {

@@ -10,11 +10,11 @@ explorerLockedRanges: [[1, 18]]
 
 ## Mission
 
-The robot works out whether it is going fast enough and says so in the console.
+The robot works out whether it is going fast enough and says so on the Driver Station.
 
 ## Watch
 
-The robot drives at a good clip. The interesting part is in the console, not on the field.
+The robot drives at a good clip. The interesting part is on the Driver Station, not on the field.
 
 ## Learn
 
@@ -42,14 +42,14 @@ Notice that `speed > 0.5` is worked out once, at the moment that line runs, and 
 
 ## Try
 
-Make a `boolean` called `fastEnough` holding the answer to "is `speed` more than `0.5`?", and print it.
+Make a `boolean` called `fastEnough` holding the answer to "is `speed` more than `0.5`?". Show it on the Driver Station with `telemetry.addData("fastEnough", fastEnough);` and `telemetry.update();`.
 
-With `speed` at `0.3` it prints `false`. Change `speed` so it prints `true`.
+With `speed` at `0.3` it shows `false`. Change `speed` so it shows `true`.
 
 ## Check
 
-The checks want `true` in the console and the robot still driving.
+The checks want `true` on the Driver Station and the robot still driving.
 
 ## Boost
 
-Add a second boolean, `boolean stopped = speed == 0.0;`, and print that too. Then set `speed` to exactly `0.5`. Is `fastEnough` true? Read the question again.
+Add a second boolean, `boolean stopped = speed == 0.0;`, and show that too. Then set `speed` to exactly `0.5`. Is `fastEnough` true? Read the question again.

@@ -18,7 +18,8 @@ public class Words extends LinearOpMode {
 
         String pilot = "Sam";
 
-        System.out.println("Pilot " + pilot + " on mission " + mission);
+        telemetry.addLine("Pilot " + pilot + " on mission " + mission);
+        telemetry.update();
 
         leftDrive.setPower(0.5);
         rightDrive.setPower(0.5);

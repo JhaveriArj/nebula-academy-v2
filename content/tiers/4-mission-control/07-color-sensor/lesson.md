@@ -62,4 +62,4 @@ The checks want the robot to stop on the blue tile, having moved at least 40 cm,
 
 ## Boost
 
-Make it look for the red tile instead by comparing `red()` against `blue()`. Then print all three channels at once and drive across the field watching them change.
+Make it look for the red tile instead by comparing `red()` against `blue()`. Then show all three channels on telemetry at once and drive across the field watching them change.

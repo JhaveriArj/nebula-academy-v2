@@ -19,6 +19,7 @@ export type Check =
   | { type: 'telemetryHasKey'; key: string; label?: string }
   | { type: 'telemetryContains'; text: string; label?: string }
   | { type: 'telemetryMatches'; pattern: string; flags?: string; label?: string }
+  | { type: 'telemetryInOrder'; texts: string[]; label?: string }
   | { type: 'methodExists'; name: string; params?: number; className?: string; label?: string }
   | { type: 'classExists'; name: string; extends?: string; label?: string }
   | { type: 'ranUnder'; ms: number; label?: string };
@@ -255,6 +256,31 @@ function evaluate(
       );
     }
 
+    case 'telemetryInOrder': {
+      // Each text on a later Driver Station line than the one before it, across every
+      // update(): a countdown or a run of states shown one pass at a time, in order.
+      let at = 0;
+      let found = 0;
+      for (const text of check.texts) {
+        const i = sim.telemetryLog.findIndex((line, n) => n >= at && line.includes(text));
+        if (i < 0) break;
+        found++;
+        at = i + 1;
+      }
+      const missing = check.texts[found];
+      return ok(
+        `Telemetry shows ${check.texts.join(', then ')}`,
+        found === check.texts.length,
+        missing === undefined
+          ? 'All of them showed up, in order.'
+          : sim.telemetryLog.length
+            ? found
+              ? `It showed ${check.texts.slice(0, found).join(', then ')}, but never "${missing}" after that.`
+              : `"${missing}" never showed up on the Driver Station.`
+            : 'Telemetry never showed anything. Remember telemetry.update().',
+      );
+    }
+
     case 'methodExists': {
       const classes = allTypes(ast).filter((t) => !check.className || t.name === check.className);
       const hit = classes
@@ -331,6 +357,6 @@ const firstLines = (s: string, n = 3) =>
 export const CHECK_TYPES: CheckType[] = [
   'outputContains', 'outputMatches', 'robotMovedAtLeastCm', 'robotWithinCmOf',
   'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey', 'telemetryContains',
-  'telemetryMatches',
+  'telemetryMatches', 'telemetryInOrder',
   'methodExists', 'classExists', 'ranUnder',
 ];

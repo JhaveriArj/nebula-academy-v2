@@ -39,13 +39,13 @@
       "label": "The claw closes at the end"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "Pre-run checklist",
-      "label": "The checklist is printed"
+      "label": "The checklist is on the Driver Station"
     },
     {
-      "type": "outputMatches",
-      "pattern": "1\\.[\\s\\S]*2\\.[\\s\\S]*3\\.[\\s\\S]*4\\.[\\s\\S]*5\\.",
+      "type": "telemetryInOrder",
+      "texts": ["Pre-run checklist", "1. ", "2. ", "3. ", "4. ", "5. "],
       "label": "All five checklist lines are there"
     },
     {

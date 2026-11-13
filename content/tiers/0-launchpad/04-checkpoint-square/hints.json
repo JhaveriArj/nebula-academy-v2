@@ -2,6 +2,6 @@
   "hints": [
     "Build one side and one corner first, then press Run. If the robot drives forward and makes a quarter turn, the hard part is done.",
     "A side is five lines: both wheels 0.6, sleep 1000, both wheels 0. A corner is the same shape with leftDrive at -0.5, rightDrive at 0.5 and sleep 785.",
-    "Select the eleven lines of one side and one corner, copy them, and paste three more times. Then add three System.out.println lines with your name in quote marks."
+    "Select the eleven lines of one side and one corner, copy them, and paste three more times. Then sign it: telemetry.addData(\"Pilot\", \"Sam\"); with your name in the quote marks, and telemetry.update(); after it."
   ]
 }

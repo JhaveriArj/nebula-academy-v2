@@ -81,6 +81,11 @@ The "Why this works" panel. Builder mode only.
 Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bottom left. The
 `label` is what the kid sees, so write it as something the robot does.
 
+Lesson code shows what the kid should read with `telemetry.addData` / `telemetry.addLine` and
+`telemetry.update()`, never `System.out.println`: on a real Control Hub, System.out goes to the
+device log, not the Driver Station, and the file has to run the same on the team's robot. So
+check output with the `telemetry*` checks, not `outputContains` / `outputMatches`.
+
 | Check | Passes when |
 |---|---|
 | `outputContains` `{ text, times? }` | The console printed `text` (at least `times` times). |
@@ -93,6 +98,7 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 | `telemetryHasKey` `{ key }` | The code sent telemetry with that caption. |
 | `telemetryContains` `{ text }` | A line the Driver Station showed (as `key : value`, after `telemetry.update()`) contains `text`. |
 | `telemetryMatches` `{ pattern, flags? }` | A line the Driver Station showed matches a regular expression. |
+| `telemetryInOrder` `{ texts }` | Lines containing each of `texts` were shown in that order, each on a later line than the last, across every `telemetry.update()`. For a countdown or a run of states. |
 | `methodExists` `{ name, params?, className? }` | The code declares that method. |
 | `classExists` `{ name, extends? }` | The code declares that class. |
 | `ranUnder` `{ ms }` | The whole run finished in under `ms` of robot time. |

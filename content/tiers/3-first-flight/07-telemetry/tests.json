@@ -33,8 +33,8 @@
       "label": "The robot drives while reporting"
     },
     {
-      "type": "outputMatches",
-      "pattern": ".*",
+      "type": "ranUnder",
+      "ms": 5000,
       "label": "The program runs to the end"
     }
   ]

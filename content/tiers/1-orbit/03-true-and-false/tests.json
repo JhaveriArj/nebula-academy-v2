@@ -8,7 +8,7 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "true",
       "label": "fastEnough comes out true"
     },

@@ -13,14 +13,14 @@
       "label": "There is a class called MissionPlan"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "Square",
-      "label": "The square plan's name is printed"
+      "label": "The square plan's name is on the Driver Station"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "Triangle",
-      "label": "The triangle plan's name is printed"
+      "label": "The triangle plan's name is on the Driver Station"
     },
     {
       "type": "robotMovedAtLeastCm",

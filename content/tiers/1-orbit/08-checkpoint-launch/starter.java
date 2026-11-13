@@ -17,12 +17,12 @@ public class LaunchSequence extends LinearOpMode {
         int fuelLevel = 90;
         int threshold = 50;
 
-        // TODO 1: if fuelLevel is below threshold, print "Abort: fuel too low"
-        //         and do nothing else.
+        // TODO 1: if fuelLevel is below threshold, show "Abort: fuel too low"
+        //         on the Driver Station and do nothing else.
 
-        // TODO 2: otherwise, count down from 10 to 1, printing each number on its
-        //         own line, then print "Launch" and drive forward at power 0.8
-        //         for 1500 milliseconds.
+        // TODO 2: otherwise, count down from 10 to 1. Show each number as the
+        //         countdown, then sleep(500) so the driver can read it. Then
+        //         show "Launch" and drive forward at power 0.8 for 1500 ms.
 
     }
 }

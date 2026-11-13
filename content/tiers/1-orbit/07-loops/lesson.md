@@ -22,7 +22,8 @@ In Tier 0 you copied eleven lines four times to make a square. A **loop** does t
 
 ```
 while (count > 0) {
-    System.out.println(count);
+    telemetry.addData("count", count);
+    telemetry.update();
     count--;
 }
 ```
@@ -33,7 +34,8 @@ When you know how many times, a **for** loop says so on one line:
 
 ```
 for (int side = 1; side <= 4; side++) {
-    System.out.println("side " + side);
+    telemetry.addData("side", side);
+    telemetry.update();
 }
 ```
 
@@ -53,13 +55,13 @@ The mistake worth knowing in advance is the one where the condition never become
 
 ## Try
 
-Wrap the eleven driving lines in a `for` loop that runs four times, and print `side` with the number each time round.
+Wrap the eleven driving lines in a `for` loop that runs four times. Each time round, show the side number on the Driver Station with `telemetry.addData("side", side);` and `telemetry.update();`.
 
 Watch the indentation: everything inside the loop moves one step to the right, and the loop needs a `}` of its own at the end.
 
 ## Check
 
-The checks want the full square: at least 200 cm driven, four corners, finishing near the start, and `side 4` in the console.
+The checks want the full square: at least 200 cm driven, four corners, finishing near the start, and `side : 4` on the Driver Station.
 
 ## Boost
 

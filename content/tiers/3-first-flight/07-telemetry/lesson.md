@@ -18,7 +18,7 @@ The robot drives forward. Watch the telemetry panel beside the field fill in as 
 
 ## Learn
 
-`System.out.println` was fine for learning, and useless in a match: on a real robot it goes into a log file nobody can read while driving.
+You have put lines on the Driver Station since Tier 0, mostly once, at the end. A driver needs them while the robot is moving.
 
 **Telemetry** is the readout on the driver's phone. You build a line, then send it:
 

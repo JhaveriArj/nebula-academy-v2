@@ -22,7 +22,8 @@ public class WaitingForTheWhistle extends LinearOpMode {
 
         waitForStart();
 
-        System.out.println("Started");
+        telemetry.addData("status", "Started");
+        telemetry.update();
 
         if (opModeIsActive()) {
             frontLeft.setPower(0.5);

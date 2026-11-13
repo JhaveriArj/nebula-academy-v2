@@ -8,9 +8,9 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputMatches",
+      "type": "telemetryMatches",
       "pattern": "0\\.[0-9]",
-      "label": "The speed you printed has a decimal point"
+      "label": "The speed on the Driver Station has a decimal point"
     },
     {
       "type": "robotMovedAtLeastCm",

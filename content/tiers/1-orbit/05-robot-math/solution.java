@@ -19,9 +19,10 @@ public class RobotMath extends LinearOpMode {
 
         int driveMs = cm * 1000 / 60;
 
-        System.out.println("whole seconds: " + cm / 60);
+        telemetry.addData("whole seconds", cm / 60);
 
-        System.out.println("left over: " + cm % 60);
+        telemetry.addData("left over", cm % 60);
+        telemetry.update();
 
         leftDrive.setPower(power);
         rightDrive.setPower(power);

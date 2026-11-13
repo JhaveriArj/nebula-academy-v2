@@ -19,15 +19,15 @@ public class DotSyntax extends LinearOpMode {
 
         Reporter reporter = new Reporter("Nebula");
 
-        // TODO 2: print reporter.describe()
+        // TODO 2: show reporter.describe() with telemetry.addLine
 
-        // TODO 3: print "Nebula".toUpperCase()
+        // TODO 3: show "Nebula".toUpperCase() with telemetry.addLine
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);
         sleep(1000);
 
-        // TODO 4: print "power was " joined to leftDrive.getPower()
+        // TODO 4: show leftDrive.getPower(), labelled "power was", then telemetry.update()
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);
