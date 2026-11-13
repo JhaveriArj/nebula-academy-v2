@@ -15,8 +15,10 @@ not use analytics. The site does not load anything from other companies: no ads,
 a font service, no social buttons and no tracking scripts. Every part of the site comes from
 the site itself.
 
-Like every website, the company that hosts the site (GitHub) sees the address of the computer
-that asks for each page. We cannot see those records, and we do not keep them.
+Like every website, the company that hosts the site (Vercel, in the United States) sees the
+address of the computer that asks for each page. We do not turn on its visitor analytics, and we
+do not keep those records. An older copy of the site at a github.io address is hosted by GitHub
+in the same way.
 
 ## What is stored on this device
 
@@ -30,11 +32,10 @@ storage. It holds:
 This never leaves the computer unless you choose to save it to a file. The file is yours: you
 can keep it, move it to another computer, or delete it.
 
-One thing to know: the site's address is shared with the owner's other GitHub Pages projects
-(everything under the same github.io name). Browsers keep local storage per address, so those
-other projects could in principle read what this site saves, and this site could read theirs.
-Nebula Academy reads only its own two entries and stores nothing sensitive in them, only lesson
-progress, code and settings, and a class membership key if a child has joined a class.
+Browsers keep local storage per web address, so progress saved at one address does not appear
+at another. To move from the older github.io copy, save a file on its Progress page and load it
+here. That older address is shared with the owner's other GitHub Pages projects, which could in
+principle read what is saved there; the main address is the site's own.
 
 ## The one exception: class codes
 
@@ -60,8 +61,8 @@ asking parents first.
 
 - **On the Progress page,** you can save a copy of the progress first if you want to keep it.
 - **To delete it,** press "Clear everything" on the Progress page. That removes the passed
-  lessons and saved code from this browser, and nothing else. (Clearing the site's data in the
-  browser's settings also works, but it would clear the owner's other github.io projects too.)
+  lessons and saved code from this browser, and nothing else. Clearing this site's data in the
+  browser's settings also works.
 - **To leave a class,** open the Progress page and press "Leave the class" first, so the nickname
   and passes are deleted from the server too.
 

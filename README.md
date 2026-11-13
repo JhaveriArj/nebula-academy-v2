@@ -37,7 +37,12 @@ JSON in `content/` only; no TypeScript.
 
 ## Deploy
 
-Pushing to `main` runs two GitHub Actions workflows:
+The main site is on **Vercel** (`vercel.json`: build, security headers, caching). Deploy with
+`vercel --prod` from a linked checkout, or connect the GitHub repo in Vercel so `main` deploys
+itself. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project for class
+codes; leave Vercel Analytics off. See docs/SECURITY-HEADERS.md.
+
+Pushing to `main` also runs two GitHub Actions workflows:
 
 - **CI** (`.github/workflows/ci.yml`): `npm run check` and the real-javac gate.
 - **Deploy to Pages** (`.github/workflows/deploy.yml`): builds and publishes `dist/` to GitHub

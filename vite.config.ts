@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
-// GitHub Pages serves this project from /<repo>/ unless a custom domain is set.
-// Override with NEBULA_BASE=/ for a user-root or custom-domain deploy.
-const base = process.env.NEBULA_BASE ?? '/nebula-academy-v2/';
+// Vercel serves the site from its own domain's root. GitHub Pages serves this project from
+// /<repo>/. NEBULA_BASE overrides either (for a custom domain, say).
+const base = process.env.NEBULA_BASE ?? (process.env.VERCEL ? '/' : '/nebula-academy-v2/');
 
 /* The built page's security policy, as <meta> tags because GitHub Pages cannot send headers
    (docs/SECURITY-HEADERS.md says what that costs and why). Build only: the dev server needs its

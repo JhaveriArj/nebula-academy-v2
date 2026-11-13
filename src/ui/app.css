@@ -1,5 +1,5 @@
 /* Hallmark · checked: 2026-11-12 · genre: playful (inferred: kids, games)
- * floor: 8 FAIL left, all kept on purpose or false (docs/SKILLS.md) · fixed: 19, 26a, 34, 40, F6, field fit at 1024, line 14, tap tip
+ * floor: 3 FAIL left, all on purpose: the demo window is the real lesson screen, and class codes are tracked so they read letter by letter (docs/SKILLS.md) · fixed: 19, 26a, 34, 40, F6, field fit at 1024, line 14, tap tip
  * kept: 47a, the demo window is the real lesson screen, not a drawn OS window · 67, class codes are spaced so kids copy them right
  * false: 26a chart, its ring is drawn on the SVG hit shape · 73, the ink circle and scrolled-off code lines
  * built: the project · redesign: polish · v2.0.0 */
@@ -357,7 +357,7 @@ html { scrollbar-gutter: stable; }
   flex-direction: column;
   justify-content: center;
   gap: 48px;
-  min-height: calc(100vh - 68px);
+  min-height: calc(100svh - 68px);
   padding: 48px 0 56px var(--edge);
 }
 .nb-hero-head {
@@ -2150,7 +2150,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .progress-mascot { flex-direction: row; justify-content: flex-start; }
   .progress-mascot .kit-mascot { --h: 130px !important; }
   .progress-bubble::after { left: auto; right: -10px; bottom: 50%; translate: 0 50%; }
-  .progress-count-num .kit-circled-n, .progress-count-of { font-size: 40px; }
+  .progress-count-num .kit-circled-n, .progress-count-of { font-size: 40px; font-variant-numeric: tabular-nums; }
 }
 
 /* ------------------------------------------------------------ 1024 x 768 */

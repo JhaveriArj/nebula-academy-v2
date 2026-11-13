@@ -1,6 +1,32 @@
 # Security headers, and where we host
 
-## What the site sends now (GitHub Pages)
+## Vercel (main site, since 2026-11-12)
+
+The site is served by Vercel from its own domain's root (`vite.config.ts` sets `base` to `/` when
+`VERCEL` is set). `vercel.json` sends real headers on every response, on top of the build's
+`<meta>` CSP and referrer policy described below:
+
+| Header | Value | Why |
+|---|---|---|
+| `Content-Security-Policy` | `frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'` | stops other sites framing ours; a meta tag cannot set `frame-ancestors`. Browsers enforce both policies, so this one only adds limits |
+| `X-Frame-Options` | `DENY` | the same, for older browsers |
+| `X-Content-Type-Options` | `nosniff` | no type guessing |
+| `Referrer-Policy` | `no-referrer` | as the meta tag |
+| `Permissions-Policy` | camera, microphone, location, payment, USB off | nothing on the site needs them |
+| `Cross-Origin-Opener-Policy` | `same-origin` | a page we link to cannot reach back into ours |
+| `Strict-Transport-Security` | two years | HTTPS only |
+| `Cache-Control` on `/assets/*` | one year, immutable | file names carry a content hash |
+
+Vercel Web Analytics and Speed Insights stay off (CLAUDE.md: no analytics). The class-code
+settings (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, both public by design) are set as
+Vercel environment variables; the Supabase service_role key is never set anywhere.
+
+Its own domain also fixes a GitHub Pages problem: every project under one `github.io` name shares
+one origin, and so one localStorage. The GitHub Pages copy still deploys from `main` for anyone
+with the old link.
+
+## Before: GitHub Pages
+
 
 GitHub Pages does not let a site set its own HTTP headers. What it sends on its own (checked with
 `curl -I` on 2026-11-12): `Strict-Transport-Security: max-age=31556952`, `Cache-Control:
@@ -32,18 +58,7 @@ What a `<meta>` tag cannot do, so is missing on GitHub Pages:
 | `Permissions-Policy` | the page or a script it loads using the camera, microphone, location | Low. We load no third-party script, and our own code asks for none of these |
 | `X-Content-Type-Options: nosniff` | a browser guessing a file's type | Low. Every file is served with its real type and there are no user uploads |
 
-## GitHub Pages or Cloudflare Pages?
+## Hosting decision history
 
-| | GitHub Pages (now) | Cloudflare Pages |
-|---|---|---|
-| Real headers (`_headers` file) | no; meta CSP and referrer only | yes: all of the above, including `frame-ancestors` and `Permissions-Policy` |
-| Cost | free | free tier covers this site |
-| Who sees each visitor's IP | GitHub | Cloudflare (instead of GitHub) |
-| New accounts | none | a Cloudflare account; its analytics must stay off |
-| Work to move | none | new project, change the deploy workflow, move the URL (and tell mentors) |
-
-**Recommendation: stay on GitHub Pages for now.** The meta CSP and referrer policy cover the risks
-that matter for a static site with no third-party code. What Cloudflare adds is real but small
-here, and moving swaps one company that sees visitor IPs for another, adds an account, and
-changes the address mentors already have. Revisit if the site adds anything a framed click could
-abuse, or loads anything from another origin. Nothing has been moved.
+On 2026-11-12 the recommendation was to stay on GitHub Pages; the owner then chose Vercel, which
+sends real headers and gives the site an origin of its own.
