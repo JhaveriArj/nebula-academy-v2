@@ -136,6 +136,18 @@ class ErrorMarker extends GutterMarker {
   }
 }
 
+/** How far a wrapped line's later rows sit in, in characters: its leading spaces (a tab
+    counts four) plus one indent step. */
+export function wrapIndentOf(text: string): number {
+  let width = 0;
+  for (const ch of text) {
+    if (ch === ' ') width++;
+    else if (ch === '\t') width += 4;
+    else break;
+  }
+  return width + 4;
+}
+
 export interface CodeEditor {
   element: HTMLElement;
   getCode(): string;
@@ -175,6 +187,8 @@ export function lockFilterFor(region: LockedRegion | null | undefined, onLockedE
 export const replaceAllSpec = (state: EditorState, code: string) =>
   ({ changes: { from: 0, to: state.doc.length, insert: code }, filter: false });
 
+let editorCount = 0;
+
 export function createEditor(options: {
   code: string;
   locked: LockedRegion | null;
@@ -185,6 +199,13 @@ export function createEditor(options: {
 }): CodeEditor {
   const element = document.createElement('div');
   element.className = 'editor on-dark';
+  // Tab indents inside the editor, so a keyboard user needs telling how to get out. Shown
+  // while the editor has focus, and read out with it.
+  const hintId = `editor-hint-${++editorCount}`;
+  const hint = document.createElement('p');
+  hint.className = 'editor-hint';
+  hint.id = hintId;
+  hint.textContent = 'Press Esc, then Tab, to leave the code.';
 
   const lockCompartment = new Compartment();
   let errorLine: number | null = null;
@@ -210,9 +231,13 @@ export function createEditor(options: {
           const classes: string[] = [];
           if (lockedRegion) classes.push(n <= from || n >= to ? 'cm-locked' : 'cm-editable');
           if (errorLine === n) classes.push('cm-error-line');
-          if (classes.length) {
-            marks.push(Decoration.line({ class: classes.join(' ') }).range(doc.line(n).from));
-          }
+          // A long line that wraps carries on under its own indent plus one step, not at the
+          // left edge. Its first row starts where it always did (the negative text-indent).
+          const indent = wrapIndentOf(doc.line(n).text);
+          marks.push(Decoration.line({
+            class: classes.join(' '),
+            attributes: { style: `padding-left: calc(6px + ${indent}ch); text-indent: -${indent}ch` },
+          }).range(doc.line(n).from));
         }
         return Decoration.set(marks, true);
       }
@@ -280,6 +305,7 @@ export function createEditor(options: {
         }),
         EditorView.contentAttributes.of({
           'aria-label': 'Java code for this lesson',
+          'aria-describedby': hintId,
           autocapitalize: 'off',
           autocorrect: 'off',
           spellcheck: 'false',
@@ -287,6 +313,8 @@ export function createEditor(options: {
       ],
     }),
   });
+
+  element.append(hint);
 
   // The imports start folded: they are the same in nearly every lesson, and the code that
   // matters is below them. Builder kids open them when Android Studio asks for one.

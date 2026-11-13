@@ -17,7 +17,7 @@ import { check as runChecks, run as runProgram, type RunHandle } from '../../run
 import { entryKindOf, startTeleOp, type TeleOpSession } from '../../runtime/java/interpreter';
 import { buildSim } from '../../runtime/testRunner';
 import { translateDiagnostic, translateLimit, translateThrow } from '../../runtime/errorTranslator';
-import { getDraft, getMode, isPassed, markPassed, setDraft } from '../../progress/store';
+import { getDraft, getMode, isPassed, isTierUnlocked, markPassed, setDraft } from '../../progress/store';
 import { lessonHref } from '../router';
 import { fieldThumb, inkCheck, mascot, paper, routeOf, stepIcon } from '../kit';
 import { mascotHead } from '../mascot';
@@ -51,8 +51,18 @@ export interface LessonPageDeps {
 export function lessonPage(lessonId: string, deps: LessonPageDeps): HTMLElement {
   const page = el('section', { class: 'lesson' }, el('p', { class: 'muted loading', text: 'Opening the lesson.' }));
 
+  // The app sends mode changes and "you are leaving" to this wrapper; the built lesson inside
+  // it is the one that listens. A kid who leaves before the lesson loads never gets one built.
+  let left = false;
+  for (const type of ['nebula:modechange', 'nebula:leave']) {
+    page.addEventListener(type, () => {
+      if (type === 'nebula:leave') left = true;
+      page.firstElementChild?.dispatchEvent(new CustomEvent(type, { bubbles: false }));
+    });
+  }
+
   loadLesson(lessonId)
-    .then((lesson) => mount(page, buildLesson(lesson, deps)))
+    .then((lesson) => { if (!left) mount(page, buildLesson(lesson, deps)); })
     .catch((error: unknown) => {
       mount(page,
         el('div', { class: 'prose-page' },
@@ -93,7 +103,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   const editor: CodeEditor = createEditor({
     code: startingCode,
     locked: lockedFor(lesson),
-    onChange: (code) => queueDraftSave(lesson.frontmatter.id, code),
+    onChange: (code) => { queueDraftSave(lesson.frontmatter.id, code); markResultsStale(); },
     onRun: () => void onRun(),
     onLockedEdit: () => console_.setStatus('That line is locked. Change the lines marked in yellow.'),
   });
@@ -140,6 +150,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       setDraft(lesson.frontmatter.id, lesson.starter);
       console_.clear();
       editor.markError(null);
+      showStartPosition();
       mount(resetNotice,
         el('span', { text: 'Back to the starting code.' }),
         el('button', {
@@ -242,7 +253,13 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     sideColumn,
   );
 
-  const root = el('section', { class: 'lesson' }, bar, shell);
+  // A link can open a lesson the chart still shows as locked. It works as a preview; say so,
+  // so the chart and the lesson do not seem to disagree.
+  const previewNote = isTierUnlocked(lesson.frontmatter.tier)
+    ? null
+    : el('p', { class: 'lesson-preview-note', role: 'note' },
+        `This lesson is from Tier ${lesson.frontmatter.tier}, which is still locked on your star chart. You can look around and try it; it opens properly after the Tier ${lesson.frontmatter.tier - 1} checkpoint.`);
+  const root = el('section', { class: 'lesson' }, bar, previewNote, shell);
 
   /* --------------------------------------------------------------- running */
 
@@ -288,10 +305,15 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     stopEverything();
     console_.clear();
     editor.markError(null);
+    markResultsStale();
     const code = editor.getCode();
     if (stoppedByMissingImport(code)) return;
     setBusy(true);
     console_.setStatus('Running.');
+    // On a phone the field is below the code: bring it into view so the kid sees the robot move.
+    if (matchMedia('(max-width: 760px)').matches) {
+      fieldBox.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }
 
     if (entryKindOf(code) === 'teleop') {
       runLiveTeleOp(code);
@@ -314,6 +336,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       console_.setStatus(
         outcome.error ? null : `Finished after ${(outcome.snapshot.timeMs / 1000).toFixed(1)} seconds of robot time.`,
       );
+      if (!outcome.error) showWallNotice(outcome.snapshot);
     } catch (error) {
       workerHandle = null;
       console_.setStatus(error instanceof Error ? error.message : 'The runner stopped.');
@@ -459,7 +482,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       const failed = outcome.results.filter((r) => !r.passed).length;
       react('puzzled');
       checkList.prepend(
-        el('p', { class: 'check-summary', text: `${failed} of ${outcome.results.length} ${new Intl.PluralRules('en').select(failed) === 'one' ? 'check is' : 'checks are'} not happy yet. Nothing is broken; have another go.` }),
+        el('p', { class: 'check-summary', text: `${failed} of ${outcome.results.length} ${outcome.results.length === 1 ? 'check' : 'checks'} ${failed === 1 ? 'is' : 'are'} not happy yet. Nothing is broken; have another go.` }),
       );
       return;
     }
@@ -557,9 +580,12 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   function goTo(requested: SectionName): void {
     const name: SectionName = requested === 'watch' ? 'mission' : requested;
     const entering = name !== step;
-    if (step === 'mission' && name !== 'mission' && watchTimer) {
-      cancelAnimationFrame(watchTimer);
+    if (step === 'mission' && name !== 'mission') {
+      if (watchTimer) cancelAnimationFrame(watchTimer);
       watchTimer = 0;
+      // The demo left the robot at the end of its route; the kid's own run starts from the
+      // start, so show it there.
+      if (!workerHandle && !liveSession) showStartPosition();
     }
     step = name;
     const consoleState = CONSOLE_STEPS.has(name);
@@ -707,6 +733,28 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       el('button', { type: 'button', class: 'btn btn-next', onclick: () => goTo('learn') }, el('span', { text: 'Learn why' }), icon('next', 20)),
     );
     playTheDemo();
+  }
+
+  /** The robot back on its starting tile, with telemetry empty. */
+  function showStartPosition(): void {
+    field.draw(buildSim(spec).snapshot());
+    telemetry.update(null);
+    caption.textContent = '';
+  }
+
+  /** Check results describe the code as it was. Once it changes, say so instead of leaving a
+      green tick next to code that may no longer earn it. */
+  function markResultsStale(): void {
+    if (!checkList.firstChild || checkList.querySelector('.stale-note')) return;
+    if (!checkList.querySelector('.check-items, .check-blocked')) return;
+    mount(checkList, el('p', { class: 'muted stale-note', text: 'Your code changed since the last check. Press Check it to check it again.' }));
+  }
+
+  /** The robot drove into the edge of the field and stopped there. */
+  function showWallNotice(snapshot: SimSnapshot): void {
+    if ((snapshot as SimSnapshot & { hitWall?: boolean }).hitWall) {
+      console_.setStatus('The robot reached the wall and stopped there. A shorter drive keeps it on the field.');
+    }
   }
 
   /* ------------------------------------------------------------- the demo */

@@ -184,6 +184,20 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
   repaintOnLoad.add(repaint);
   const onResize = () => resize();
   addEventListener('resize', onResize);
+  // The box can change size without the window doing so (a scrollbar appears in the side
+  // column, the gamepad mounts), so watch the box itself as well.
+  let observed: Element | null = null;
+  const observer = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(() => { if (canvas.parentElement && canvas.parentElement.clientWidth !== side) resize(); })
+    : null;
+  const watchBox = () => {
+    const box = canvas.parentElement;
+    if (!observer || !box || box === observed) return;
+    if (observed) observer.unobserve(observed);
+    observer.observe(box);
+    observed = box;
+  };
+  requestAnimationFrame(watchBox);
   // Light/dark changed, from the Display panel or (on Auto) from the device itself.
   const recolor = () => {
     colors = readPalette();
@@ -196,8 +210,9 @@ export function createFieldView(options: { label?: string; instrument?: boolean 
   return {
     canvas,
     draw,
-    resize,
+    resize: () => { watchBox(); resize(); },
     destroy: () => {
+      observer?.disconnect();
       repaintOnLoad.delete(repaint);
       removeEventListener('resize', onResize);
       removeEventListener('nebula:appearance', recolor);

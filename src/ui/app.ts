@@ -17,6 +17,7 @@ const loadLesson = (): Promise<typeof LessonPageModule> =>
 import { mentorPage } from './pages/mentor';
 import { aboutPage } from './pages/about';
 import { privacyPage } from './pages/privacy';
+import { glossaryPage } from './pages/glossary';
 import { progressPage } from './pages/progress';
 import { pathway } from '../content/loader';
 import type * as LessonPageModule from './pages/lesson';
@@ -51,6 +52,9 @@ export function startApp(root: HTMLElement): void {
 
   function render(route: Route): void {
     renderTicket++;
+    // On the very first page, focus stays at the top of the document, so the first Tab reaches
+    // the skip link and the header. Later routes move focus to the new page (WCAG 2.4.3).
+    const firstPage = lastRoute === null;
     if (lastRoute === 'chart') chartScroll = scrollY;
     // Let the page it replaces release timers, workers and the editor.
     outlet.firstElementChild?.dispatchEvent(new CustomEvent('nebula:leave', { bubbles: false }));
@@ -90,7 +94,7 @@ export function startApp(root: HTMLElement): void {
               header.refresh();
             },
           }));
-          outlet.focus({ preventScroll: true });
+          if (!firstPage) outlet.focus({ preventScroll: true });
         }).catch(() => {
           if (ticket !== renderTicket) return;
           mount(outlet, el('div', { class: 'prose-page' },
@@ -116,13 +120,24 @@ export function startApp(root: HTMLElement): void {
       case 'class':
         mount(outlet, classPage(route.param ?? ''));
         break;
+      case 'glossary':
+        mount(outlet, glossaryPage());
+        break;
+      case 'notfound':
+        mount(outlet, el('div', { class: 'prose-page' },
+          el('h1', { class: 'display', text: 'Page not found' }),
+          el('p', { text: 'Nothing lives at this address. The link may have a typo in it, or the page may have moved.' }),
+          el('p', {}, el('a', { class: 'btn btn-next', href: '#/', text: 'Go to the home page' }), ' ',
+            el('a', { class: 'btn btn-quiet', href: '#/chart', text: 'Open the star chart' })),
+        ));
+        break;
       default:
         mount(outlet, homePage());
     }
 
     header.refresh();
     // Moving focus to the outlet is what makes a hash route usable with a keyboard.
-    outlet.focus({ preventScroll: true });
+    if (!firstPage) outlet.focus({ preventScroll: true });
     // Every page starts at the top, except the chart, which you come back to mid-scroll.
     const restore = route.name === 'chart' && lastRoute !== null ? chartScroll : 0;
     scrollTo({ top: restore, behavior: 'instant' as ScrollBehavior });
@@ -158,6 +173,8 @@ function titleFor(route: Route): string {
     case 'mentor': return `Mentor guides · ${base}`;
     case 'about': return `About · ${base}`;
     case 'privacy': return `Privacy · ${base}`;
+    case 'glossary': return `Glossary · ${base}`;
+    case 'notfound': return `Page not found · ${base}`;
     case 'progress': return `Your progress · ${base}`;
     case 'class': return `Class ${route.param ?? ''} · ${base}`;
     default: return `${base}: program a competition robot in real Java`;

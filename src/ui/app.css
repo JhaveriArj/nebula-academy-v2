@@ -500,8 +500,8 @@ html { scrollbar-gutter: stable; }
 /* Lines outside the loop: one muted colour that still passes 4.5:1, instead of opacity. */
 .nb-demo-line.is-context,
 .nb-demo-line.is-context * { color: var(--nb-text-3); }
-/* The long setup lines wrap under themselves instead of scrolling sideways. */
-.nb-demo-code .nb-demo-line.is-context { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 44px; text-indent: -44px; }
+/* Long lines wrap under themselves instead of scrolling sideways, at every width. */
+.nb-demo-code .nb-demo-line { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 44px; text-indent: -44px; }
 .nb-code .syn-str { color: var(--syn-string); }
 .nb-code .syn-ann { color: var(--syn-annotation); }
 .nb-demo-line { display: block; padding-right: 12px; white-space: pre; transition: background-color 120ms var(--ease-out); }
@@ -973,6 +973,20 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   .nb-step-view { min-height: 0; }
   .nb-mentors { grid-template-columns: minmax(0, 1fr); gap: 48px; }
 }
+/* Tablets in portrait (up to 900px): side by side leaves the code pane no room, so the demo
+   window stacks code over field, as on a phone, and stays inside the screen. */
+@media (max-width: 900px) {
+  .nb-hero { --field: min(calc(100vw - 2 * var(--edge) - 2px), 520px); --code-w: 100%; padding-right: var(--edge); }
+  .nb-hero-stage { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .nb-operator { display: none; }
+  .nb-window { grid-template-rows: auto auto auto; border-right: var(--seam-w) solid var(--nb-line); border-radius: var(--radius); overflow: clip; }
+  .nb-window-bar { grid-template-columns: minmax(0, 1fr); min-height: 44px; }
+  .nb-window-body { grid-template-columns: minmax(0, 1fr); }
+  .nb-window-code { height: auto; border-right: 0; border-bottom: var(--seam-w) solid var(--nb-line); }
+  .nb-demo-code { flex: none; max-height: 16rem; }
+  .nb-window-field { justify-self: center; }
+  .nb-readout { grid-template-columns: minmax(0, 1fr); display: flex; flex-wrap: wrap; gap: 4px 20px; padding: 10px 16px; }
+}
 @media (max-width: 760px) {
   .nb { --edge: 20px; }
   .nb-hero { --field: calc(100vw - 42px); --code-w: 100%; padding-top: 40px; padding-right: var(--edge); gap: 40px; }
@@ -995,7 +1009,6 @@ body[data-route='home'] .display-button { background: var(--nb-raised); color: v
   /* Two to a row, like a small table: no rule before the first in each row. */
   .nb-proof { display: grid; grid-template-columns: repeat(2, auto); justify-content: start; }
   .nb-proof li:nth-child(2n + 1) { padding-left: 0; border-left: 0; }
-  .nb-demo-code { overflow-x: auto; }
   .nb-paper { padding: 40px 20px 16px; }
   .nb-tier { grid-template-columns: 64px minmax(0, 1fr); }
   .nb-tier-num { font-size: 3.5rem; }
@@ -1365,6 +1378,7 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
   letter-spacing: 0.02em;
 }
 .lesson-minutes { font-size: var(--size-label); }
+.lesson-preview-note { margin: 0; max-width: none; padding: var(--s2) var(--s4); border-bottom: var(--seam-w) solid var(--line); background: var(--surface-soft); font-size: var(--size-label); }
 
 .lesson-shell {
   flex: 1;
@@ -1487,8 +1501,27 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
   max-width: none;
 }
 
-.editor { flex: 1; min-height: 160px; overflow: hidden; border-bottom: var(--seam-w) solid var(--space-line); }
+.editor { position: relative; flex: 1; min-height: 160px; overflow: hidden; border-bottom: var(--seam-w) solid var(--space-line); }
 .editor .cm-editor { height: 100%; }
+/* With check results showing, the editor keeps about twelve lines; the results scroll instead. */
+.lesson-console:has(> .results-slot .check-items, > .results-slot .check-blocked) .editor { min-height: min(19rem, 42vh); }
+/* "Press Esc, then Tab" appears while the editor has focus, bottom right, over the code. */
+.editor-hint {
+  position: absolute;
+  right: var(--s3);
+  bottom: var(--s2);
+  z-index: 2;
+  margin: 0;
+  padding: 2px var(--s2);
+  border-radius: var(--radius-xs);
+  background: var(--space-raised);
+  color: var(--space-ink);
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease-out);
+}
+.editor:focus-within .editor-hint { opacity: 1; }
 
 .run-bar {
   display: flex;
@@ -1501,7 +1534,10 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
 }
 
 .run-spacer { flex: 1; }
-.reset-notice { display: flex; align-items: center; gap: var(--s1); margin: 0; font-size: var(--size-label); color: var(--ink-mid); }
+.reset-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 0 var(--s1); margin: 0; font-size: var(--size-label); color: var(--ink-mid); }
+/* The Undo note takes the spacer's place, so Check it stays on the same row. */
+.reset-notice:not(:empty) { flex: 1 1 0; min-width: 0; }
+.reset-notice:not(:empty) + .run-spacer { display: none; }
 .clear-question { font-weight: 700; }
 .clear-question:focus { outline: none; }
 
@@ -1559,7 +1595,11 @@ a.chart-index-row:focus-visible { outline: 3px solid var(--focus, var(--star)); 
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  position: relative;
 }
+/* The canvas sits on top of the box rather than inside its flow, so the box's size comes from
+   the column alone and the canvas (sized from the box in field.ts) can never push it wider. */
+.field-box > .field-canvas { position: absolute; inset: 0; margin: auto; }
 
 /* The demo's caption is read out, not shown: under the field it read like a button. */
 .field-caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -1918,7 +1958,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
 }
 .mentor-side { position: sticky; top: 96px; align-self: start; display: flex; flex-direction: column; gap: var(--s3); }
 .mentor-side-title { margin: 0; font-size: 1.125rem; }
-.mentor-side-title a { color: var(--ink); text-decoration: none; }
+.mentor-side-title a { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--ink); text-decoration: none; }
 .mentor-side-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; border-top: var(--seam-w) solid var(--line); padding-top: var(--s2); }
 .mentor-side-list li { max-width: none; }
 .mentor-side-link {
@@ -2159,7 +2199,7 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .lesson-side { border-inline-start: 0; border-bottom: var(--seam-w) solid var(--line); max-height: none; overflow: visible; align-items: center; }
   .field-box { width: min(100%, 56vh); height: auto; aspect-ratio: 1; }
   .lesson-side > :not(.field-box) { align-self: stretch; }
-  .editor { min-height: 360px; }
+  .editor { min-height: 360px; height: 60vh; flex: none; }
   .lesson-console > .results-slot { max-height: none; }
   .telemetry { flex: none; min-height: 0; }
   .telemetry-toggle { display: inline-flex; align-items: center; min-height: var(--tap); }
@@ -2202,5 +2242,8 @@ hr { border: 0; border-top: var(--seam-w) solid var(--line); margin: var(--s5) 0
   .field-box { width: 100%; height: auto; aspect-ratio: 1; }
   .lesson-reading { padding: var(--s4); }
   .prose-page { padding: var(--s4) var(--s4) var(--s7); }
-  .editor { min-height: 260px; }
+  /* On a phone the editor scrolls inside a box of half the screen, and the run bar sticks to
+     the bottom edge, so Run is always in reach of the code; pressing it scrolls to the field. */
+  .editor { min-height: 260px; height: 50vh; flex: none; }
+  .run-bar { position: sticky; bottom: 0; z-index: 3; }
 }

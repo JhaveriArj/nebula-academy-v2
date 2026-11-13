@@ -171,17 +171,16 @@ export function createStarChart(options: { reducedMotion: boolean }): StarChart 
         group.appendChild(svg('circle', { cx: point.x, cy: point.y, r: 4, class: 'chart-mark' }));
       }
       if (current) {
-        // The mascot sits on the lesson you are up to, in place of its number.
+        // The mascot sits above the lesson you are up to, so its number moves below the star.
         const head = mascotHead(26);
         head.setAttribute('x', String(point.x - 12));
         head.setAttribute('y', String(point.y - 46));
         head.classList.add('chart-you');
         group.appendChild(head);
-      } else {
-        group.appendChild(svg('text', {
-          x: point.x, y: point.y - 20, class: 'chart-waypoint-label', 'text-anchor': 'middle', 'aria-hidden': 'true', text: String(i + 1),
-        }));
       }
+      group.appendChild(svg('text', {
+        x: point.x, y: current ? point.y + 32 : point.y - 20, class: 'chart-waypoint-label', 'text-anchor': 'middle', 'aria-hidden': 'true', text: String(i + 1),
+      }));
 
       const node = unlocked
         ? svg('a', { href: lessonHref(lesson.id), 'aria-label': label, class: 'chart-link', ...tierTag }, group)

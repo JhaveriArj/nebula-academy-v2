@@ -30,6 +30,12 @@ storage. It holds:
 This never leaves the computer unless you choose to save it to a file. The file is yours: you
 can keep it, move it to another computer, or delete it.
 
+One thing to know: the site's address is shared with the owner's other GitHub Pages projects
+(everything under the same github.io name). Browsers keep local storage per address, so those
+other projects could in principle read what this site saves, and this site could read theirs.
+Nebula Academy reads only its own two entries and stores nothing sensitive in them, only lesson
+progress, code and settings, and a class membership key if a child has joined a class.
+
 ## The one exception: class codes
 
 A mentor can make a class and give out a class code. If a child joins a class, the site sends
@@ -53,9 +59,9 @@ asking parents first.
 ## How to clear everything
 
 - **On the Progress page,** you can save a copy of the progress first if you want to keep it.
-- **To delete it,** clear this site's data in the browser's settings. In most browsers this is
-  under Settings, then Privacy, then "Cookies and site data" or "Website data". Search for this
-  site's address and remove it.
+- **To delete it,** press "Clear everything" on the Progress page. That removes the passed
+  lessons and saved code from this browser, and nothing else. (Clearing the site's data in the
+  browser's settings also works, but it would clear the owner's other github.io projects too.)
 - **To leave a class,** open the Progress page and press "Leave the class" first, so the nickname
   and passes are deleted from the server too.
 

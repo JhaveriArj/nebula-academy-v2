@@ -361,7 +361,7 @@ function heroDemo(onCheck: (index: number, last: boolean) => void): Demo {
         passTimers = [];
         setPassed(0);
         element.classList.remove('is-done');
-        statusText.textContent = 'running';
+        statusText.textContent = userPaused ? 'paused' : 'running';
       }
       // Announced once per run, not on every frame.
       checksDone.textContent = s.done ? `All ${checks.length} checks passed.` : '';
@@ -399,6 +399,9 @@ function heroDemo(onCheck: (index: number, last: boolean) => void): Demo {
   toggle.addEventListener('click', () => {
     userPaused = !userPaused;
     setToggle(!userPaused);
+    // Mid-run, the status says whether it is moving; once the checks have passed it keeps
+    // saying so.
+    if (!shownDone) statusText.textContent = userPaused ? 'paused' : 'running';
     sync();
   });
   const seen = new IntersectionObserver(([entry]) => {

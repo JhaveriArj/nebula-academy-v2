@@ -15,13 +15,16 @@ export function siteFooter(): HTMLElement {
         el('span', { text: 'Nebula Academy' }),
       ),
       el('nav', { class: 'site-footer-nav', 'aria-label': 'Footer' },
-        ...[['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['About', '#/about'], ['Privacy', '#/privacy']].map(([label, href]) =>
+        ...[['Chart', '#/chart'], ['Mentor', '#/mentor'], ['Progress', '#/progress'], ['Glossary', '#/glossary'], ['About', '#/about'], ['Privacy', '#/privacy']].map(([label, href]) =>
           el('a', { href: href!, class: 'site-footer-link', text: label! })),
       ),
     ),
     el('div', { class: 'site-footer-body' },
       el('div', {},
-        el('p', { class: 'site-footer-made', text: 'Built by an FTC team. Free, with no accounts and no analytics; your progress stays in this browser.' }),
+        el('p', { class: 'site-footer-made' },
+          'Built by an FTC team. Free, with no accounts and no analytics; your progress stays in this browser.',
+          ' If a mentor gives you a class code, joining sends a nickname and your passed lessons to the class server. ',
+          el('a', { href: '#/privacy', text: 'How privacy works' })),
         el('p', { class: 'site-footer-legal', text: 'FIRST®, FIRST® Tech Challenge and FTC® are trademarks of FIRST (For Inspiration and Recognition of Science and Technology), which is not involved with, and does not endorse, Nebula Academy.' }),
       ),
       el('figure', { class: 'site-footer-thumb' },
