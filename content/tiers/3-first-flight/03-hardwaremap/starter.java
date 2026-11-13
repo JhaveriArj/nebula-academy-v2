@@ -14,8 +14,8 @@ public class HardwareNames extends OpMode {
 
     @Override
     public void init() {
-        // TODO: fetch all four motors from the hardware map, then print
-        //       frontLeft.getDeviceName() joined to " ready".
+        // TODO: fetch all four motors from the hardware map, then show
+        //       "frontLeft" and "ready" on the Driver Station with telemetry.
     }
 
     @Override

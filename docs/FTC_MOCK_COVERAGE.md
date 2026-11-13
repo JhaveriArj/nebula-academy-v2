@@ -125,7 +125,7 @@ Extends `DcMotorSimple`.
 
 ### DcMotor <sub>interface</sub>
 
-A drive or mechanism motor. The core device of every lesson from Tier 0.
+A drive or mechanism motor. The core device of every lesson from Tier 0. `getDeviceName()` returns a description of the device type (`"Motor"`), as the real SDK does, not the configured name.
 
 Extends `DcMotorSimple`.
 

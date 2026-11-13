@@ -9,9 +9,9 @@
   "teleOpForMs": 1000,
   "checks": [
     {
-      "type": "outputContains",
-      "text": "frontLeft ready",
-      "label": "frontLeft was found and answered to its name"
+      "type": "telemetryContains",
+      "text": "frontLeft : ready",
+      "label": "frontLeft was found, and the Driver Station says it is ready"
     }
   ]
 }

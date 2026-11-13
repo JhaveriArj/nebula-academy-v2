@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { runLessonTests, type TestSpec } from '../src/runtime/testRunner';
+import { runJava } from '../src/runtime/java/interpreter';
+import { Simulation } from '../src/sim/simulation';
 
 const lesson = (dir: string) => ({
   starter: readFileSync(`content/tiers/${dir}/starter.java`, 'utf8'),
@@ -56,5 +58,31 @@ describe('robotHeadingWithin with relative turns', () => {
     const right = runLessonTests(turnProgram(0.5, -0.5, 785, 4), fullTurn);
     expect(left.results[0]!.passed, left.results[0]!.detail).toBe(true);
     expect(right.results[0]!.passed, right.results[0]!.detail).toBe(true);
+  });
+});
+
+describe('telemetryContains and the hardware map lesson', () => {
+  it('passes the solution and not the starter', () => {
+    const { starter, spec } = lesson('3-first-flight/03-hardwaremap');
+    const before = runLessonTests(starter, spec);
+    expect(before.results[0]!.passed).toBe(false);
+    expect(before.results[0]!.detail).toMatch(/never showed anything/);
+  });
+
+  it('getDeviceName describes the kind of device, not its configured name', () => {
+    const r = runJava(`
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@Autonomous(name = "Name")
+public class Name extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        DcMotor frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        System.out.println(frontLeft.getDeviceName());
+    }
+}`, { sim: new Simulation({ robot: 'mecanum' }) });
+    expect(r.sim.outputText()).toBe('Motor\n');
   });
 });

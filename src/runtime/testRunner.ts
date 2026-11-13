@@ -17,6 +17,7 @@ export type Check =
   | { type: 'motorPowerEverExceeded'; motor: string; power: number; label?: string }
   | { type: 'servoReached'; servo: string; position: number; tolerance?: number; label?: string }
   | { type: 'telemetryHasKey'; key: string; label?: string }
+  | { type: 'telemetryContains'; text: string; label?: string }
   | { type: 'methodExists'; name: string; params?: number; className?: string; label?: string }
   | { type: 'classExists'; name: string; extends?: string; label?: string }
   | { type: 'ranUnder'; ms: number; label?: string };
@@ -225,6 +226,21 @@ function evaluate(
           : 'Telemetry never showed anything. Remember telemetry.update().',
       );
 
+    case 'telemetryContains': {
+      // Lines as the Driver Station shows them, "key : value", over every update().
+      const hit = sim.telemetryLog.some((line) => line.includes(check.text));
+      const last = sim.telemetry.map((t) => (t.key ? `${t.key} : ${t.value}` : t.value));
+      return ok(
+        `Telemetry shows "${check.text}"`,
+        hit,
+        hit
+          ? `Found it on the Driver Station.`
+          : last.length
+            ? `The Driver Station showed: ${last.join(' / ')}.`
+            : 'Telemetry never showed anything. Remember telemetry.update().',
+      );
+    }
+
     case 'methodExists': {
       const classes = allTypes(ast).filter((t) => !check.className || t.name === check.className);
       const hit = classes
@@ -300,6 +316,6 @@ const firstLines = (s: string, n = 3) =>
 /** Every check type this runner implements. tests/content.test.ts validates against it. */
 export const CHECK_TYPES: CheckType[] = [
   'outputContains', 'outputMatches', 'robotMovedAtLeastCm', 'robotWithinCmOf',
-  'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey',
+  'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey', 'telemetryContains',
   'methodExists', 'classExists', 'ranUnder',
 ];

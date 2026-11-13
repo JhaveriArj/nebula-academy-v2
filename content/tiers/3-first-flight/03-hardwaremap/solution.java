@@ -19,7 +19,8 @@ public class HardwareNames extends OpMode {
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
-        System.out.println(frontLeft.getDeviceName() + " ready");
+        telemetry.addData("frontLeft", "ready");
+        telemetry.update();
     }
 
     @Override

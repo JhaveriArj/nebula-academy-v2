@@ -97,7 +97,7 @@ export const DC_MOTOR: NativeClass = {
   simple: 'DcMotor',
   kind: 'interface',
   extends: 'DcMotorSimple',
-  doc: 'A drive or mechanism motor. The core device of every lesson from Tier 0.',
+  doc: 'A drive or mechanism motor. The core device of every lesson from Tier 0. `getDeviceName()` returns a description of the device type (`"Motor"`), as the real SDK does, not the configured name.',
   methods: [
     {
       name: 'setMode',
@@ -169,7 +169,9 @@ export const DC_MOTOR: NativeClass = {
       name: 'getDeviceName',
       params: [],
       returns: 'String',
-      call: (ctx, self) => jstring(dev(self, ctx)),
+      // HardwareDevice.getDeviceName() describes the kind of device, not the name it has in
+      // the robot configuration. A lesson that wants that name keeps it in a String itself.
+      call: () => jstring('Motor'),
     },
   ],
 };

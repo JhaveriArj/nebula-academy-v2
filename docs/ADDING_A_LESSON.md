@@ -91,6 +91,7 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 | `motorPowerEverExceeded` `{ motor, power }` | That motor was given more than `power` at some point. |
 | `servoReached` `{ servo, position, tolerance? }` | That servo reached `position`. |
 | `telemetryHasKey` `{ key }` | The code sent telemetry with that caption. |
+| `telemetryContains` `{ text }` | A line the Driver Station showed (as `key : value`, after `telemetry.update()`) contains `text`. |
 | `methodExists` `{ name, params?, className? }` | The code declares that method. |
 | `classExists` `{ name, extends? }` | The code declares that class. |
 | `ranUnder` `{ ms }` | The whole run finished in under `ms` of robot time. |
