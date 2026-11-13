@@ -1,5 +1,6 @@
 import { formatDiagnostic, type Diagnostic, type JavaThrow } from './java/diagnostics';
 import type { MissingImport } from './java/imports';
+import { findBraceProblem } from './java/braces';
 import type { RunStopReason } from './java/interpreter';
 
 /* Turns a compiler diagnostic or a Java exception into something a nine-year-old can act
@@ -21,10 +22,46 @@ export interface FriendlyError {
   raw: string;
 }
 
+/** Syntax errors an unbalanced brace can cause, usually far from the brace itself. */
+const BRACE_SYMPTOMS = new Set<Diagnostic['code']>([
+  'expected', 'illegal.start.of.expression', 'illegal.start.of.type', 'premature.eof', 'class.expected',
+]);
+
+/** The file javac would name: Java requires it to match the public class. */
+export function javaFileName(source: string): string {
+  const name =
+    /\bpublic\s+(?:(?:final|abstract|static)\s+)*class\s+(\w+)/.exec(source)?.[1] ??
+    /\bclass\s+(\w+)/.exec(source)?.[1] ??
+    'Main';
+  return `${name}.java`;
+}
+
 export function translateDiagnostic(d: Diagnostic, source: string): FriendlyError {
-  const raw = formatDiagnostic(d, 'Main.java', source);
+  const raw = formatDiagnostic(d, javaFileName(source), source);
   const at = d.line;
   const base = { kind: 'compile' as const, line: at, column: d.column, raw };
+
+  if (BRACE_SYMPTOMS.has(d.code)) {
+    const brace = findBraceProblem(source);
+    if (brace?.kind === 'extra') {
+      return {
+        ...base,
+        line: brace.line,
+        column: brace.column,
+        headline: `Line ${brace.line} has an extra } that the robot did not expect.`,
+        fix: 'Each } closes the nearest open {. Delete this one, or add the { it was meant to close.',
+      };
+    }
+    if (brace?.kind === 'missing') {
+      return {
+        ...base,
+        line: brace.line,
+        column: brace.column,
+        headline: `The { on line ${brace.line} never gets its closing }.`,
+        fix: 'Add a } where that block ends. Each { that opens a class, a method or a loop needs one } to close it.',
+      };
+    }
+  }
 
   switch (d.code) {
     case 'expected': {
@@ -279,7 +316,7 @@ export function translateThrow(t: JavaThrow, source: string): FriendlyError {
 /** Builder mode asks for SDK imports, as Android Studio will. The raw text is what javac
  *  prints for the same mistake. */
 export function translateMissingImport(missing: MissingImport, source: string): FriendlyError {
-  const className = /\bclass\s+(\w+)/.exec(source)?.[1] ?? 'YourOpMode';
+  const className = javaFileName(source).replace(/\.java$/, '');
   return {
     kind: 'compile',
     headline: `The robot does not know a kind of thing called ${missing.name} on line ${missing.line}.`,
