@@ -46,14 +46,14 @@ The Tier 4 autonomous uses `LinearOpMode` instead, which does run top to bottom,
 
 ## Try
 
-Two TODOs. Print `Nebula ready` in `init`, and add one to `loops` in `loop`.
+Two TODOs. Show `Nebula ready` on the Driver Station in `init`, with `telemetry.addData("Status", "Nebula ready");` and then `telemetry.update();`. Add one to `loops` in `loop`.
 
-Press Run. `stop()` is already written and prints the total at the end.
+Press Run. `stop()` is already written and shows the total at the end.
 
 ## Check
 
-The checks want `Nebula ready` printed once and a count of more than ten loops at the end.
+The checks want `Status : Nebula ready` on the Driver Station and a count of more than ten loops at the end.
 
 ## Boost
 
-Print something in `loop()` as well and press Run. How many lines appear? That is how often the robot is asking your code what to do.
+Add `telemetry.addData("loops", loops);` and `telemetry.update();` to `loop()` as well, and press Run. Watch the number climb: that is how often the robot is asking your code what to do.

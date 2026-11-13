@@ -10,7 +10,8 @@ public class WhatIsAnOpMode extends OpMode {
 
     @Override
     public void init() {
-        System.out.println("Nebula ready");
+        telemetry.addData("Status", "Nebula ready");
+        telemetry.update();
     }
 
     @Override
@@ -20,6 +21,7 @@ public class WhatIsAnOpMode extends OpMode {
 
     @Override
     public void stop() {
-        System.out.println("loop ran " + loops + " times");
+        telemetry.addData("loop ran", loops + " times");
+        telemetry.update();
     }
 }

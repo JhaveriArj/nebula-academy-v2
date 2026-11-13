@@ -86,3 +86,30 @@ public class Name extends LinearOpMode {
     expect(r.sim.outputText()).toBe('Motor\n');
   });
 });
+
+describe('break it on purpose: the answers are what the experiments really say', () => {
+  const { starter, spec } = lesson('0-launchpad/02-run-and-break-it');
+  const answer = (name: string) => {
+    const c = spec.checks.find((x) => x.type === 'telemetryContains' && x.text.startsWith(`${name} : `));
+    return Number((c as { text: string }).text.split(' : ')[1]);
+  };
+  const lineAfter = (edit: (src: string) => string) => {
+    const r = runLessonTests(edit(starter), spec);
+    expect(r.compiled).toBe(false);
+    return r.error!.line;
+  };
+
+  it('semicolon', () => {
+    expect(lineAfter((s) => s.replace('int speed = 1;', 'int speed = 1'))).toBe(answer('semicolon'));
+  });
+  it('spelling', () => {
+    expect(lineAfter((s) => s.replace('leftDrive.setPower(speed);', 'leftDrive.setPower(sped);'))).toBe(answer('spelling'));
+  });
+  it('brace', () => {
+    expect(lineAfter((s) => s.slice(0, s.lastIndexOf('}')) + s.slice(s.lastIndexOf('}') + 1))).toBe(answer('brace'));
+  });
+  it('the starter as written does not pass, so the numbers have to come from somewhere', () => {
+    const r = runLessonTests(starter, spec);
+    expect(r.results.filter((x) => x.type === 'telemetryContains').every((x) => !x.passed)).toBe(true);
+  });
+});

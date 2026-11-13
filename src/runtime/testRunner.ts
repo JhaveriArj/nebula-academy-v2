@@ -18,6 +18,7 @@ export type Check =
   | { type: 'servoReached'; servo: string; position: number; tolerance?: number; label?: string }
   | { type: 'telemetryHasKey'; key: string; label?: string }
   | { type: 'telemetryContains'; text: string; label?: string }
+  | { type: 'telemetryMatches'; pattern: string; flags?: string; label?: string }
   | { type: 'methodExists'; name: string; params?: number; className?: string; label?: string }
   | { type: 'classExists'; name: string; extends?: string; label?: string }
   | { type: 'ranUnder'; ms: number; label?: string };
@@ -241,6 +242,19 @@ function evaluate(
       );
     }
 
+    case 'telemetryMatches': {
+      const re = new RegExp(check.pattern, check.flags ?? '');
+      const hit = sim.telemetryLog.some((line) => re.test(line));
+      const last = sim.telemetry.map((t) => (t.key ? `${t.key} : ${t.value}` : t.value));
+      return ok(
+        `Telemetry matches ${check.pattern}`,
+        hit,
+        last.length
+          ? `The Driver Station showed: ${last.join(' / ')}.`
+          : 'Telemetry never showed anything. Remember telemetry.update().',
+      );
+    }
+
     case 'methodExists': {
       const classes = allTypes(ast).filter((t) => !check.className || t.name === check.className);
       const hit = classes
@@ -317,5 +331,6 @@ const firstLines = (s: string, n = 3) =>
 export const CHECK_TYPES: CheckType[] = [
   'outputContains', 'outputMatches', 'robotMovedAtLeastCm', 'robotWithinCmOf',
   'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey', 'telemetryContains',
+  'telemetryMatches',
   'methodExists', 'classExists', 'ranUnder',
 ];

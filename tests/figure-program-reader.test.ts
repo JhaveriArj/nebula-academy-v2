@@ -18,9 +18,12 @@ describe('program reader: same program as the lesson', () => {
     for (const line of programOf(1000)) expect(STARTER[line.n - 1]!.trim(), `line ${line.n}`).toBe(line.code);
   });
 
-  it('skips nothing that runs: every statement inside runOpMode after the motors are set up is listed', () => {
+  it('skips nothing that runs: every statement from waitForStart to the stop is listed', () => {
+    // The telemetry lines after the stop are where the kid writes down the line numbers; they
+    // move nothing, so the card ends when the robot stops.
+    const stop = STARTER.findIndex((t) => t.trim() === 'rightDrive.setPower(0);') + 1;
     const body = STARTER.map((text, i) => ({ n: i + 1, text: text.trim() }))
-      .filter(({ n, text }) => n >= 15 && text.endsWith(';'));
+      .filter(({ n, text }) => n >= 15 && n <= stop && text.endsWith(';'));
     expect(body.map((l) => l.n)).toEqual(programOf(1000).map((l) => l.n));
   });
 
