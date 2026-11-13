@@ -12,3 +12,13 @@ export function frameIndex(now: number, startedAt: number, count: number, loop: 
   const raw = Math.floor(Math.max(0, now - startedAt) / FRAME_MS);
   return loop ? raw % count : Math.min(count - 1, raw);
 }
+
+/** Which frame of a kid's own run to show `elapsedMs` after it began to play: the newest one
+    whose robot time has come. `times` are the frames' sim times, in order; `from` is the frame
+    on screen now, so the search never goes backwards. This is what makes sleep(2000) take two
+    real seconds on the field. */
+export function frameDue(times: readonly number[], from: number, elapsedMs: number): number {
+  let index = Math.max(0, Math.min(from, times.length - 1));
+  while (index < times.length - 1 && times[index + 1]! <= elapsedMs) index++;
+  return index;
+}

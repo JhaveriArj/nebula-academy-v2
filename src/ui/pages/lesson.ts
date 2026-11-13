@@ -2,7 +2,7 @@ import { el, mount, prefersReducedMotion } from '../dom';
 import { icon } from '../icons';
 import { missingImports } from '../../runtime/java/imports';
 import { translateMissingImport } from '../../runtime/errorTranslator';
-import { frameIndex } from '../frames';
+import { frameDue, frameIndex } from '../frames';
 import { renderMarkdown } from '../markdown';
 import { mountFigures } from '../../figures';
 import { loadLesson, nextLessonId, tierOf } from '../../content/loader';
@@ -22,7 +22,7 @@ import { lessonHref } from '../router';
 import { fieldThumb, inkCheck, mascot, paper, routeOf, stepIcon } from '../kit';
 import { mascotHead } from '../mascot';
 import { ticksDue, type SimSnapshot } from '../../sim/simulation';
-import type { CheckOutcome } from '../../runtime/messages';
+import type { CheckOutcome, RunOutcome } from '../../runtime/messages';
 
 /* The lesson page. Two layouts from docs/DESIGN.md behind one shell: a reading state
    where prose gets the room, and a console state where the editor does. 768 px of height
@@ -135,22 +135,35 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     icon('run', 20), el('span', { text: 'Run' }));
   const stopButton = el('button', { type: 'button', class: 'btn', disabled: true, onclick: () => stopEverything('You stopped the robot.') },
     icon('stop', 20), el('span', { text: 'Stop' }));
-  // Reset acts at once and offers Undo, instead of a browser confirm() (HIG alerts.md:
-  // "avoid displaying alerts for common, undoable actions"). The status line is mounted
-  // empty up front so its first message is announced.
+  // Two resets, because they undo two different things. Reset robot puts the robot back on
+  // its starting tile and leaves the code alone. Reset code brings the starting code back; it
+  // acts at once and offers Undo, instead of a browser confirm() (HIG alerts.md: "avoid
+  // displaying alerts for common, undoable actions"). The status line is mounted empty up
+  // front so its first message is announced.
   const resetNotice = el('p', { class: 'reset-notice', role: 'status', 'aria-live': 'polite' });
   const clearResetNotice = () => mount(resetNotice);
-  const resetButton = el('button', {
+  const resetRobotButton = el('button', {
+    type: 'button',
+    class: 'btn btn-quiet',
+    onclick: () => {
+      clearResetNotice();
+      showStartPosition();
+      console_.setStatus('The robot is back at the start.');
+    },
+  }, icon('reset', 20), el('span', { text: 'Reset robot' }));
+  const resetCodeButton = el('button', {
     type: 'button',
     class: 'btn btn-quiet',
     onclick: () => {
       const before = editor.getCode();
-      if (before === lesson.starter) return;
+      if (before === lesson.starter) {
+        mount(resetNotice, el('span', { text: 'This is the starting code.' }));
+        return;
+      }
       editor.setCode(lesson.starter);
       setDraft(lesson.frontmatter.id, lesson.starter);
       console_.clear();
       editor.markError(null);
-      showStartPosition();
       mount(resetNotice,
         el('span', { text: 'Back to the starting code.' }),
         el('button', {
@@ -164,13 +177,13 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
         }, el('span', { text: 'Undo' })),
       );
     },
-  }, icon('reset', 20), el('span', { text: 'Reset' }));
+  }, icon('code', 20), el('span', { text: 'Reset code' }));
 
   const checkButton = el('button', { type: 'button', class: 'btn btn-check', onclick: () => void onCheck() },
     icon('passed', 20), el('span', { text: 'Check it' }));
 
   const runBar = el('div', { class: 'run-bar' },
-    runButton, stopButton, resetButton,
+    runButton, stopButton, resetRobotButton, resetCodeButton,
     resetNotice,
     el('span', { class: 'run-spacer' }),
     checkButton,
@@ -267,11 +280,14 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
   let liveFrame = 0;
   let workerHandle: RunHandle<unknown> | null = null;
   let watchTimer = 0;
+  /** The frame request that is playing a finished run back at the robot's own speed. */
+  let playbackFrame = 0;
 
   const setBusy = (busy: boolean) => {
     runButton.disabled = busy;
     stopButton.disabled = !busy;
-    resetButton.disabled = busy;
+    resetRobotButton.disabled = busy;
+    resetCodeButton.disabled = busy;
     checkButton.disabled = busy;
     runButton.classList.toggle('is-live', busy);
   };
@@ -284,6 +300,10 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     if (liveFrame) {
       cancelAnimationFrame(liveFrame);
       liveFrame = 0;
+    }
+    if (playbackFrame) {
+      cancelAnimationFrame(playbackFrame);
+      playbackFrame = 0;
     }
     if (liveSession) {
       const result = liveSession.finish();
@@ -320,33 +340,69 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       return;
     }
 
-    let hitWall = false;
-    const handle = runProgram(code, spec, (snapshot) => {
-      hitWall ||= snapshot.hitWall;
-      field.draw(snapshot);
-      telemetry.update(snapshot);
-    });
+    /* The worker runs the whole program in a blink, so drawing its frames as they arrive
+       would jump the robot straight to the end. They are kept here and played back by the
+       robot's own clock instead: sleep(2000) takes two real seconds on the field. */
+    const frames: SimSnapshot[] = [];
+    const handle = runProgram(code, spec, (snapshot) => frames.push(snapshot));
     workerHandle = handle;
+    let outcome: RunOutcome;
     try {
-      const outcome = await handle.done;
-      workerHandle = null;
-      field.draw(outcome.snapshot);
-      telemetry.update(outcome.snapshot);
-      console_.setOutput(outcome.snapshot.output);
-      console_.showError(outcome.error);
-      if (outcome.error?.line) editor.markError(outcome.error.line);
-      console_.setStatus(
-        outcome.error ? null : `Finished after ${(outcome.snapshot.timeMs / 1000).toFixed(1)} seconds of robot time.`,
-      );
-      if (!outcome.error && (hitWall || outcome.snapshot.hitWall)) {
-        console_.setStatus('The robot reached the wall and stopped there. A shorter drive keeps it on the field.');
-      }
+      outcome = await handle.done;
     } catch (error) {
       workerHandle = null;
       console_.setStatus(error instanceof Error ? error.message : 'The runner stopped.');
-    } finally {
       setBusy(false);
+      return;
     }
+    // Stop, or a second Run, arrived while this one was still working: it is not ours to show.
+    if (workerHandle !== handle) return;
+    workerHandle = null;
+    frames.push(outcome.snapshot);
+    playBack(frames, () => showRunOutcome(outcome, frames.some((f) => f.hitWall)));
+  }
+
+  /** Shows a run's frames at the speed the robot lived them, then calls `done`. Stop cancels
+      it through stopEverything. With reduced motion the finished position shows at once. */
+  function playBack(frames: SimSnapshot[], done: () => void): void {
+    const times = frames.map((f) => f.timeMs);
+    const last = frames.length - 1;
+    if (prefersReducedMotion() || times[last]! <= 0) {
+      done();
+      return;
+    }
+    let startedAt = 0;
+    let index = 0;
+    const show = (now: number) => {
+      startedAt ||= now;
+      index = frameDue(times, index, now - startedAt);
+      if (index >= last) {
+        playbackFrame = 0;
+        done();
+        return;
+      }
+      const frame = frames[index]!;
+      field.draw(frame);
+      telemetry.update(frame);
+      console_.setOutput(frame.output);
+      playbackFrame = requestAnimationFrame(show);
+    };
+    playbackFrame = requestAnimationFrame(show);
+  }
+
+  function showRunOutcome(outcome: RunOutcome, hitWall: boolean): void {
+    field.draw(outcome.snapshot);
+    telemetry.update(outcome.snapshot);
+    console_.setOutput(outcome.snapshot.output);
+    console_.showError(outcome.error);
+    if (outcome.error?.line) editor.markError(outcome.error.line);
+    console_.setStatus(
+      outcome.error ? null : `Finished after ${(outcome.snapshot.timeMs / 1000).toFixed(1)} seconds of robot time.`,
+    );
+    if (!outcome.error && hitWall) {
+      console_.setStatus('The robot reached the wall and stopped there. A shorter drive keeps it on the field.');
+    }
+    setBusy(false);
   }
 
   function runLiveTeleOp(code: string): void {
@@ -589,7 +645,7 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       watchTimer = 0;
       // The demo left the robot at the end of its route; the kid's own run starts from the
       // start, so show it there.
-      if (!workerHandle && !liveSession) showStartPosition();
+      if (!workerHandle && !liveSession && !playbackFrame) showStartPosition();
     }
     step = name;
     const consoleState = CONSOLE_STEPS.has(name);

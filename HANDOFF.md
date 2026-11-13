@@ -70,7 +70,10 @@ better-interface skills) and a fix per finding. Verified in a real browser at 13
   longer throws the kid back to Mission.
 - One filled button per moment in the run bar; a disabled Stop no longer looks heavier than Run.
 - Hints have their own "Show hint 2 of 3" button; Stuck reports `aria-expanded`.
-- Reset acts at once with Undo; Clear everything asks inline. `confirm()`, `alert()` and
+- A run plays back at the robot's own clock speed (`frameDue` in `src/ui/frames.ts`), so
+  `sleep(2000)` takes two real seconds on the field. Stop cancels the playback.
+- Reset robot puts the robot back at the start and keeps the code. Reset code acts at once
+  with Undo; Clear everything asks inline. `confirm()`, `alert()` and
   `prompt()` are now a lint error in `src/ui/`.
 - One `<h1>` on the mentor page; a kid-readable not-found page with the real error behind a
   toggle; the sticky header lets go below 561 px of height (it covered a third of a 200% screen).

@@ -1,5 +1,30 @@
 import { describe, it, expect } from 'vitest';
-import { frameIndex, FRAME_MS } from '../src/ui/frames';
+import { frameDue, frameIndex, FRAME_MS } from '../src/ui/frames';
+
+describe('frameDue', () => {
+  // A run that sleeps for 2000 ms: frames every 40 ms of robot time, then the final one.
+  const times = [...Array.from({ length: 50 }, (_, i) => i * 40), 2000];
+
+  it('holds the first frame until its robot time has passed', () => {
+    expect(frameDue(times, 0, 0)).toBe(0);
+    expect(frameDue(times, 0, 39)).toBe(0);
+    expect(frameDue(times, 0, 40)).toBe(1);
+  });
+
+  it('is halfway through a two second sleep after one real second', () => {
+    expect(times[frameDue(times, 0, 1000)]).toBe(1000);
+  });
+
+  it('reaches the last frame only when the whole run time has passed', () => {
+    expect(frameDue(times, 0, 1999)).toBe(times.length - 2);
+    expect(frameDue(times, 0, 2000)).toBe(times.length - 1);
+    expect(frameDue(times, 0, 99999)).toBe(times.length - 1);
+  });
+
+  it('never goes backwards from the frame on screen', () => {
+    expect(frameDue(times, 10, 0)).toBe(10);
+  });
+});
 
 describe('frameIndex', () => {
   it('never goes negative when the rAF timestamp predates the start time', () => {

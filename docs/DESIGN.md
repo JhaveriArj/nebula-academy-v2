@@ -260,7 +260,7 @@ touchable, 18px minimum on prose, every state reachable by tap and by keyboard, 
 visible.
 
 **4. Undo first, ask inline, never a browser dialog.**
-An action a kid does often and can reverse (Reset) happens at once and offers Undo. An action
+An action a kid does often and can reverse (Reset code) happens at once and offers Undo. An action
 that cannot be reversed (Clear everything) asks first, inline, naming what is lost, with buttons
 that say what they do. `confirm()`, `alert()` and `prompt()` block a touchscreen and read as
 something being wrong; the design lint rejects them in `src/ui/`.
