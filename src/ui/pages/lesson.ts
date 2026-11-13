@@ -320,7 +320,9 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       return;
     }
 
+    let hitWall = false;
     const handle = runProgram(code, spec, (snapshot) => {
+      hitWall ||= snapshot.hitWall;
       field.draw(snapshot);
       telemetry.update(snapshot);
     });
@@ -336,7 +338,9 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
       console_.setStatus(
         outcome.error ? null : `Finished after ${(outcome.snapshot.timeMs / 1000).toFixed(1)} seconds of robot time.`,
       );
-      if (!outcome.error) showWallNotice(outcome.snapshot);
+      if (!outcome.error && (hitWall || outcome.snapshot.hitWall)) {
+        console_.setStatus('The robot reached the wall and stopped there. A shorter drive keeps it on the field.');
+      }
     } catch (error) {
       workerHandle = null;
       console_.setStatus(error instanceof Error ? error.message : 'The runner stopped.');
@@ -748,13 +752,6 @@ function buildLesson(lesson: Lesson, deps: LessonPageDeps): HTMLElement {
     if (!checkList.firstChild || checkList.querySelector('.stale-note')) return;
     if (!checkList.querySelector('.check-items, .check-blocked')) return;
     mount(checkList, el('p', { class: 'muted stale-note', text: 'Your code changed since the last check. Press Check it to check it again.' }));
-  }
-
-  /** The robot drove into the edge of the field and stopped there. */
-  function showWallNotice(snapshot: SimSnapshot): void {
-    if ((snapshot as SimSnapshot & { hitWall?: boolean }).hitWall) {
-      console_.setStatus('The robot reached the wall and stopped there. A shorter drive keeps it on the field.');
-    }
   }
 
   /* ------------------------------------------------------------- the demo */

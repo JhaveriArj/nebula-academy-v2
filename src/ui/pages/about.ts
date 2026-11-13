@@ -80,7 +80,7 @@ function modeMockups(): HTMLElement {
   const lines: [string, boolean][] = [
     ['leftDrive.setPower(0.5);', false],
     ['rightDrive.setPower(0.5);', false],
-    ['sleep(2000);', true],
+    ['sleep(1000);', true],
     ['leftDrive.setPower(0);', false],
     ['rightDrive.setPower(0);', false],
   ];
