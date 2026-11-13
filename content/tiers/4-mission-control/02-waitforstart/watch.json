@@ -1,5 +1,9 @@
 {
   "robot": "mecanum",
+  "reverse": [
+    "frontRight",
+    "backRight"
+  ],
   "start": {
     "x": 182.88,
     "y": 91.44,
@@ -17,9 +21,9 @@
       "atMs": 600,
       "motors": {
         "frontLeft": 0.5,
-        "frontRight": -0.5,
+        "frontRight": 0.5,
         "backLeft": 0.5,
-        "backRight": -0.5
+        "backRight": 0.5
       },
       "say": "Started"
     },

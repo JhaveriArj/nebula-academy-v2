@@ -1,5 +1,9 @@
 {
   "robot": "mecanum",
+  "reverse": [
+    "frontRight",
+    "backRight"
+  ],
   "start": {
     "x": 182.88,
     "y": 91.44,
@@ -11,9 +15,9 @@
       "atMs": 0,
       "motors": {
         "frontLeft": 0.4,
-        "frontRight": -0.4,
+        "frontRight": 0.4,
         "backLeft": 0.4,
-        "backRight": -0.4
+        "backRight": 0.4
       },
       "say": "Step 1: to the wall"
     },
@@ -26,9 +30,9 @@
       "atMs": 5200,
       "motors": {
         "frontLeft": -0.3,
-        "frontRight": -0.3,
+        "frontRight": 0.3,
         "backLeft": -0.3,
-        "backRight": -0.3
+        "backRight": 0.3
       },
       "say": "Step 2: turn 90"
     },
@@ -41,9 +45,9 @@
       "atMs": 7400,
       "motors": {
         "frontLeft": 0.3,
-        "frontRight": -0.3,
+        "frontRight": 0.3,
         "backLeft": 0.3,
-        "backRight": -0.3
+        "backRight": 0.3
       },
       "say": "Step 3: find blue"
     },

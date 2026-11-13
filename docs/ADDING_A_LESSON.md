@@ -114,6 +114,10 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 Each step sets motor powers (and `servos`, if you need them) at a time. `say` is the caption under
 the field.
 
+On the mecanum robot, add `"reverse": ["frontRight", "backRight"]` when the lesson's code
+reverses that side, and write the same powers the lesson's code passes to `setPower`. The
+readout then shows the positive powers and encoder counts the kid's own program will.
+
 ### hints.json
 
 ```json

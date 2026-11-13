@@ -16,6 +16,10 @@ export interface WatchStep {
 
 export interface WatchSpec {
   robot: RobotKind;
+  /** Motors set to Direction.REVERSE for the whole demo, as the lesson's own code does.
+      Powers in the steps are then what that code passes to setPower, so the readout
+      shows the same positive numbers the kid's program will. */
+  reverse?: string[];
   start?: RobotPose;
   durationMs: number;
   withElements?: boolean;
@@ -34,6 +38,10 @@ export function playWatch(spec: WatchSpec): WatchFrame[] {
     ...(spec.start ? { start: spec.start } : {}),
     ...(spec.withElements === false ? { withElements: false } : {}),
   });
+  for (const name of spec.reverse ?? []) {
+    const m = sim.motor(name);
+    if (m) m.reversed = true;
+  }
   const steps = [...spec.steps].sort((a, b) => a.atMs - b.atMs);
   const frames: WatchFrame[] = [];
   let next = 0;
