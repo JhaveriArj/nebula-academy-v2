@@ -16,7 +16,7 @@ public class FirstVariable extends LinearOpMode {
 
         // TODO 1: make an int called driveTime and set it to 1500.
 
-        // TODO 2: print driveTime so you can see it in the console.
+        // TODO 2: show driveTime on the Driver Station, then telemetry.update().
 
         leftDrive.setPower(0.5);
         rightDrive.setPower(0.5);

@@ -10,7 +10,7 @@ explorerLockedRanges: [[1, 15]]
 
 ## Mission
 
-The robot drives a square and comes back to where it started, then prints your name three times.
+The robot drives a square and comes back to where it started, then signs its work with your name.
 
 ## Watch
 
@@ -38,11 +38,11 @@ It is also fragile. Timed turns drift with battery charge, floor grip and robot 
 
 The starter has four TODO comments telling you exactly what to write. Build one side and one turn first, press Run, and watch the robot do a quarter of the square.
 
-Once that works, copy those lines three more times. Then print your own name three times at the end.
+Once that works, copy those lines three more times. Then sign your work at the end: `telemetry.addData("Pilot", "Sam");` with your own name in place of Sam, and then `telemetry.update();` to send it to the Driver Station.
 
 ## Check
 
-The checks want the robot to drive at least 200 cm in total, turn four corners, finish back near the start, and print the same name three times.
+The checks want the robot to drive at least 200 cm in total, turn four corners, finish back near the start, and show your name on the Driver Station.
 
 ## Boost
 

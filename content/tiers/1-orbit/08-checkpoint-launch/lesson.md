@@ -14,7 +14,7 @@ The robot counts down from ten and launches, unless the fuel is too low to go.
 
 ## Watch
 
-The console counts down, says Launch, and the robot drives away. Nothing happens on the field until the count reaches one.
+The Driver Station counts down, says Launch, and the robot drives away. Nothing happens on the field until the count reaches one.
 
 ## Learn
 
@@ -26,10 +26,10 @@ The shape is this:
 
 ```
 if (fuelLevel < threshold) {
-    print the abort line
+    show the abort line
 } else {
     count down
-    print Launch
+    show Launch
     drive
 }
 ```
@@ -38,7 +38,7 @@ The counting loop goes *down*, which is the one new thing. Start at 10, keep goi
 
 `for (int count = 10; count >= 1; count--)`
 
-Note `>=` rather than `>`. With `>` the loop would stop after 2 and never print 1.
+Note `>=` rather than `>`. With `>` the loop would stop after 2 and never show 1.
 
 Everything that happens on a successful launch lives inside the `else` block, so a low fuel level means the robot never moves at all.
 
@@ -47,20 +47,20 @@ This is the shape of every real autonomous: check a condition, then either do th
 
 The habit worth taking from this lesson is that the abort branch comes first and does the least. Being sure about code that does nothing takes less effort than being sure about code that does something complicated under pressure.
 
-Watch the off-by-one in the loop condition, because it is the most common loop bug there is. `count >= 1` gives you ten numbers, 10 down to 1. `count > 1` gives nine, stopping at 2. `count >= 0` gives eleven and prints a zero nobody asked for. When a loop does one too many or one too few, the condition is where to look first.
+Watch the off-by-one in the loop condition, because it is the most common loop bug there is. `count >= 1` gives you ten numbers, 10 down to 1. `count > 1` gives nine, stopping at 2. `count >= 0` gives eleven and shows a zero nobody asked for. When a loop does one too many or one too few, the condition is where to look first.
 :::
 
 ## Try
 
 Write the `if` and the `else`.
 
-Low fuel prints `Abort: fuel too low` and nothing else happens. Enough fuel counts down from 10 to 1, prints `Launch`, and drives at power `0.8` for 1500 milliseconds.
+Low fuel shows `Abort: fuel too low` and nothing else happens. Enough fuel counts down from 10 to 1, showing each number under the label `countdown` with a `sleep(500)` after it so the driver can read it, then shows `Launch` and drives at power `0.8` for 1500 milliseconds. Every message is a `telemetry` line followed by `telemetry.update();`.
 
 Test both: run it with `fuelLevel` at 90, then at 20, then put it back to 90.
 
 ## Check
 
-The checks want the numbers 10 down to 1 in order, the word `Launch`, and the robot driving at least 100 cm. Leave `fuelLevel` at 90 before you finish.
+The checks want the numbers 10 down to 1 in order on the Driver Station, the word `Launch`, and the robot driving at least 100 cm. Leave `fuelLevel` at 90 before you finish.
 
 ## Boost
 

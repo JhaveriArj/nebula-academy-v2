@@ -113,3 +113,23 @@ describe('break it on purpose: the answers are what the experiments really say',
     expect(r.results.filter((x) => x.type === 'telemetryContains').every((x) => !x.passed)).toBe(true);
   });
 });
+
+describe('telemetryInOrder and the launch countdown', () => {
+  const dir = '1-orbit/08-checkpoint-launch';
+  const solution = readFileSync(`content/tiers/${dir}/solution.java`, 'utf8');
+  const { spec } = lesson(dir);
+  const countdown = (src: string) => runLessonTests(src, spec).results[0]!;
+
+  it('passes a countdown from 10 to 1', () => {
+    const r = countdown(solution);
+    expect(r.passed, r.detail).toBe(true);
+  });
+
+  it('fails the same numbers counted up, and says where the order broke', () => {
+    const up = solution.replace('int count = 10; count >= 1; count--', 'int count = 1; count <= 10; count++');
+    expect(up).not.toBe(solution);
+    const r = countdown(up);
+    expect(r.passed).toBe(false);
+    expect(r.detail).toMatch(/never "countdown : 9" after that/);
+  });
+});

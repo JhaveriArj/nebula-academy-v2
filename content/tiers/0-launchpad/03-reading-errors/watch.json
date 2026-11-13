@@ -4,6 +4,6 @@
   "withElements": false,
   "durationMs": 1200,
   "steps": [
-    { "atMs": 0, "motors": { "leftDrive": 0, "rightDrive": 0 }, "say": "Parked. This one is all console." }
+    { "atMs": 0, "motors": { "leftDrive": 0, "rightDrive": 0 }, "say": "Parked. Watch the Driver Station." }
   ]
 }

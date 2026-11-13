@@ -16,7 +16,8 @@ public class Decimals extends LinearOpMode {
 
         double speed = 0.6;
 
-        System.out.println(speed);
+        telemetry.addData("speed", speed);
+        telemetry.update();
 
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);

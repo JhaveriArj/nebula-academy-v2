@@ -8,9 +8,9 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "1500",
-      "label": "driveTime is printed, and it holds 1500"
+      "label": "driveTime is on the Driver Station, and it holds 1500"
     },
     {
       "type": "robotMovedAtLeastCm",

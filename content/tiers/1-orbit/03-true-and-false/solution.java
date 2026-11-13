@@ -18,7 +18,8 @@ public class TrueAndFalse extends LinearOpMode {
 
         boolean fastEnough = speed > 0.5;
 
-        System.out.println(fastEnough);
+        telemetry.addData("fastEnough", fastEnough);
+        telemetry.update();
 
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);

@@ -16,7 +16,8 @@ public class FirstVariable extends LinearOpMode {
 
         int driveTime = 1500;
 
-        System.out.println(driveTime);
+        telemetry.addData("driveTime", driveTime);
+        telemetry.update();
 
         leftDrive.setPower(0.5);
         rightDrive.setPower(0.5);

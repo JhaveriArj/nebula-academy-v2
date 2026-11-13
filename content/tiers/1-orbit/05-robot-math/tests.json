@@ -8,14 +8,14 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputContains",
-      "text": "whole seconds: 1",
-      "label": "90 / 60 prints as 1, not 1.5"
+      "type": "telemetryMatches",
+      "pattern": "whole seconds ?: ?1$",
+      "label": "90 / 60 shows as 1, not 1.5"
     },
     {
-      "type": "outputContains",
-      "text": "left over: 30",
-      "label": "90 % 60 prints as 30"
+      "type": "telemetryMatches",
+      "pattern": "left over ?: ?30$",
+      "label": "90 % 60 shows as 30"
     },
     {
       "type": "robotWithinCmOf",

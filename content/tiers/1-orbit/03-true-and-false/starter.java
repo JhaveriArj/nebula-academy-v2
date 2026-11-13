@@ -18,7 +18,7 @@ public class TrueAndFalse extends LinearOpMode {
 
         // TODO 1: make a boolean called fastEnough that is true when speed is more than 0.5.
 
-        // TODO 2: print fastEnough.
+        // TODO 2: show fastEnough on the Driver Station, then telemetry.update().
 
         // TODO 3: change speed above so that fastEnough comes out true.
 

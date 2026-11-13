@@ -1,7 +1,7 @@
 {
   "hints": [
     "Each broken program is shown right above its TODO, with the error underneath it. Read the error first, then look at the code above it.",
-    "Four of the five are one line each. Program 4 needs two lines: one to make the number, one to print it.",
-    "Program 1 is System.out.println(\"One\"); and program 5 is System.out.println(\"Five\".toUpperCase()); with the spelling of toUpperCase put right."
+    "Four of the five are one line each. Program 4 needs two lines: one to make the number, one to show it.",
+    "Program 1 is telemetry.addLine(\"One\"); and program 5 is telemetry.addLine(\"Five\".toUpperCase()); with the spelling of toUpperCase put right. They all go above the telemetry.update(); line."
   ]
 }

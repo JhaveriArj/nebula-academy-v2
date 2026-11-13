@@ -38,30 +38,31 @@ afternoon.
 **The loop that never ends.** Lesson 07, usually a `while` with no counter change. Nebula
 stops it and keeps their code. Point at the line that was supposed to change the value.
 
-**Off by one in the countdown.** Lesson 08: `count > 1` stops at 2, `count >= 0` prints a
+**Off by one in the countdown.** Lesson 08: `count > 1` stops at 2, `count >= 0` shows a
 zero. This is the single most common loop bug there is, forever, so name it.
 
 ## What to say when a kid is stuck
 
-- "What do you think is in that variable right now?" Then: "print it and find out."
+- "What do you think is in that variable right now?" Then: "put it on the Driver Station and find out."
 - "Read the loop out loud: start at what, keep going while what, change what?"
 - For a wrong number: "work out the first step on paper." Almost always finds it.
 - For `if`: "what would make that question false?" If they cannot answer, the condition is
   the bug.
-- Printing is the debugger. A kid who reaches for `System.out.println` unprompted has
+- Telemetry is the debugger. A kid who reaches for `telemetry.addData` unprompted has
   learned the most transferable thing in this tier.
 
 ## What this tier does not cover
 
-Methods, classes, objects, telemetry, the gamepad. If a kid is annoyed at copying eleven
+Methods, classes, objects, the gamepad, and telemetry beyond `addData`, `addLine` and
+`update` at the end of a run. If a kid is annoyed at copying eleven
 lines four times in lesson 07's Boost, that is Tier 2 and you can promise it.
 
 ## Checkpoint rubric: Launch sequence
 
 | | Not yet | Got it | Going further |
 |---|---|---|---|
-| **The countdown** | Prints some numbers, wrong order or wrong count | 10 down to 1, in order, then Launch | Counts down with a message that changes near zero |
-| **The abort** | Robot drives whatever the fuel is | Low fuel prints the abort and nothing moves | Abort says how much fuel is short |
+| **The countdown** | Shows some numbers, wrong order or wrong count | 10 down to 1, in order, then Launch | Counts down with a message that changes near zero |
+| **The abort** | Robot drives whatever the fuel is | Low fuel shows the abort and nothing moves | Abort says how much fuel is short |
 | **Using a variable** | Numbers typed in twice | One variable, used everywhere it should be | Named well enough to need no comment |
 | **Reading a loop** | Copies the loop line without reading it | Can say what each of the three parts does | Changed the loop to count up instead |
 

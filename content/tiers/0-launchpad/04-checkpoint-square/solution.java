@@ -64,9 +64,8 @@ public class SquareAndSignature extends LinearOpMode {
         leftDrive.setPower(0);
         rightDrive.setPower(0);
 
-        System.out.println("Sam");
-        System.out.println("Sam");
-        System.out.println("Sam");
+        telemetry.addData("Pilot", "Sam");
+        telemetry.update();
 
     }
 }

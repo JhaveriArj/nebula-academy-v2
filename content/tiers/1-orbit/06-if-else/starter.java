@@ -16,10 +16,11 @@ public class IfElse extends LinearOpMode {
 
         double distanceToWall = 150.0;
 
-        System.out.println("Checking the way ahead");
+        telemetry.addLine("Checking the way ahead");
+        telemetry.update();
 
-        // TODO: if distanceToWall is more than 100, print "Driving" and drive forward
-        //       for 2000 milliseconds at power 0.6. Otherwise print "Too close".
+        // TODO: if distanceToWall is more than 100, show "Driving" and drive forward
+        //       for 2000 milliseconds at power 0.6. Otherwise show "Too close".
 
     }
 }

@@ -20,7 +20,7 @@ will do), **Watch** (scripted sim demo), **Learn** (one idea), **Try** (starter 
 
 ## Tier 0 — Launchpad
 
-Tank robot · 4 lessons · the editor, Run, `System.out.println`, what an error is.
+Tank robot · 4 lessons · the editor, Run, `telemetry.addData`, what an error is.
 
 A kid who has never written a line of code presses Run in the first 60 seconds and the robot
 moves. Nothing is explained before it is seen.
@@ -30,10 +30,10 @@ moves. Nothing is explained before it is seen.
 | 01 | `t0-hello-robot` | Hello, robot | 10 | The starter already drives. Change one number, press Run, watch the robot go further. |
 | 02 | `t0-run-and-break-it` | Break it on purpose | 15 | Make three mistakes deliberately — drop a semicolon, misspell a name, delete a brace — and read what the robot says each time. |
 | 03 | `t0-reading-errors` | Reading errors | 15 | Five short broken programs. Fix each one using the line number in the message. |
-| 04 | `t0-checkpoint-square` | **Checkpoint: Square and signature** | 20 | Drive a square and print your name three times. |
+| 04 | `t0-checkpoint-square` | **Checkpoint: Square and signature** | 20 | Drive a square and sign it with your name on the Driver Station. |
 
 **Checkpoint passes when:** the robot returns within 15 cm of its start point having driven at
-least 240 cm total, and the output contains the kid's name three times.
+least 240 cm total, and the Driver Station shows the kid's name.
 
 ---
 
@@ -58,8 +58,8 @@ in 07's Boost (a loop inside a loop to drive a square) and are required by the 0
 nesting is taught in the place where a kid has a reason to want it rather than as its own
 abstract lesson.
 
-**Checkpoint passes when:** the output counts 10 down to 1 in order, a `fuelLevel` below the
-threshold prints an abort line and the robot never moves, and a sufficient `fuelLevel` drives the
+**Checkpoint passes when:** the Driver Station counts 10 down to 1 in order, a `fuelLevel` below the
+threshold shows an abort line and the robot never moves, and a sufficient `fuelLevel` drives the
 robot at least 100 cm.
 
 ---

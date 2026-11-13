@@ -8,7 +8,7 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputMatches",
+      "type": "telemetryMatches",
       "pattern": "Pilot \\S.* on mission 4",
       "label": "One line reads Pilot, your name, on mission 4"
     },

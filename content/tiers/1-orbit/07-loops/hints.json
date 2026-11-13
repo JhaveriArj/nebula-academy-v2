@@ -2,6 +2,6 @@
   "hints": [
     "The for loop line goes above the driving lines, and the closing brace goes below them.",
     "The line is for (int side = 1; side <= 4; side++) { and the eleven driving lines go inside it.",
-    "Add System.out.println(\"side \" + side); as the first line inside the loop, and do not forget the } after the last setPower line."
+    "Add telemetry.addData(\"side\", side); and telemetry.update(); as the first two lines inside the loop, and do not forget the } after the last setPower line."
   ]
 }

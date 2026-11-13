@@ -2,6 +2,6 @@
   "hints": [
     "The shape is in the Learn section. The condition asking whether there is room goes in the round brackets.",
     "Start with if (distanceToWall > 100) { and remember the matching } before else {.",
-    "Inside the first block go five lines: the println, both setPower(0.6), sleep(2000), and both setPower(0). The else block holds one println."
+    "Inside the first block go seven lines: telemetry.addLine(\"Driving\"); and telemetry.update(); then both setPower(0.6), sleep(2000), and both setPower(0). The else block holds the same two telemetry lines with \"Too close\"."
   ]
 }

@@ -18,13 +18,17 @@ public class LaunchSequence extends LinearOpMode {
         int threshold = 50;
 
         if (fuelLevel < threshold) {
-            System.out.println("Abort: fuel too low");
+            telemetry.addLine("Abort: fuel too low");
+            telemetry.update();
         } else {
             for (int count = 10; count >= 1; count--) {
-                System.out.println(count);
+                telemetry.addData("countdown", count);
+                telemetry.update();
+                sleep(500);
             }
 
-            System.out.println("Launch");
+            telemetry.addLine("Launch");
+            telemetry.update();
 
             leftDrive.setPower(0.8);
             rightDrive.setPower(0.8);

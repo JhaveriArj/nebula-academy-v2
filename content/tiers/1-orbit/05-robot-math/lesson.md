@@ -46,14 +46,14 @@ Note also the order. `cm * 1000 / 60` multiplies first, giving 90000, then divid
 
 ## Try
 
-Fill in the four TODO lines. Work out `driveMs`, print the whole seconds and the left over, then use `driveMs` in the `sleep` line.
+Fill in the four TODO lines. Work out `driveMs`, show the whole seconds and the left over on the Driver Station with `telemetry.addData` and `telemetry.update();`, then use `driveMs` in the `sleep` line.
 
 Press Run and watch where the robot stops.
 
 ## Check
 
-The checks want the robot to finish 90 cm up the field, and the console to read `whole seconds: 1` and `left over: 30`.
+The checks want the robot to finish 90 cm up the field, and the Driver Station to read `whole seconds : 1` and `left over : 30`.
 
 ## Boost
 
-Change `cm` to 150 and press Run. Then work out what `cm / 60` and `cm % 60` will print before you look.
+Change `cm` to 150 and press Run. Then work out what `cm / 60` and `cm % 60` will show before you look.

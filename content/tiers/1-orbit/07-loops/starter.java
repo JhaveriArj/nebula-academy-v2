@@ -16,7 +16,7 @@ public class Loops extends LinearOpMode {
 
         // One side and one corner, written out by hand.
         // TODO: wrap these eleven lines in a for loop that runs four times,
-        //       and print "side " joined to the side number each time round.
+        //       and show the side number on the Driver Station each time round.
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);
