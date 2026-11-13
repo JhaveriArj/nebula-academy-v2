@@ -39,7 +39,7 @@ export function programOf(sleepMs: number): Line[] {
   return [
     { n: 15, code: 'waitForStart();' },
     { n: 17, code: 'int speed = 1;' },
-    { n: 19, code: 'System.out.println("Starting up");' },
+    { n: 19, code: 'telemetry.addData("speed", speed);' },
     { n: 24, code: 'leftDrive.setPower(speed);', motor: 'leftDrive', power: 1 },
     { n: 25, code: 'rightDrive.setPower(speed);', motor: 'rightDrive', power: 1 },
     { n: 26, code: `sleep(${sleepMs});`, ms: sleepMs },

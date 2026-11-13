@@ -528,6 +528,25 @@ describe('the guard rails', () => {
     expect(r.ok).toBe(false);
   });
 
+  it('names the line of the runaway loop, even an empty one', () => {
+    const lineOf = (src: string, text: string) => src.split('\n').findIndex((l) => l.includes(text)) + 1;
+    const empty = tier0(`        int speed = 1;\n        while (true) { }\n        leftDrive.setPower(speed);`);
+    const r = run(empty);
+    expect(r.stopReason).toBe('steps');
+    expect(r.stopLine).toBe(lineOf(empty, 'while (true)'));
+
+    // A loop with a body is still reported at its while, not at a line inside it.
+    const nested = tier0(`        int x = 0;\n        for (int i = 0; i < 3; i++) {\n            while (x >= 0) {\n                x = x + 1;\n            }\n        }`);
+    expect(run(nested).stopLine).toBe(lineOf(nested, 'while (x >= 0)'));
+  });
+
+  it('names the line of the loop still going when sim time runs out', () => {
+    const src = tier0(`        while (opModeIsActive()) {\n            leftDrive.setPower(0.1);\n        }`);
+    const r = run(src, tankSim(), { maxSimMs: 2000 });
+    expect(r.stopReason).toBe('simTime');
+    expect(r.stopLine).toBe(src.split('\n').findIndex((l) => l.includes('while (opModeIsActive())')) + 1);
+  });
+
   it('catches a robot loop that runs forever in sim time', () => {
     const r = run(tier0(`        while (opModeIsActive()) { leftDrive.setPower(0.1); }`), tankSim(), {
       maxSimMs: 5000,

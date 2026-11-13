@@ -1,5 +1,9 @@
 {
   "robot": "mecanum",
+  "reverse": [
+    "frontRight",
+    "backRight"
+  ],
   "start": {
     "x": 182.88,
     "y": 91.44,
@@ -11,9 +15,9 @@
       "atMs": 0,
       "motors": {
         "frontLeft": 0.4,
-        "frontRight": -0.4,
+        "frontRight": 0.4,
         "backLeft": 0.4,
-        "backRight": -0.4
+        "backRight": 0.4
       },
       "say": "To the wall"
     },
@@ -26,9 +30,9 @@
       "atMs": 5000,
       "motors": {
         "frontLeft": -0.4,
-        "frontRight": -0.4,
+        "frontRight": 0.4,
         "backLeft": -0.4,
-        "backRight": -0.4
+        "backRight": 0.4
       },
       "say": "Turning, easing off"
     },
@@ -36,9 +40,9 @@
       "atMs": 6600,
       "motors": {
         "frontLeft": -0.08,
-        "frontRight": -0.08,
+        "frontRight": 0.08,
         "backLeft": -0.08,
-        "backRight": -0.08
+        "backRight": 0.08
       },
       "say": "Last degree"
     },

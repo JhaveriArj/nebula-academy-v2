@@ -10,7 +10,7 @@ public class WhatIsAnOpMode extends OpMode {
 
     @Override
     public void init() {
-        // TODO 1: print "Nebula ready" here, so you can see init run.
+        // TODO 1: show "Nebula ready" on the Driver Station, so you can see init run.
     }
 
     @Override
@@ -20,6 +20,7 @@ public class WhatIsAnOpMode extends OpMode {
 
     @Override
     public void stop() {
-        System.out.println("loop ran " + loops + " times");
+        telemetry.addData("loop ran", loops + " times");
+        telemetry.update();
     }
 }

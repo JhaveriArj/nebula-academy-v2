@@ -16,10 +16,10 @@ public class BreakItOnPurpose extends LinearOpMode {
 
         int speed = 1;
 
-        System.out.println("Starting up");
+        telemetry.addData("speed", speed);
 
-        // TODO: after each experiment, print the name of the error you saw.
-        // One line for each: semicolon, spelling, brace.
+        // Full power for one second,
+        // then stop.
 
         leftDrive.setPower(speed);
         rightDrive.setPower(speed);
@@ -27,5 +27,12 @@ public class BreakItOnPurpose extends LinearOpMode {
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);
+
+        // TODO: after each experiment, put the line number the robot
+        // named in place of the 0 on that experiment's line.
+        telemetry.addData("semicolon", 0);
+        telemetry.addData("spelling", 0);
+        telemetry.addData("brace", 0);
+        telemetry.update();
     }
 }

@@ -3,9 +3,9 @@
   "start": { "x": 182.88, "y": 30.48, "headingDeg": 0 },
   "withElements": false,
   "checks": [
-    { "type": "outputContains", "text": "semicolon", "label": "You printed semicolon" },
-    { "type": "outputContains", "text": "spelling", "label": "You printed spelling" },
-    { "type": "outputContains", "text": "brace", "label": "You printed brace" },
+    { "type": "telemetryContains", "text": "semicolon : 17", "label": "You wrote down the line the semicolon error named" },
+    { "type": "telemetryContains", "text": "spelling : 24", "label": "You wrote down the line the spelling error named" },
+    { "type": "telemetryContains", "text": "brace : 8", "label": "You wrote down the line the brace error named" },
     { "type": "robotMovedAtLeastCm", "cm": 60, "label": "The robot still drives afterwards" }
   ]
 }

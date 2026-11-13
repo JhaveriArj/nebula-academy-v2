@@ -87,10 +87,12 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 | `outputMatches` `{ pattern, flags? }` | The console output matches a regular expression. |
 | `robotMovedAtLeastCm` `{ cm }` | The robot travelled at least `cm` in total. |
 | `robotWithinCmOf` `{ x, y, tolerance }` | The robot ended within `tolerance` cm of (x, y). |
-| `robotHeadingWithin` `{ degrees, tolerance, relative? }` | The robot ended facing `degrees`, give or take `tolerance`. |
+| `robotHeadingWithin` `{ degrees, tolerance, relative? }` | The robot ended facing `degrees`, give or take `tolerance`. With `relative: true` it compares the total turn instead, with no wrap-around (standing still is 360 short of a full turn); a whole number of turns may go either way. |
 | `motorPowerEverExceeded` `{ motor, power }` | That motor was given more than `power` at some point. |
 | `servoReached` `{ servo, position, tolerance? }` | That servo reached `position`. |
 | `telemetryHasKey` `{ key }` | The code sent telemetry with that caption. |
+| `telemetryContains` `{ text }` | A line the Driver Station showed (as `key : value`, after `telemetry.update()`) contains `text`. |
+| `telemetryMatches` `{ pattern, flags? }` | A line the Driver Station showed matches a regular expression. |
 | `methodExists` `{ name, params?, className? }` | The code declares that method. |
 | `classExists` `{ name, extends? }` | The code declares that class. |
 | `ranUnder` `{ ms }` | The whole run finished in under `ms` of robot time. |
@@ -113,6 +115,10 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 
 Each step sets motor powers (and `servos`, if you need them) at a time. `say` is the caption under
 the field.
+
+On the mecanum robot, add `"reverse": ["frontRight", "backRight"]` when the lesson's code
+reverses that side, and write the same powers the lesson's code passes to `setPower`. The
+readout then shows the positive powers and encoder counts the kid's own program will.
 
 ### hints.json
 

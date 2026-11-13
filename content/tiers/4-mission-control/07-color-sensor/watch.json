@@ -1,5 +1,9 @@
 {
   "robot": "mecanum",
+  "reverse": [
+    "frontRight",
+    "backRight"
+  ],
   "start": {
     "x": 40,
     "y": 250,
@@ -12,9 +16,9 @@
       "atMs": 0,
       "motors": {
         "frontLeft": 0.3,
-        "frontRight": -0.3,
+        "frontRight": 0.3,
         "backLeft": 0.3,
-        "backRight": -0.3
+        "backRight": 0.3
       },
       "say": "Creeping, watching the floor"
     },

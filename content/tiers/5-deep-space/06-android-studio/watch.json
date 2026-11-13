@@ -1,5 +1,9 @@
 {
   "robot": "mecanum",
+  "reverse": [
+    "frontRight",
+    "backRight"
+  ],
   "start": {
     "x": 182.88,
     "y": 91.44,
@@ -12,9 +16,9 @@
       "atMs": 0,
       "motors": {
         "frontLeft": 1,
-        "frontRight": -1,
+        "frontRight": 1,
         "backLeft": 1,
-        "backRight": -1
+        "backRight": 1
       },
       "say": "Forward"
     },
@@ -22,9 +26,9 @@
       "atMs": 1000,
       "motors": {
         "frontLeft": 1,
-        "frontRight": 1,
+        "frontRight": -1,
         "backLeft": -1,
-        "backRight": -1
+        "backRight": 1
       },
       "say": "Strafe"
     },

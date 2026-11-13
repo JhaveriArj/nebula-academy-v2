@@ -202,6 +202,11 @@ class Interpreter implements MockContext {
   /** When a TeleOp is scheduled to end. Reaching it is a normal finish, not a runaway. */
   private teleOpDeadlineMs: number | null = null;
   private stopLine = 1;
+  /** Lines of the loops running right now, innermost last. A runaway is reported at the
+      loop that was spinning, not at whatever line happened to run last. */
+  private loopLines: number[] = [];
+  /** The innermost loop when the sim ran out of time, for the simTime message. */
+  private simExhaustedLine: number | null = null;
   private builtins = new Map<string, JValue>();
   private enumCache = new Map<string, Map<string, JValue>>();
   private rngState: number;
@@ -342,7 +347,9 @@ class Interpreter implements MockContext {
   }
 
   private simExhausted(): boolean {
-    return this.sim.timeMs >= this.simCap;
+    const out = this.sim.timeMs >= this.simCap;
+    if (out && this.simExhaustedLine === null) this.simExhaustedLine = this.limitLine;
+    return out;
   }
 
   private teleOpOver(): boolean {
@@ -356,16 +363,22 @@ class Interpreter implements MockContext {
     this.sim.step();
   }
 
+  /** Where a runaway is reported: the innermost running loop, else the current line. */
+  private get limitLine(): number {
+    return this.loopLines[this.loopLines.length - 1] ?? this.line;
+  }
+
   private spend(): void {
     this.steps++;
     if (this.steps > this.limits.maxSteps) {
-      throw new ExecutionLimit('steps', this.line, this.stackTrace());
+      throw new ExecutionLimit('steps', this.limitLine, this.stackTrace());
     }
     if ((this.steps & 0x3ff) === 0) {
-      if (Date.now() > this.deadline) throw new ExecutionLimit('time', this.line, this.stackTrace());
+      if (Date.now() > this.deadline) throw new ExecutionLimit('time', this.limitLine, this.stackTrace());
       if (this.cancelled()) throw new ExecutionLimit('stopped', this.line, this.stackTrace());
     }
   }
+
 
   private stackTrace(): string[] {
     return [...this.frames]
@@ -435,7 +448,10 @@ class Interpreter implements MockContext {
       }
     }
 
-    if (stopReason === 'finished' && this.simExhausted()) stopReason = 'simTime';
+    if (stopReason === 'finished' && this.simExhausted()) {
+      stopReason = 'simTime';
+      this.stopLine = this.simExhaustedLine ?? this.line;
+    }
 
     return {
       ...base,
@@ -445,6 +461,7 @@ class Interpreter implements MockContext {
       stopReason,
       entry,
       steps: this.steps,
+      stopLine: this.stopLine,
     };
   }
 
@@ -787,6 +804,19 @@ class Interpreter implements MockContext {
   }
 
   private exec(stmt: A.Stmt, frame: Frame, env: Env): void {
+    if (stmt.t === 'while' || stmt.t === 'doWhile' || stmt.t === 'for' || stmt.t === 'forEach') {
+      this.loopLines.push(stmt.line);
+      try {
+        this.execStmt(stmt, frame, env);
+      } finally {
+        this.loopLines.pop();
+      }
+      return;
+    }
+    this.execStmt(stmt, frame, env);
+  }
+
+  private execStmt(stmt: A.Stmt, frame: Frame, env: Env): void {
     this.spend();
     frame.line = stmt.line;
 

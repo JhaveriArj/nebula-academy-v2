@@ -147,6 +147,8 @@ export class Simulation {
   distanceTravelledCm = 0;
   /** Net heading change, signed, for robotHeadingWithin on a turn. */
   headingChangeDeg = 0;
+  /** True when the last step drove the robot into the field edge and the edge held it. */
+  hitWall = false;
 
   /** The imu's zero point; resetYaw() moves it to the current heading. */
   private yawOffsetDeg = 0;
@@ -256,7 +258,8 @@ export class Simulation {
     this.yawOffsetDeg = this.pose.headingDeg;
   }
 
-  /** Forward-facing distance sensor, measured from the front face. Capped like a 2M sensor. */
+  /** Forward-facing distance sensor, measured from the front face. Capped like a 2M sensor.
+      The real gap: pressed against a wall it reads 0, not past the wall. */
   distanceCm(): number {
     const MAX = 200;
     const rad = toRad(this.pose.headingDeg);
@@ -276,7 +279,7 @@ export class Simulation {
       const denom = fx * nx + fy * ny;
       if (denom <= 1e-9) continue;
       const t = nx !== 0 ? (wall - ox) / fx : (wall - oy) / fy;
-      if (t > 0 && t < best) best = t;
+      if (t >= -1e-9 && t < best) best = Math.max(0, t);
     }
     // Elements, as circles.
     for (const e of this.elements) {
@@ -367,19 +370,19 @@ export class Simulation {
     let vForward = 0;
     let vStrafe = 0;
     let omega = 0;
+    const drive = this.kind === 'tank' ? TANK_MOTORS : MECANUM_MOTORS;
+    const wheels = Object.fromEntries(drive.map((n) => [n, wheel(n)])) as Record<string, number>;
 
     if (this.kind === 'tank') {
-      const l = wheel('leftDrive');
-      const r = wheel('rightDrive');
+      const l = wheels['leftDrive']!;
+      const r = wheels['rightDrive']!;
       vForward = (l + r) / 2;
       omega = (r - l) / trackCm; // rad/s, counter-clockwise positive
-      this.accumulateTicks('leftDrive', l, dt);
-      this.accumulateTicks('rightDrive', r, dt);
     } else {
-      const fl = wheel('frontLeft');
-      const fr = wheel('frontRight');
-      const bl = wheel('backLeft');
-      const br = wheel('backRight');
+      const fl = wheels['frontLeft']!;
+      const fr = wheels['frontRight']!;
+      const bl = wheels['backLeft']!;
+      const br = wheels['backRight']!;
       // Inverse of the mecanum mixing taught in Tier 3 lesson 08:
       //   frontLeft = drive + strafe + turn   frontRight = drive - strafe - turn
       //   backLeft  = drive - strafe + turn   backRight  = drive + strafe - turn
@@ -387,10 +390,6 @@ export class Simulation {
       vStrafe = ((fl - fr - bl + br) / 4) * strafeEff;
       const turnCw = (fl - fr + bl - br) / 4;
       omega = -turnCw / trackCm;
-      this.accumulateTicks('frontLeft', fl, dt);
-      this.accumulateTicks('frontRight', fr, dt);
-      this.accumulateTicks('backLeft', bl, dt);
-      this.accumulateTicks('backRight', br, dt);
     }
 
     // Arm, with the encoder limits Tier 5 lesson 01 is about.
@@ -423,7 +422,25 @@ export class Simulation {
     this.pose.headingDeg = normalizeDeg(this.pose.headingDeg + (omega * dt * 180) / Math.PI);
 
     this.pushElements();
+    const wantedX = this.pose.x;
+    const wantedY = this.pose.y;
     this.clampToField();
+    this.hitWall = wantedX !== this.pose.x || wantedY !== this.pose.y;
+
+    // Pressed against the wall, the wheels cannot turn freely, so the encoders count
+    // the movement the robot actually made. Whatever the wall took away from the forward
+    // and sideways speed is taken back off each wheel; a free robot is untouched.
+    if (this.hitWall) {
+      const lostX = (wantedX - this.pose.x) / dt;
+      const lostY = (wantedY - this.pose.y) / dt;
+      const lostForward = lostX * fx + lostY * fy;
+      const lostStrafe = strafeEff > 0 ? (lostX * rx + lostY * ry) / strafeEff : 0;
+      const strafeSign: Record<string, number> = { frontLeft: 1, frontRight: -1, backLeft: -1, backRight: 1 };
+      for (const n of drive) {
+        wheels[n] = wheels[n]! - lostForward - (strafeSign[n] ?? 0) * lostStrafe;
+      }
+    }
+    for (const n of drive) this.accumulateTicks(n, wheels[n]!, dt);
 
     this.distanceTravelledCm += Math.hypot(this.pose.x - beforeX, this.pose.y - beforeY);
     this.headingChangeDeg += angleDelta(beforeHeading, this.pose.headingDeg);
@@ -446,8 +463,9 @@ export class Simulation {
     const m = this.motors.get(name);
     if (!m) return;
     const travelled = wheelCmS * dt;
-    // The encoder counts in the motor's own frame, so both the REVERSE flag and the
-    // mirrored mounting have to be undone to get back to what the motor itself turned.
+    // getCurrentPosition() reports in the motor's logical direction, as the real SDK does:
+    // undo the mirrored mounting to get what the shaft turned, then the REVERSE flag, so a
+    // reversed motor driving the robot forward on setPower(0.4) counts up, not down.
     const toMotorFrame = (m.reversed ? -1 : 1) * (m.mountInverted ? -1 : 1);
     m.ticks += travelled * TICKS_PER_CM * toMotorFrame;
   }
@@ -490,6 +508,8 @@ export class Simulation {
       headingChangeDeg: this.headingChangeDeg,
       yawDeg: this.yawDeg(),
       distanceCm: this.distanceCm(),
+      /** The robot is pressed against the field edge right now, so the UI can say so. */
+      hitWall: this.hitWall,
       tile: this.tileUnderRobot(),
       motors: Object.fromEntries(
         [...this.motors].map(([n, m]) => [

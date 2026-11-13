@@ -9,13 +9,13 @@
   "teleOpForMs": 2000,
   "checks": [
     {
-      "type": "outputContains",
-      "text": "Nebula ready",
-      "label": "init printed the ready line"
+      "type": "telemetryContains",
+      "text": "Status : Nebula ready",
+      "label": "init showed the ready line"
     },
     {
-      "type": "outputMatches",
-      "pattern": "loop ran [0-9]{2,} times",
+      "type": "telemetryMatches",
+      "pattern": "loop ran : [0-9]{2,} times",
       "label": "loop ran many times, and loops counted them"
     }
   ]

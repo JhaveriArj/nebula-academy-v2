@@ -10,7 +10,7 @@ explorerLockedRanges: [[1, 16]]
 
 ## Mission
 
-Your program finds all four drive motors by name and reports that the first one answered.
+Your program finds all four drive motors by name and tells the Driver Station the first one is ready.
 
 ## Watch
 
@@ -44,13 +44,13 @@ The fields are declared at the top and filled in during `init`. Between the prog
 
 ## Try
 
-Write the four `hardwareMap.get` lines in `init`, then print the first motor's name followed by ` ready`.
+Write the four `hardwareMap.get` lines in `init`. Then show `frontLeft : ready` on the Driver Station with `telemetry.addData("frontLeft", "ready");` followed by `telemetry.update();`.
 
 Copy the first line and change the name in two places for each of the others. The variable name and the text in quote marks are the same word.
 
 ## Check
 
-The checks want `frontLeft ready` in the console. That only works if the motor was really found.
+The checks want `frontLeft : ready` on the Driver Station. Your program only gets that far if every motor was really found, because a name that does not match stops it first.
 
 ## Boost
 

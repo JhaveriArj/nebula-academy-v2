@@ -17,6 +17,8 @@ export type Check =
   | { type: 'motorPowerEverExceeded'; motor: string; power: number; label?: string }
   | { type: 'servoReached'; servo: string; position: number; tolerance?: number; label?: string }
   | { type: 'telemetryHasKey'; key: string; label?: string }
+  | { type: 'telemetryContains'; text: string; label?: string }
+  | { type: 'telemetryMatches'; pattern: string; flags?: string; label?: string }
   | { type: 'methodExists'; name: string; params?: number; className?: string; label?: string }
   | { type: 'classExists'; name: string; extends?: string; label?: string }
   | { type: 'ranUnder'; ms: number; label?: string };
@@ -176,7 +178,15 @@ function evaluate(
 
     case 'robotHeadingWithin': {
       const actual = check.relative ? sim.headingChangeDeg : sim.pose.headingDeg;
-      const off = Math.abs(normalizeDeg(actual - check.degrees));
+      // A relative turn is the total the robot turned, so standing still is 360 short of
+      // one full turn, not on target. Only a compass heading wraps around. Whole turns
+      // name no direction, so four right-hand corners count as much as four left-hand ones.
+      const wholeTurns = check.degrees !== 0 && check.degrees % 360 === 0;
+      const off = !check.relative
+        ? Math.abs(normalizeDeg(actual - check.degrees))
+        : wholeTurns
+          ? Math.abs(Math.abs(actual) - Math.abs(check.degrees))
+          : Math.abs(actual - check.degrees);
       return ok(
         check.relative
           ? `The robot turns ${check.degrees} degrees`
@@ -216,6 +226,34 @@ function evaluate(
           ? `Telemetry showed: ${[...sim.telemetryKeysSeen].join(', ')}.`
           : 'Telemetry never showed anything. Remember telemetry.update().',
       );
+
+    case 'telemetryContains': {
+      // Lines as the Driver Station shows them, "key : value", over every update().
+      const hit = sim.telemetryLog.some((line) => line.includes(check.text));
+      const last = sim.telemetry.map((t) => (t.key ? `${t.key} : ${t.value}` : t.value));
+      return ok(
+        `Telemetry shows "${check.text}"`,
+        hit,
+        hit
+          ? `Found it on the Driver Station.`
+          : last.length
+            ? `The Driver Station showed: ${last.join(' / ')}.`
+            : 'Telemetry never showed anything. Remember telemetry.update().',
+      );
+    }
+
+    case 'telemetryMatches': {
+      const re = new RegExp(check.pattern, check.flags ?? '');
+      const hit = sim.telemetryLog.some((line) => re.test(line));
+      const last = sim.telemetry.map((t) => (t.key ? `${t.key} : ${t.value}` : t.value));
+      return ok(
+        `Telemetry matches ${check.pattern}`,
+        hit,
+        last.length
+          ? `The Driver Station showed: ${last.join(' / ')}.`
+          : 'Telemetry never showed anything. Remember telemetry.update().',
+      );
+    }
 
     case 'methodExists': {
       const classes = allTypes(ast).filter((t) => !check.className || t.name === check.className);
@@ -292,6 +330,7 @@ const firstLines = (s: string, n = 3) =>
 /** Every check type this runner implements. tests/content.test.ts validates against it. */
 export const CHECK_TYPES: CheckType[] = [
   'outputContains', 'outputMatches', 'robotMovedAtLeastCm', 'robotWithinCmOf',
-  'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey',
+  'robotHeadingWithin', 'motorPowerEverExceeded', 'servoReached', 'telemetryHasKey', 'telemetryContains',
+  'telemetryMatches',
   'methodExists', 'classExists', 'ranUnder',
 ];

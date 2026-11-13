@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Simulation, TICKS_PER_CM, normalizeDeg, MAX_LINES, MAX_LINE, ticksDue } from '../src/sim/simulation';
 import { FIELD_CM, ROBOT_HALF, TILE_CM } from '../src/sim/field';
+import { playWatch } from '../src/sim/watch';
 
 const tank = () => new Simulation({ robot: 'tank', start: { x: 182.88, y: 30.48, headingDeg: 0 } });
 /* The mecanum robot's right-hand motors are mounted mirrored, exactly as on a real
@@ -186,6 +187,75 @@ describe('the field holds the robot', () => {
     s.setMotorPower('rightDrive', 1);
     s.advance(20000);
     expect(s.pose.y).toBeCloseTo(FIELD_CM - ROBOT_HALF, 3);
+  });
+
+  it('pinned against the wall: the sensor reads the real gap, encoders stop, hitWall is set', () => {
+    // Lesson 1 with sleep(10000): half power drives far enough to reach the top wall.
+    const s = new Simulation({ robot: 'tank', start: { x: 182.88, y: 30.48, headingDeg: 0 }, withElements: false });
+    s.setMotorPower('leftDrive', 0.5);
+    s.setMotorPower('rightDrive', 0.5);
+    s.advance(2000);
+    expect(s.snapshot().hitWall).toBe(false);
+    s.advance(8000);
+    const travelled = FIELD_CM - ROBOT_HALF - 30.48;
+    expect(s.distanceTravelledCm).toBeCloseTo(travelled, 1);
+    expect(s.distanceCm()).toBeCloseTo(0, 6);
+    expect(s.snapshot().distanceCm).toBeCloseTo(0, 6);
+    expect(s.motor('leftDrive')!.ticks).toBeCloseTo(travelled * TICKS_PER_CM, 0);
+    expect(s.snapshot().hitWall).toBe(true);
+
+    // Backing off frees it: the notice goes and the encoders count again.
+    s.setMotorPower('leftDrive', -0.5);
+    s.setMotorPower('rightDrive', -0.5);
+    s.advance(1000);
+    expect(s.snapshot().hitWall).toBe(false);
+    expect(s.motor('leftDrive')!.ticks).toBeCloseTo((travelled - 50) * TICKS_PER_CM, 0);
+    expect(s.distanceCm()).toBeCloseTo(50, 1);
+  });
+
+  it('a mecanum robot strafing into a side wall stops counting too', () => {
+    const s = new Simulation({ robot: 'mecanum', start: { x: FIELD_CM - ROBOT_HALF - 10, y: 182.88, headingDeg: 0 }, withElements: false });
+    s.motor('frontRight')!.reversed = true;
+    s.motor('backRight')!.reversed = true;
+    // Strafe right: frontLeft and backRight forward, the other two back.
+    s.setMotorPower('frontLeft', 1);
+    s.setMotorPower('frontRight', -1);
+    s.setMotorPower('backLeft', -1);
+    s.setMotorPower('backRight', 1);
+    s.advance(3000);
+    expect(s.pose.x).toBeCloseTo(FIELD_CM - ROBOT_HALF, 6);
+    expect(s.snapshot().hitWall).toBe(true);
+    const wheelCm = 10 / 0.85; // wheels slip on a strafe, so they turn more than the robot moves
+    expect(s.motor('frontLeft')!.ticks).toBeCloseTo(wheelCm * TICKS_PER_CM, -1);
+    expect(s.motor('frontRight')!.ticks).toBeCloseTo(-wheelCm * TICKS_PER_CM, -1);
+  });
+
+  it('a watch demo can reverse motors, so its readout matches the lesson code', () => {
+    const frames = playWatch({
+      robot: 'mecanum',
+      reverse: ['frontRight', 'backRight'],
+      start: { x: 182.88, y: 91.44, headingDeg: 0 },
+      withElements: false,
+      durationMs: 1000,
+      steps: [{ atMs: 0, motors: { frontLeft: 0.4, frontRight: 0.4, backLeft: 0.4, backRight: 0.4 } }],
+    });
+    const last = frames[frames.length - 1]!.snapshot;
+    expect(last.pose.y).toBeGreaterThan(91.44 + 40);
+    expect(last.pose.headingDeg).toBeCloseTo(0, 6);
+    expect(last.motors['frontRight']!.power).toBe(0.4);
+    expect(last.motors['frontRight']!.ticks).toBeGreaterThan(0);
+  });
+
+  it('reversed motors report logical power and ticks while the wheels still drive forward', () => {
+    const s = mec();
+    for (const m of ['frontLeft', 'frontRight', 'backLeft', 'backRight']) s.setMotorPower(m, 0.4);
+    s.advance(1000);
+    expect(s.pose.y).toBeGreaterThan(182.88 + 40);
+    const snap = s.snapshot();
+    for (const m of ['frontLeft', 'frontRight', 'backLeft', 'backRight']) {
+      expect(snap.motors[m]!.power, m).toBe(0.4);
+      expect(snap.motors[m]!.ticks, m).toBeGreaterThan(0);
+    }
   });
 
   it('pushes a game element rather than passing through it', () => {

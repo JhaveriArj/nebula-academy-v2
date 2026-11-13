@@ -1,7 +1,7 @@
 {
   "hints": [
-    "You need three lines, and they go where the TODO comment is. Each one prints a single word.",
-    "Printing uses System.out.println with the word in double quotes, like the Starting up line above.",
-    "The three lines are: System.out.println(\"semicolon\"); then the same with \"spelling\", then \"brace\"."
+    "Do the three experiments one at a time. Each time, look for the line number in what the robot says, then put the code back the way it was.",
+    "The number goes where the 0 is, on the telemetry line with the same name as the experiment. Keep the comma and the quote marks as they are.",
+    "The semicolon error and the spelling error name the lines you changed. The brace error names the line where the { it was closing opens, near the top."
   ]
 }
