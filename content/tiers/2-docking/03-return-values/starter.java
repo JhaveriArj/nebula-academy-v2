@@ -19,7 +19,7 @@ public class ReturnValues extends LinearOpMode {
 
         int cm = 90;
 
-        // TODO 2: print "driving for " joined to msForCm(cm) joined to " ms"
+        // TODO 2: show msForCm(cm) joined to " ms" on the Driver Station, labelled "driving for"
 
         // TODO 3: drive forward at power 0.6 for msForCm(cm) milliseconds, then stop.
 

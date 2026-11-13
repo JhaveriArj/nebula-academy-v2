@@ -88,7 +88,8 @@ public class NebulaAuto extends LinearOpMode {
         //         90 degrees, with kP of 0.012, clamped to 0.4 and a floor of 0.08,
         //         stopping once Math.abs(error) is under 1.0. Then robot.park().
 
-        // TODO 3: robot.closeClaw(), then print the pre-run checklist: a line
-        //         reading "Pre-run checklist" and then five numbered lines.
+        // TODO 3: robot.closeClaw(), then show the pre-run checklist on the Driver
+        //         Station: telemetry.addLine("Pre-run checklist"), then five numbered
+        //         lines like "1. Battery charged and clipped in", then telemetry.update().
     }
 }

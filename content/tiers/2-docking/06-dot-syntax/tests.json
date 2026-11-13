@@ -19,18 +19,18 @@
       "label": "Reporter has a describe method"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "team Nebula",
-      "label": "reporter.describe() was printed"
+      "label": "reporter.describe() is on the Driver Station"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "NEBULA",
-      "label": "toUpperCase() was printed"
+      "label": "toUpperCase() is on the Driver Station"
     },
     {
-      "type": "outputContains",
-      "text": "power was 0.6",
+      "type": "telemetryMatches",
+      "pattern": "power was( :)? 0\\.6",
       "label": "The motor was asked what power it had"
     },
     {

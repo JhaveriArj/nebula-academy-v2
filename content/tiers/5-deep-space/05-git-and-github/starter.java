@@ -24,10 +24,10 @@ public class GitCommands extends LinearOpMode {
 
         waitForStart();
 
-        // TODO: print the five git commands, in the order you would use them to
-        //       get your team's code onto GitHub for the first time:
-        //       clone, then status, then add, then commit, then push.
-        //       One per line, as plain text.
+        // TODO: show the five git commands on the Driver Station, in the order
+        //       you would use them to get your team's code onto GitHub for the
+        //       first time: clone, then status, then add, then commit, then push.
+        //       One telemetry.addLine each, like "git clone".
 
         telemetry.addData("status", "nothing to drive here");
         telemetry.update();

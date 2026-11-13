@@ -50,11 +50,11 @@ The real reason `opModeIsActive()` matters is the one from last lesson: a `sleep
 
 ## Try
 
-Two TODOs. Add `waitForStart()`, then print `Started` and wrap the driving in `if (opModeIsActive())`.
+Two TODOs. Add `waitForStart()`, then show `Started` as the `status` on telemetry and wrap the driving in `if (opModeIsActive())`.
 
 ## Check
 
-The checks want `Started` in the console and the robot driving at least 80 cm. Without `waitForStart`, the OpMode is never active and nothing moves.
+The checks want `Started` on the Driver Station and the robot driving at least 80 cm. Without `waitForStart`, the OpMode is never active and nothing moves.
 
 ## Boost
 

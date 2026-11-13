@@ -38,7 +38,6 @@ public class StateMachine extends OpMode {
                 if (gamepad1.a) {
                     state = State.DRIVE;
                     timer.reset();
-                    System.out.println("DRIVE");
                 }
                 break;
 
@@ -49,7 +48,6 @@ public class StateMachine extends OpMode {
                     park();
                     timer.reset();
                     state = State.TURN;
-                    System.out.println("TURN");
                 }
                 break;
 
@@ -59,7 +57,6 @@ public class StateMachine extends OpMode {
                 if (timer.seconds() > 0.8) {
                     park();
                     state = State.DONE;
-                    System.out.println("DONE");
                 }
                 break;
 

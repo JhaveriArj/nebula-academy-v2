@@ -36,7 +36,7 @@ A class is only a blueprint. It describes a mission plan; it is not one. Making 
 
 After that, each field is reached with a dot:
 
-`System.out.println(plan.name);`
+`telemetry.addData("name", plan.name);`
 
 You have been using fields already. `leftDrive` is a field of your OpMode, which is why the methods you wrote last lesson could see it.
 
@@ -50,13 +50,13 @@ Fields also give you somewhere to put state that has to survive between method c
 
 ## Try
 
-Give `MissionPlan` its three fields, print all three, and drive one side using `plan.sideSeconds`.
+Give `MissionPlan` its three fields, show all three on the Driver Station, and drive one side using `plan.sideSeconds`.
 
 The class sits inside your OpMode class, after `runOpMode`.
 
 ## Check
 
-The checks want a class called `MissionPlan`, the three values in the console, and the robot driving one side of about 60 cm.
+The checks want a class called `MissionPlan`, the plan's values on the Driver Station, and the robot driving one side of about 60 cm.
 
 ## Boost
 

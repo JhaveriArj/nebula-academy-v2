@@ -22,7 +22,7 @@ public class WaitingForTheWhistle extends LinearOpMode {
 
         // TODO 1: wait here until the driver presses PLAY.
 
-        // TODO 2: print "Started", then only if the OpMode is active,
+        // TODO 2: show "Started" as the status, then only if the OpMode is active,
         //         drive forward at 0.5 for 1500 ms and stop.
     }
 }

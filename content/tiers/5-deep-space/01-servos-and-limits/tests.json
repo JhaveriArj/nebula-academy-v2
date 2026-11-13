@@ -24,7 +24,7 @@
   ],
   "checks": [
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "arm at limit",
       "label": "The arm refuses to go past the top"
     },

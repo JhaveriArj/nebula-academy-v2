@@ -8,12 +8,12 @@
   "withElements": false,
   "checks": [
     {
-      "type": "outputMatches",
-      "pattern": "clone[\\s\\S]*status[\\s\\S]*add[\\s\\S]*commit[\\s\\S]*push",
+      "type": "telemetryInOrder",
+      "texts": ["git clone", "git status", "git add", "git commit", "git push"],
       "label": "The five commands are in the order you would use them"
     },
     {
-      "type": "outputContains",
+      "type": "telemetryContains",
       "text": "git clone",
       "label": "clone comes first, because you start by copying the code"
     },

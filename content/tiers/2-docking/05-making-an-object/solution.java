@@ -20,8 +20,9 @@ public class MakingAnObject extends LinearOpMode {
         MissionPlan square = new MissionPlan("Square", 4, 1.0);
         MissionPlan triangle = new MissionPlan("Triangle", 3, 1.4);
 
-        System.out.println(square.name);
-        System.out.println(triangle.name);
+        telemetry.addData("first plan", square.name);
+        telemetry.addData("second plan", triangle.name);
+        telemetry.update();
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);

@@ -23,8 +23,8 @@
   ],
   "checks": [
     {
-      "type": "outputMatches",
-      "pattern": "DRIVE\\s*TURN\\s*DONE",
+      "type": "telemetryInOrder",
+      "texts": ["state : DRIVE", "state : TURN", "state : DONE"],
       "label": "The three steps happen in order"
     },
     {

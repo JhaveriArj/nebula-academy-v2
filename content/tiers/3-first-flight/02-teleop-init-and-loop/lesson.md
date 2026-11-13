@@ -5,7 +5,7 @@ tier: 3
 minutes: 20
 concept: Setting up belongs in init, and watching belongs in loop.
 robot: mecanum
-explorerLockedRanges: [[1, 12]]
+explorerLockedRanges: [[1, 14]]
 ---
 
 ## Mission
@@ -14,7 +14,7 @@ Your program counts its own loops and speaks up exactly once, when it reaches fi
 
 ## Watch
 
-Still quiet on the field. Watch the console for the one line that appears part way through.
+Still quiet on the field. Watch the Driver Station for the one line that changes part way through.
 
 ## Learn
 
@@ -35,14 +35,14 @@ Because `loop` runs again and again, an `if` inside it fires on whichever pass m
 ```
 loops++;
 if (loops == 50) {
-    System.out.println("50 loops");
+    message = "50 loops";
 }
 ```
 
-That prints once, on the fiftieth pass, and never again.
+That changes `message` once, on the fiftieth pass, and never again. Telemetry shows it from then on.
 
 :::why
-`loops == 50` printing exactly once is worth stopping on, because it is the shape of every button press you will ever handle.
+`loops == 50` being true on exactly one pass is worth stopping on, because it is the shape of every button press you will ever handle.
 
 Think about what happens with `if (gamepad1.a) { count++; }`. A human holds a button for maybe a fifth of a second, which is ten passes of `loop`, so `count` goes up by ten from one press. Nearly every team hits this and concludes the gamepad is broken.
 
@@ -58,14 +58,14 @@ That is called edge detection, and the reason it needs a field is the reason thi
 
 ## Try
 
-Set `loops` to `0` in `init`, then in `loop` add one to it and print `50 loops` when it reaches exactly 50.
+Set `loops` to `0` in `init`, then in `loop` add one to it and set `message` to `"50 loops"` when it reaches exactly 50. The telemetry lines are already written.
 
 Use `==` for the comparison, not `=`.
 
 ## Check
 
-The checks want `50 loops` in the console, exactly as written.
+The checks want `message : 50 loops` on the Driver Station, exactly as written.
 
 ## Boost
 
-Change `==` to `>=` and press Run. How many lines do you get now, and why so many?
+Put `telemetry.addLine("fifty!");` inside the `if` and press Run. Blink and you miss it: telemetry is built fresh every pass, so that line is there for one pass, a fiftieth of a second. Now change `==` to `>=`. Why does it stay?

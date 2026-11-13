@@ -33,11 +33,11 @@ public class StateMachine extends OpMode {
 
     @Override
     public void loop() {
-        // TODO: write the switch. In IDLE, pressing A moves to DRIVE, resets the
-        //       timer and prints "DRIVE". In DRIVE, drive(0.5) until the timer
-        //       passes 1.0, then park, reset, move to TURN and print "TURN".
-        //       In TURN, spinLeft(0.3) until the timer passes 0.8, then park,
-        //       move to DONE and print "DONE". In DONE, park.
+        // TODO: write the switch. In IDLE, pressing A moves to DRIVE and resets
+        //       the timer. In DRIVE, drive(0.5) until the timer passes 1.0, then
+        //       park, reset and move to TURN. In TURN, spinLeft(0.3) until the
+        //       timer passes 0.8, then park and move to DONE. In DONE, park.
+        //       The telemetry below shows each state as you reach it.
 
         telemetry.addData("state", state);
         telemetry.update();

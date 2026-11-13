@@ -36,7 +36,7 @@ Now the method's name stands in for its answer, anywhere a number would go:
 
 `sleep(msForCm(90));`
 
-The robot runs `msForCm(90)`, gets 1500, and uses that. You can print it, store it in a variable, or feed it to another method.
+The robot runs `msForCm(90)`, gets 1500, and uses that. You can show it on the Driver Station, store it in a variable, or feed it to another method.
 
 Forget the `return` and Java stops you with `missing return statement`, because you promised an `int`.
 
@@ -50,11 +50,11 @@ Watch the integer division in there, because it is the same trap as Tier 1 lesso
 
 ## Try
 
-Write `msForCm` so it takes an `int cm` and returns an `int`. Then print the answer, and use it in the `sleep`.
+Write `msForCm` so it takes an `int cm` and returns an `int`. Then show the answer on the Driver Station with `telemetry.addData` and `telemetry.update()`, and use it in the `sleep`.
 
 ## Check
 
-The checks want a method called `msForCm` that takes one value, the console reading `driving for 1500 ms`, and the robot finishing 90 cm up the field.
+The checks want a method called `msForCm` that takes one value, the Driver Station reading `driving for : 1500 ms`, and the robot finishing 90 cm up the field.
 
 ## Boost
 

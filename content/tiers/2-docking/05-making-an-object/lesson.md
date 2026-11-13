@@ -55,13 +55,13 @@ This is also where `null` becomes real. A field you never fill holds `null`, whi
 
 ## Try
 
-Write the constructor, then build the two plans, print both names, and drive one side of the square.
+Write the constructor, then build the two plans, show both names on the Driver Station, and drive one side of the square.
 
 Remember `this.` on the left of each assignment in the constructor.
 
 ## Check
 
-The checks want both names in the console and the robot driving one side of about 60 cm.
+The checks want both names on the Driver Station and the robot driving one side of about 60 cm.
 
 ## Boost
 

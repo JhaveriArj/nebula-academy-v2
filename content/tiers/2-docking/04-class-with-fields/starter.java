@@ -17,8 +17,8 @@ public class ClassWithFields extends LinearOpMode {
 
         waitForStart();
 
-        // TODO 2: print the plan's name, then its sides, then its sideSeconds,
-        //         using plan.name, plan.sides and plan.sideSeconds.
+        // TODO 2: show plan.name, plan.sides and plan.sideSeconds on the Driver
+        //         Station, one telemetry.addData each, then telemetry.update().
 
         MissionPlan plan = new MissionPlan();
 

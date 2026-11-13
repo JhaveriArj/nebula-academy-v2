@@ -19,15 +19,16 @@ public class DotSyntax extends LinearOpMode {
 
         Reporter reporter = new Reporter("Nebula");
 
-        System.out.println(reporter.describe());
+        telemetry.addLine(reporter.describe());
 
-        System.out.println("Nebula".toUpperCase());
+        telemetry.addLine("Nebula".toUpperCase());
 
         leftDrive.setPower(0.6);
         rightDrive.setPower(0.6);
         sleep(1000);
 
-        System.out.println("power was " + leftDrive.getPower());
+        telemetry.addData("power was", leftDrive.getPower());
+        telemetry.update();
 
         leftDrive.setPower(0);
         rightDrive.setPower(0);

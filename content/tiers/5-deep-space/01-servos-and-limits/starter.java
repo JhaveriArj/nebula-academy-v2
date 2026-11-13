@@ -10,14 +10,12 @@ public class ArmLimits extends OpMode {
 
     private DcMotor armMotor;
     private Servo clawServo;
-    private boolean warned;
 
     @Override
     public void init() {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         clawServo.setPosition(0.0);
-        warned = false;
     }
 
     @Override
@@ -26,8 +24,8 @@ public class ArmLimits extends OpMode {
         int ticks = armMotor.getCurrentPosition();
 
         // TODO 1: if armPower is going up and ticks are already 1100 or more,
-        //         set armPower to 0. The first time that happens, print
-        //         "arm at limit" and set warned to true so it only prints once.
+        //         set armPower to 0 and show "arm at limit" with telemetry.addLine,
+        //         so the driver can see why the arm stopped.
         //         If armPower is going down and ticks are 50 or less, set it to 0.
 
         armMotor.setPower(armPower);

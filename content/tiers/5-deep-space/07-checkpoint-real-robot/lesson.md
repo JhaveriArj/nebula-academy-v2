@@ -10,11 +10,11 @@ explorerLockedRanges: [[1, 83]]
 
 ## Mission
 
-The autonomous drives to the wall, turns square, closes the claw and prints the checklist for running it on a real robot.
+The autonomous drives to the wall, turns square, closes the claw and shows the checklist for running it on a real robot.
 
 ## Watch
 
-To the wall, a measured turn, the claw. Then the checklist appears in the console.
+To the wall, a measured turn, the claw. Then the checklist appears on the Driver Station.
 
 ## Learn
 
@@ -22,7 +22,7 @@ This is the last one, and it is the shape of a real team's code.
 
 One `Hardware` class holds the wiring. It is written for you at the bottom of the file, because you built it in lesson 04. Both OpModes use it, so both get the same reversals, the same sensors and the same helper methods.
 
-The autonomous is two steps and a finish. Step one uses the distance sensor. Step two uses the **proportional control** turn from lesson 03. Then the claw closes and the checklist prints.
+The autonomous is two steps and a finish. Step one uses the distance sensor. Step two uses the **proportional control** turn from lesson 03. Then the claw closes and the checklist goes up on the Driver Station.
 
 Your TeleOp is the other half of the pair. Java allows one public class per file, so it goes in its own file, `NebulaTeleOp.java`, next to this one. The code is in the Try section below, ready to copy.
 
@@ -77,7 +77,7 @@ public class NebulaTeleOp extends OpMode {
 
 ## Check
 
-The checks want the robot stopped about 25 cm from the wall, facing 90 degrees within a few degrees, the claw closed, and the checklist printed.
+The checks want the robot stopped about 25 cm from the wall, facing 90 degrees within a few degrees, the claw closed, and the checklist on the Driver Station.
 
 ## Boost
 
