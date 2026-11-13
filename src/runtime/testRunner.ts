@@ -176,7 +176,15 @@ function evaluate(
 
     case 'robotHeadingWithin': {
       const actual = check.relative ? sim.headingChangeDeg : sim.pose.headingDeg;
-      const off = Math.abs(normalizeDeg(actual - check.degrees));
+      // A relative turn is the total the robot turned, so standing still is 360 short of
+      // one full turn, not on target. Only a compass heading wraps around. Whole turns
+      // name no direction, so four right-hand corners count as much as four left-hand ones.
+      const wholeTurns = check.degrees !== 0 && check.degrees % 360 === 0;
+      const off = !check.relative
+        ? Math.abs(normalizeDeg(actual - check.degrees))
+        : wholeTurns
+          ? Math.abs(Math.abs(actual) - Math.abs(check.degrees))
+          : Math.abs(actual - check.degrees);
       return ok(
         check.relative
           ? `The robot turns ${check.degrees} degrees`

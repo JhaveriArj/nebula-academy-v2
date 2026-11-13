@@ -87,7 +87,7 @@ Positions are in centimetres on a 12 ft (365.76 cm) field, with (0, 0) at the bo
 | `outputMatches` `{ pattern, flags? }` | The console output matches a regular expression. |
 | `robotMovedAtLeastCm` `{ cm }` | The robot travelled at least `cm` in total. |
 | `robotWithinCmOf` `{ x, y, tolerance }` | The robot ended within `tolerance` cm of (x, y). |
-| `robotHeadingWithin` `{ degrees, tolerance, relative? }` | The robot ended facing `degrees`, give or take `tolerance`. |
+| `robotHeadingWithin` `{ degrees, tolerance, relative? }` | The robot ended facing `degrees`, give or take `tolerance`. With `relative: true` it compares the total turn instead, with no wrap-around (standing still is 360 short of a full turn); a whole number of turns may go either way. |
 | `motorPowerEverExceeded` `{ motor, power }` | That motor was given more than `power` at some point. |
 | `servoReached` `{ servo, position, tolerance? }` | That servo reached `position`. |
 | `telemetryHasKey` `{ key }` | The code sent telemetry with that caption. |
