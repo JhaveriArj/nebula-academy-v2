@@ -1,0 +1,7 @@
+# Vercel builds from source; it needs none of these.
+/art/
+/.claude/
+/scratchpad/
+/coverage/
+/dist/
+node_modules/
